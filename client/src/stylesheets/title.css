@@ -1,0 +1,45 @@
+/* karate */
+
+@font-face {
+    font-family: "MyFont-karate";
+    src: url("../fonts/Karate.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .my-karate {
+    font-family: "MyFont-karate", sans-serif;
+  }
+
+  /* opentype */
+
+
+  /* mayan font */
+  @font-face {
+    font-family: "MyFont-mayan";
+    src: url("../fonts/Mayan.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .my-mayan {
+    font-family: "MyFont-mayan", sans-serif;
+  }
+
+  /* indian font */
+
+  @font-face {
+    font-family: "MyFont-ind";
+    src: url("../fonts/SAMAN___.TTF") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .my-india {
+    font-family: "MyFont-ind", sans-serif;
+  }
+
+
+
+
+

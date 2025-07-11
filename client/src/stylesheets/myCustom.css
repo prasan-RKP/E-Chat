@@ -1,0 +1,54 @@
+@font-face {
+    font-family: "MyFont-chick";
+    src: url("../src/fonts/CHICKEN\ Pie.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .my-chick {
+    font-family: "MyFont-chick", sans-serif;
+  }
+
+
+
+  /* pokemon  */
+  @font-face {
+    font-family: "MyFont-poke";
+    src: url("../src/fonts/Pokemon\ Solid.ttf") format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .my-poke {
+    font-family: "MyFont-poke", sans-serif;
+  }
+
+
+  /* strawberry */
+  @font-face {
+    font-family: "MyFont-straw";
+    src: url("../src/fonts/Strawberry\ Rounded\ free\ for\ personal\ use\ only.otf") format('opentype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .my-straw {
+    font-family: "MyFont-straw", sans-serif;
+  }
+
+
+  /* ghost1 */
+
+  @font-face {
+    font-family: "MyFont-ghost";
+    src: url("../src/fonts/Another\ Danger\ Slanted\ -\ Demo.otf") format('opentype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .my-ghost {
+    font-family: "MyFont-ghost", sans-serif;
+  }
+
+
+  

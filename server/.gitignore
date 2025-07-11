@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env*
+*.local
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Custom project folders
+# help to ignore the the public folder which is inside the server
+
