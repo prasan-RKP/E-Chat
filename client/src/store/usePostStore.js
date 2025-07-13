@@ -33,7 +33,8 @@ export const usePostStore = create((set, get) => ({
 
     try {
       const res = await axiosPostInstace.get("/allposts");
-      useAuthStore.setState({ authUser: res.data });
+      //useAuthStore.setState({ authUser: res.data });
+      set({ authPost: res.data });
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);

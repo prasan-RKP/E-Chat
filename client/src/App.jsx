@@ -22,6 +22,7 @@ import LoginTrae from "./UI/LoginTrae";
 import Toggle from "./tests/Toggle";
 import Email from "./Jsons/Email";
 import Testing from "./pages/Testing";
+import OldPost from "./TempStore/OldPost";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -46,7 +47,8 @@ const App = () => {
   return (
     <div>
       <Routes>
-        <Route path="/testing" element={<Testing />} />
+        <Route path="/testing" element={<OldPost />} />
+         
         <Route path="/" element={<HomePage />} />
         <Route path="/adj" element={<ChatAppLanding />} />
         <Route

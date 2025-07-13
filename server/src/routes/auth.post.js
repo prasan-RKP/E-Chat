@@ -60,6 +60,8 @@ router.post("/add-post", protectedRoute, async (req, res) => {
       title: title.trim(),
       description: postDesc.trim(),
       postImage: uploadResponse.secure_url,
+      user:userId,
+      ownerName:user.username || "Anonymous", // Use user's name or default to "Anonymous"
     });
 
     // Save Post to Database
@@ -78,6 +80,7 @@ router.post("/add-post", protectedRoute, async (req, res) => {
       description: newPost.description,
       postImage: newPost.postImage,
       userId: user._id, // Include userId
+      ownerName:user.username || "Anonymous",
     });
   } catch (error) {
     console.error("Error creating post:", error);
@@ -87,17 +90,18 @@ router.post("/add-post", protectedRoute, async (req, res) => {
   }
 });
 
-// we will handle it later
+// This route will help to show the posts indivisual User 
+/*
 router.get("/allposts", protectedRoute, async (req, res) => {
   try {
     const userId = req.user._id;
     if (!userId) return res.status(400).json({ message: "Unauthorized User" });
 
-    // ✅ Populate posts if needed, but return the whole user object
+    
     const user = await User.findById(userId).populate("posts");
     if (!user) return res.status(400).json({ message: "Unauthorized User" });
 
-    // ✅ Send the whole user object
+    
     return res.status(200).json(user);
   } catch (error) {
     console.error("Error in /allposts catch block:", error);
@@ -105,5 +109,20 @@ router.get("/allposts", protectedRoute, async (req, res) => {
   }
 });
 
+*/
+
+router.get("/allposts", protectedRoute, async (req, res) => {
+  try {
+   
+    const posts = await Post.find()
+      .populate("user", "username profilePic")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error fetching all posts:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 export default router;
