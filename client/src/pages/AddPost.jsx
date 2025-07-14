@@ -55,12 +55,21 @@ const AddPost = () => {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
     if (isValidForm() === true) {
       //console.log(`My title is:${postData.title}, description:${postData.postDesc}, ${postData.selectedFile}`);
-      addPost(postData, navigate);
+     await addPost(postData);
+     // after upload i want ot clear the form
+      setPostData({
+        postDesc: "",
+        title: "",
+        selectedFile: null,
+      });
+      setFileName(""); // Reset file name after upload
+      // toast.success("Post added successfully!");
+       navigate("/profile"); // Navigate to all posts after successful upload
     }
   };
 

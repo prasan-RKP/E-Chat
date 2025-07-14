@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  HomeIcon, 
-  MessageCircle, 
-  Images, 
-  LogOut, 
-  Menu, 
-  Camera, 
-  PlusCircle, 
-  Loader, 
+import {
+  HomeIcon,
+  MessageCircle,
+  Images,
+  LogOut,
+  Menu,
+  Camera,
+  PlusCircle,
+  Loader,
   X,
   Heart,
   Share2,
@@ -36,7 +36,7 @@ const ProfilePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [communityPosts, setCommunityPosts] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.1,
     triggerOnce: true,
@@ -93,29 +93,29 @@ const ProfilePage = () => {
   };
 
   const socialLinks = [
-    {icon: FaLinkedin, color: "text-blue-600", href: "https://www.linkedin.com/in/prasan-kumar-05a623345?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" },
+    { icon: FaLinkedin, color: "text-blue-600", href: "https://www.linkedin.com/in/prasan-kumar-05a623345?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" },
     { icon: Github, color: "text-gray-300", href: "https://github.com/prasan-RKP" },
     { icon: Mail, color: "text-red-400", href: "#" },
-    {icon: FaGlobe, color: "text-green-400", href: "https://portfolio-rkp.onrender.com/" }
+    { icon: FaGlobe, color: "text-green-400", href: "https://portfolio-rkp.onrender.com/" }
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#18181b] via-[#232136] to-[#0f172a] text-white">
       {/* Navigation Bar */}
-      <motion.nav 
+      <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
         className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 p-4 shadow-2xl"
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <motion.span 
+          <motion.span
             whileHover={{ scale: 1.05 }}
             className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"
           >
             Chat-i
           </motion.span>
-          
+
           {/* Desktop Navigation */}
           <ul className="hidden md:flex space-x-6 items-center">
             <Link to="/">
@@ -202,7 +202,7 @@ const ProfilePage = () => {
       </motion.nav>
 
       {/* Hero Section */}
-      <motion.section 
+      <motion.section
         ref={heroRef}
         variants={containerVariants}
         initial="hidden"
@@ -261,22 +261,7 @@ const ProfilePage = () => {
             </p>
           </motion.div>
 
-          {/* Social Links */}
-          <motion.div variants={itemVariants} className="flex justify-center gap-4 mb-8">
-            {socialLinks.map((social, index) => (
-              <motion.a
-                key={index}
-                href={social.href}
-                 target="_blank"
-                whileHover={{ scale: 1.2, y: -3 }}
-                whileTap={{ scale: 0.9 }}
-                rel="noopener noreferrer"
-                className={`p-3 rounded-full bg-gray-800/50 backdrop-blur-md ${social.color} hover:bg-gray-700/50 transition-all duration-300 shadow-lg hover:shadow-xl`}
-              >
-                <social.icon size={24} />
-              </motion.a>
-            ))}
-          </motion.div>
+
 
           {/* Stats */}
           <motion.div variants={itemVariants} className="grid grid-cols-3 gap-4 md:gap-8 mb-8 max-w-md mx-auto">
@@ -310,6 +295,7 @@ const ProfilePage = () => {
         </div>
       </motion.section>
 
+      {/* Tab Navigation */}
       {/* Tab Navigation */}
       <div className="max-w-6xl mx-auto px-4 pb-12">
         <div className="bg-gray-900/50 backdrop-blur-md rounded-2xl border border-gray-800 shadow-2xl overflow-hidden">
@@ -346,11 +332,10 @@ const ProfilePage = () => {
             {tabs.map((tab) => (
               <motion.button
                 key={tab}
-                className={`flex-1 py-4 px-6 text-lg font-semibold transition-all duration-300 relative ${
-                  activeTab === tab 
-                    ? "text-purple-400 bg-gray-800/50" 
+                className={`flex-1 py-4 px-6 text-lg font-semibold transition-all duration-300 relative ${activeTab === tab
+                    ? "text-purple-400 bg-gray-800/50"
                     : "text-gray-400 hover:text-white hover:bg-gray-800/30"
-                }`}
+                  }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveTab(tab)}
@@ -379,42 +364,50 @@ const ProfilePage = () => {
                   className="space-y-6"
                 >
                   {authUser?.posts?.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {authUser.posts.map((post, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="bg-gray-800/50 backdrop-blur-md rounded-xl overflow-hidden border border-gray-700 hover:border-purple-500/50 transition-all duration-300 shadow-lg hover:shadow-xl"
-                        >
-                          <div className="aspect-square overflow-hidden">
-                            <img
-                              src={post.postImage}
-                              alt="Post"
-                              className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                            />
-                          </div>
-                          <div className="p-4">
-                            <h3 className="text-lg font-semibold text-white mb-2">{post.title}</h3>
-                            <div className="flex items-center justify-between text-sm text-gray-400">
-                              <span className="flex items-center gap-1">
-                                <Calendar size={14} />
-                                {new Date(post.createdAt).toLocaleDateString()}
-                              </span>
-                              <div className="flex items-center gap-3">
-                                <button className="flex items-center gap-1 hover:text-red-400 transition-colors duration-300">
-                                  <Heart size={16} />
-                                  24
-                                </button>
-                                <button className="flex items-center gap-1 hover:text-blue-400 transition-colors duration-300">
-                                  <Share2 size={16} />
-                                </button>
+                    <div
+                      className={`${(authUser.posts.length > 6 && window.innerWidth >= 768) ||
+                          (authUser.posts.length > 3 && window.innerWidth < 768)
+                          ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
+                          : ''
+                        }`}
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {authUser.posts.map((post, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="bg-gray-800/50 backdrop-blur-md rounded-xl overflow-hidden border border-gray-700 hover:border-purple-500/50 transition-all duration-300 shadow-lg hover:shadow-xl"
+                          >
+                            <div className="aspect-square overflow-hidden">
+                              <img
+                                src={post.postImage}
+                                alt="Post"
+                                className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                              />
+                            </div>
+                            <div className="p-4">
+                              <h3 className="text-lg font-semibold text-white mb-2">{post.title}</h3>
+                              <div className="flex items-center justify-between text-sm text-gray-400">
+                                <span className="flex items-center gap-1">
+                                  <Calendar size={14} />
+                                  {new Date(post.createdAt).toLocaleDateString()}
+                                </span>
+                                <div className="flex items-center gap-3">
+                                  <button className="flex items-center gap-1 hover:text-red-400 transition-colors duration-300">
+                                    <Heart size={16} />
+                                    24
+                                  </button>
+                                  <button className="flex items-center gap-1 hover:text-blue-400 transition-colors duration-300">
+                                    <Share2 size={16} />
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </motion.div>
-                      ))}
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
                   ) : (
                     <div className="text-center py-12">
@@ -435,27 +428,35 @@ const ProfilePage = () => {
                   transition={{ duration: 0.3 }}
                 >
                   {authUser?.posts?.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {authUser.posts.map((post, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="relative group aspect-square overflow-hidden rounded-xl bg-gray-800/50 border border-gray-700 hover:border-purple-500/50 transition-all duration-300 shadow-lg hover:shadow-xl"
-                        >
-                          <img
-                            src={post.postImage}
-                            alt="Post"
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <span className="text-white text-sm font-semibold text-center px-2">
-                              {post.title}
-                            </span>
-                          </div>
-                        </motion.div>
-                      ))}
+                    <div
+                      className={`${(authUser.posts.length > 6 && window.innerWidth >= 768) ||
+                          (authUser.posts.length > 3 && window.innerWidth < 768)
+                          ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
+                          : ''
+                        }`}
+                    >
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {authUser.posts.map((post, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="relative group aspect-square overflow-hidden rounded-xl bg-gray-800/50 border border-gray-700 hover:border-purple-500/50 transition-all duration-300 shadow-lg hover:shadow-xl"
+                          >
+                            <img
+                              src={post.postImage}
+                              alt="Post"
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              <span className="text-white text-sm font-semibold text-center px-2">
+                                {post.title}
+                              </span>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
                   ) : (
                     <div className="text-center py-12">
@@ -477,35 +478,43 @@ const ProfilePage = () => {
                   className="space-y-6"
                 >
                   {communityPosts?.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {communityPosts.map((post, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="bg-gray-800/50 backdrop-blur-md rounded-xl p-6 border border-gray-700 hover:border-purple-500/50 transition-all duration-300 shadow-lg hover:shadow-xl"
-                        >
-                          <div className="flex items-start gap-4">
-                            <img
-                              src={
-                                post.userProfileImage ||
-                                "https://cdn.pixabay.com/photo/2016/11/19/17/28/art-1840481_1280.jpg"
-                              }
-                              alt="User"
-                              className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
-                            />
-                            <div className="flex-1">
-                              <h4 className="text-lg font-semibold text-purple-400 mb-2">
-                                {post.author}
-                              </h4>
-                              <p className="text-gray-300 leading-relaxed">
-                                "{post.quote}"
-                              </p>
+                    <div
+                      className={`${(communityPosts.length > 6 && window.innerWidth >= 768) ||
+                          (communityPosts.length > 3 && window.innerWidth < 768)
+                          ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
+                          : ''
+                        }`}
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {communityPosts.map((post, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="bg-gray-800/50 backdrop-blur-md rounded-xl p-6 border border-gray-700 hover:border-purple-500/50 transition-all duration-300 shadow-lg hover:shadow-xl"
+                          >
+                            <div className="flex items-start gap-4">
+                              <img
+                                src={
+                                  post.userProfileImage ||
+                                  "https://cdn.pixabay.com/photo/2016/11/19/17/28/art-1840481_1280.jpg"
+                                }
+                                alt="User"
+                                className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
+                              />
+                              <div className="flex-1">
+                                <h4 className="text-lg font-semibold text-purple-400 mb-2">
+                                  {post.author}
+                                </h4>
+                                <p className="text-gray-300 leading-relaxed">
+                                  "{post.quote}"
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        </motion.div>
-                      ))}
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
                   ) : (
                     <div className="text-center py-12">

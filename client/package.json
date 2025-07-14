@@ -32,6 +32,7 @@
     "socket.io-client": "^4.8.1",
     "swiper": "^11.2.5",
     "tailwindcss": "^4.0.6",
+    "use-debounce": "^10.0.5",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

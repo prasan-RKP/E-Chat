@@ -14,7 +14,7 @@ export const usePostStore = create((set, get) => ({
       const res = await axiosPostInstace.post("/add-post", data);
       set({ authPost: res.data });
       toast.success("Post uploaded successfully");
-      navigate("/allposts");
+      // navigate("/allposts");
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);

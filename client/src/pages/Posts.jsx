@@ -1,7 +1,7 @@
 import { Home, LogOut, UserCircle, ImageIcon, Sparkles, Heart, MessageCircle, Share2, Grid3X3, Plus, Search, Bell, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { usePostStore } from "../store/usePostStore.js";
 import PostSkeleton from "../skeletons/PostSkeleton.jsx";
@@ -10,6 +10,7 @@ import { useInView } from "react-intersection-observer";
 import "../stylesheets/myCustom.css";
 import PostCarousel from "../assets/PostCarousel.jsx";
 import toast from "react-hot-toast";
+import {useDebounce} from 'use-debounce';
 
 const Posts = () => {
 
@@ -25,7 +26,11 @@ const Posts = () => {
   const [hoveredPost, setHoveredPost] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // grid or list
-  const [searchQuery, setSearchQuery] = useState('');
+  const [posts, setPosts] = useState([]);
+
+  // debounce concept is here
+const [searchQuery, setSearchQuery] = useState('');
+const [debounceSearch] = useDebounce(searchQuery, 300);
 
   const naviagte = useNavigate();
   const scrollContainerRef = useRef(null);
@@ -34,9 +39,16 @@ const Posts = () => {
     triggerOnce: true,
   });
 
+  const location = useLocation();
+
+  //
   useEffect(() => {
     showPost();
-  }, []);
+  }, [location.pathname]);
+
+ useEffect(() => {
+  setPosts(Array.isArray(authPost) ? authPost : []);
+}, [authPost]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -116,12 +128,13 @@ const Posts = () => {
 
   //console.log("The authPost value", authPost);
 
+  // FilteredPost with Debounce concept
   const filteredPosts = useMemo(() => {
-    return authPost?.filter(post =>
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.description.toLowerCase().includes(searchQuery.toLowerCase())
-    ) || [];
-  }, [authPost, searchQuery]);
+  return posts?.filter(post =>
+    post.title.toLowerCase().includes(debounceSearch.toLowerCase()) ||
+    post.description.toLowerCase().includes(debounceSearch.toLowerCase())
+  ) || [];
+}, [posts, debounceSearch]);
 
   //console.log("Filtered Posts", filteredPosts);
 
@@ -373,7 +386,7 @@ const Posts = () => {
           >
             <div className="flex items-center gap-4">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Your Posts
+                Social Posts →
               </h2>
               <span className="text-sm text-slate-400">
                 {filteredPosts.length} {filteredPosts.length === 1 ? 'post' : 'posts'}
@@ -606,7 +619,7 @@ const Posts = () => {
       <AnimatePresence>
         {showCarousel && (
           <PostCarousel
-            posts={authPost}
+            posts={posts}
             onClose={() => setShowCarousel(false)}
             initialIndex={activeIndex}
           />
