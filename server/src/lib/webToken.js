@@ -15,7 +15,7 @@ export const generateToken = (userId, res) => {
     secure: process.env.NODE_ENV !== "development",
   });
 
-  // //For mobile testing...
+  //For mobile testing...
     // res.cookie("jwt", token, {
     //   maxAge: 7 * 24 * 60 * 60 * 1000,
     //   httpOnly: true,

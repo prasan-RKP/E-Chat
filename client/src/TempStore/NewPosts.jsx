@@ -1,4 +1,4 @@
-import { Home, LogOut, UserCircle, ImageIcon, Sparkles, Heart, MessageCircle, Share2, Grid3X3, Plus, Search, Bell, Menu, X, FileQuestion, List } from "lucide-react";
+import { Home, LogOut, UserCircle, ImageIcon, Sparkles, Heart, MessageCircle, Share2, Grid3X3, Plus, Search, Bell, Menu, X, FileQuestion } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -130,18 +130,15 @@ const Posts = () => {
     setSearchQuery('');
   }, []);
 
-  // FilteredPost with Debounce concept - Fixed search logic
+  // FilteredPost with Debounce concept
   const filteredPosts = useMemo(() => {
     const posts = Array.isArray(authPost) ? authPost : [];
     if (!debounceSearch.trim()) return posts;
     
-    const searchTerm = debounceSearch.toLowerCase().trim();
-    return posts.filter(post => {
-      const titleMatch = post.title?.toLowerCase().includes(searchTerm);
-      const descriptionMatch = post.description?.toLowerCase().includes(searchTerm);
-      
-      return titleMatch || descriptionMatch;
-    });
+    return posts.filter(post =>
+      post.title.toLowerCase().includes(debounceSearch.toLowerCase()) ||
+      post.description.toLowerCase().includes(debounceSearch.toLowerCase())
+    );
   }, [authPost, debounceSearch]);
 
   // Check if we have posts but no search results
@@ -158,7 +155,7 @@ const Posts = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
-      <div className="relative w-full max-w-2xl">
+      <div className="relative">
         <motion.div
           className="absolute -inset-8 bg-gradient-to-r from-orange-500/20 via-yellow-500/20 to-red-500/20 rounded-full blur-3xl"
           variants={glowVariants}
@@ -166,7 +163,7 @@ const Posts = () => {
           animate="animate"
         />
         <motion.div
-          className="relative bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 sm:p-8 md:p-12 shadow-2xl"
+          className="relative bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-12 shadow-2xl"
           whileHover={{ scale: 1.02 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
@@ -177,7 +174,7 @@ const Posts = () => {
             transition={{ delay: 0.2 }}
           >
             <motion.div
-              className="mx-auto mb-6 sm:mb-8 w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-orange-500/20 to-yellow-500/20 border-2 border-orange-400/30 flex items-center justify-center relative overflow-hidden"
+              className="mx-auto mb-8 w-32 h-32 rounded-full bg-gradient-to-br from-orange-500/20 to-yellow-500/20 border-2 border-orange-400/30 flex items-center justify-center relative overflow-hidden"
               whileHover={{ rotate: 360 }}
               transition={{ duration: 0.8 }}
             >
@@ -186,12 +183,12 @@ const Posts = () => {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
               />
-              <FileQuestion className="w-8 h-8 sm:w-10 sm:h-10 md:w-16 md:h-16 text-orange-400 relative z-10" />
-              <Search className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-yellow-400 animate-pulse" />
+              <FileQuestion className="w-16 h-16 text-orange-400 relative z-10" />
+              <Search className="absolute bottom-2 right-2 w-6 h-6 text-yellow-400 animate-pulse" />
             </motion.div>
 
             <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-orange-400 via-yellow-400 to-red-400 bg-clip-text text-transparent"
+              className="text-3xl font-bold mb-4 bg-gradient-to-r from-orange-400 via-yellow-400 to-red-400 bg-clip-text text-transparent"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -200,7 +197,7 @@ const Posts = () => {
             </motion.h2>
 
             <motion.p
-              className="text-slate-400 text-sm sm:text-base md:text-lg mb-2 max-w-sm sm:max-w-md mx-auto leading-relaxed"
+              className="text-slate-400 text-lg mb-2 max-w-md mx-auto leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
@@ -209,7 +206,7 @@ const Posts = () => {
             </motion.p>
 
             <motion.p
-              className="text-purple-400 text-base sm:text-lg md:text-xl font-semibold mb-6 sm:mb-8 max-w-sm sm:max-w-md mx-auto break-all"
+              className="text-purple-400 text-xl font-semibold mb-8 max-w-md mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
@@ -218,34 +215,34 @@ const Posts = () => {
             </motion.p>
 
             <motion.div
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center"
+              className="flex flex-col sm:flex-row gap-4 justify-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
             >
               <motion.button
                 onClick={clearSearch}
-                className="px-6 sm:px-8 py-2 sm:py-3 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full font-semibold text-white text-sm sm:text-base shadow-lg hover:shadow-orange-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                className="px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full font-semibold text-white shadow-lg hover:shadow-orange-500/25 transition-all duration-300 flex items-center gap-2"
                 whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(251, 146, 60, 0.4)" }}
                 whileTap={{ scale: 0.95 }}
               >
-                <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                <X className="w-5 h-5" />
                 Clear Search
               </motion.button>
 
               <motion.button
                 onClick={() => setSearchQuery('')}
-                className="px-6 sm:px-8 py-2 sm:py-3 border border-slate-600 rounded-full font-semibold text-slate-300 text-sm sm:text-base hover:bg-slate-800 transition-all duration-300 flex items-center justify-center gap-2"
+                className="px-8 py-3 border border-slate-600 rounded-full font-semibold text-slate-300 hover:bg-slate-800 transition-all duration-300 flex items-center gap-2"
                 whileHover={{ scale: 1.05, borderColor: "#f59e0b" }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Home className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Home className="w-5 h-5" />
                 View All Posts
               </motion.button>
             </motion.div>
 
             <motion.div
-              className="mt-6 sm:mt-8 text-xs sm:text-sm text-slate-500"
+              className="mt-8 text-sm text-slate-500"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1 }}
@@ -256,7 +253,7 @@ const Posts = () => {
                   <motion.button
                     key={suggestion}
                     onClick={() => setSearchQuery(suggestion)}
-                    className="px-2 sm:px-3 py-1 bg-slate-800/50 hover:bg-slate-700 rounded-full text-xs transition-all duration-200"
+                    className="px-3 py-1 bg-slate-800/50 hover:bg-slate-700 rounded-full text-xs transition-all duration-200"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -271,6 +268,7 @@ const Posts = () => {
     </motion.div>
   );
 
+  // Empty State Component (when no posts exist)
   const EmptyState = () => (
     <motion.div
       ref={heroRef}
@@ -336,7 +334,6 @@ const Posts = () => {
               transition={{ delay: 0.8 }}
             >
               <motion.button
-                onClick={() => navigate('/create')}
                 className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full font-semibold text-white shadow-lg hover:shadow-purple-500/25 transition-all duration-300 flex items-center gap-2"
                 whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(168, 85, 247, 0.4)" }}
                 whileTap={{ scale: 0.95 }}
@@ -346,7 +343,6 @@ const Posts = () => {
               </motion.button>
 
               <motion.button
-                onClick={() => navigate('/explore')}
                 className="px-8 py-3 border border-slate-600 rounded-full font-semibold text-slate-300 hover:bg-slate-800 transition-all duration-300 flex items-center gap-2"
                 whileHover={{ scale: 1.05, borderColor: "#8b5cf6" }}
                 whileTap={{ scale: 0.95 }}
@@ -396,7 +392,7 @@ const Posts = () => {
                   placeholder="Search posts..."
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  className="pl-10 pr-10 py-2 bg-slate-800/50 border border-slate-700 rounded-full text-sm w-64 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                  className="pl-10 pr-10 py-2 bg-slate-800/50 border border-slate-700 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                 />
                 {searchQuery && (
                   <motion.button
@@ -531,8 +527,8 @@ const Posts = () => {
 
       {/* Main Content */}
       <div className="pt-16">
-        {/* View Mode Toggle */}
-        {filteredPosts.length > 0 && (
+        {/* View Mode Toggle - Only show when there are posts and results */}
+        {!fetchingPosts && filteredPosts.length > 0 && (
           <motion.div
             className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
@@ -541,10 +537,11 @@ const Posts = () => {
           >
             <div className="flex items-center gap-4">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                {hasSearchQuery ? `Search Results for "${debounceSearch}"` : 'Social Posts →'}
+                {hasSearchQuery ? 'Search Results' : 'Social Posts'} →
               </h2>
               <span className="text-sm text-slate-400">
                 {filteredPosts.length} {filteredPosts.length === 1 ? 'post' : 'posts'}
+                {hasSearchQuery && ` for "${debounceSearch}"`}
               </span>
             </div>
 
@@ -591,11 +588,11 @@ const Posts = () => {
                   </motion.div>
                 ))}
               </motion.div>
-            ) : hasNoPosts ? (
-              <EmptyState />
             ) : hasNoSearchResults ? (
               <NoSearchResults />
-            ) : (
+            ) : hasNoPosts ? (
+              <EmptyState />
+            ) : filteredPosts.length > 0 ? (
               <motion.div
                 className={`grid gap-6 ${viewMode === 'grid'
                   ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
@@ -636,153 +633,6 @@ const Posts = () => {
                         />
 
                         <motion.div
-                          className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          whileHover={{ scale: 1, opacity: 1 }}
-                        >
-                          <div className="flex items-center gap-4 text-white">
-                            <motion.button
-                              className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toast.success("Feature on the Way..!");
-                              }}
-                            >
-                              <Heart className="w-5 h-5" />
-                            </motion.button>
-                            <motion.button
-                              className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toast.success("Feature on the Way..!");
-                              }}
-                            >
-                              <MessageCircle className="w-5 h-5" />
-                            </motion.button>
-                            <motion.button
-                              className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toast.success("Feature on the Way..!");
-                              }}
-                            >
-                              <Share2 className="w-5 h-5" />
-                            </motion.button>
-                          </div>
-                        </motion.div>
-                      </div>
-
-                      <div className="p-4">
-                        <h3
-                          className="font-semibold text-lg mb-2 text-white group-hover:text-purple-400 transition-colors duration-200"
-                          style={{ cursor: "pointer" }}
-                        >
-                          {post.title}
-                        </h3>
-                        <p
-                          className="text-slate-400 text-sm line-clamp-2 group-hover:text-slate-300 transition-colors duration-200"
-                          style={{ cursor: "pointer" }}
-                        >
-                          {post.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Profile Popup */}
-                    <AnimatePresence>
-                      {hoveredPost === index && (
-                        <motion.div
-                          className="absolute -top-16 left-4 z-50 pointer-events-none"
-                          variants={profilePopupVariants}
-                          initial="hidden"
-                          animate="visible"
-                          exit="hidden"
-                        >
-                          <div className="bg-slate-900/95 backdrop-blur-md border border-slate-700/50 rounded-2xl p-3 shadow-2xl">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <div className="relative">
-                                <motion.div
-                                  className="w-12 h-12 rounded-full border-2 border-purple-400/30 overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/20"
-                                  whileHover={{ scale: 1.1 }}
-                                  transition={{ duration: 0.2 }}
-                                >
-                                  {post.user?.profilePic ? (
-                                    <img
-                                      src={post.user.profilePic}
-                                      alt={post.ownerName}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <UserCircle className="w-8 h-8 text-purple-400" />
-                                    </div>
-                                  )}
-                                </motion.div>
-                                <motion.div
-                                  className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-sm"
-                                  animate={{
-                                    scale: [1, 1.2, 1],
-                                    opacity: [0.3, 0.6, 0.3],
-                                  }}
-                                  transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                  }}
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <motion.p
-                                  className="text-white font-medium text-sm truncate"
-                                  initial={{ opacity: 0, x: -10 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: 0.1 }}
-                                >
-                                  {post.ownerName}
-                                </motion.p>
-                                <motion.p
-                                  className="text-slate-400 text-xs"
-                                  initial={{ opacity: 0, x: -10 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: 0.2 }}
-                                >
-                                  Creator
-                                </motion.p>
-                              </div>
-                            </div>
-
-                            {/* Arrow pointing down */}
-                            <div className="absolute top-full left-6 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-slate-900/95"></div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Carousel */}
-      <AnimatePresence>
-        {showCarousel && (
-          <PostCarousel
-            posts={filteredPosts}
-            onClose={() => setShowCarousel(false)}
-            initialIndex={activeIndex}
-          />
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
-export default Posts;
+                          className="absolute bottom-4 left-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-all duration-300"
+                          initial={{ y: 20, opacity: 0 }}
+                          whileHover={{ y: 0

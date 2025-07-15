@@ -9,7 +9,7 @@ import {
   LogOut,
   Loader,
 } from "lucide-react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../store/useAuthStore";
 import { usePostStore } from "../store/usePostStore";
@@ -21,8 +21,8 @@ const AddPost = () => {
     selectedFile: null,
   });
   const [fileName, setFileName] = useState(""); // Store selected file name
-  
-  const { authUser,logout } = useAuthStore();
+
+  const { authUser, logout } = useAuthStore();
   const { addPost, uploadingPost } = usePostStore();
 
   const navigate = useNavigate();
@@ -35,13 +35,13 @@ const AddPost = () => {
     const reader = new FileReader();
     reader.onload = () => {
       const base64Image = reader.result;
-      setFileName(file.name); // Set the actual file name instead of base64 data
+      setFileName(file.name);
       setPostData((prevState) => ({
         ...prevState,
         selectedFile: base64Image,
       }));
     };
-    reader.readAsDataURL(file); // You forgot to read the file!
+    reader.readAsDataURL(file);
   };
 
   const isValidForm = () => {
@@ -55,21 +55,18 @@ const AddPost = () => {
     return true;
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (isValidForm() === true) {
-      //console.log(`My title is:${postData.title}, description:${postData.postDesc}, ${postData.selectedFile}`);
-     await addPost(postData);
-     // after upload i want ot clear the form
+      await addPost(postData);
       setPostData({
         postDesc: "",
         title: "",
         selectedFile: null,
       });
-      setFileName(""); // Reset file name after upload
-      // toast.success("Post added successfully!");
-       navigate("/profile"); // Navigate to all posts after successful upload
+      setFileName("");
+      navigate("/profile");
     }
   };
 
@@ -84,7 +81,7 @@ const AddPost = () => {
         className="bg-gray-900 p-4 flex justify-between items-center text-white"
       >
         <div className="font-bold text-lg text-indigo-400">AppName</div>
-        <div className="flex space-x-6">
+        <div className="flex space-x-4 sm:space-x-6">
           <Link to="/home">
             <motion.button
               whileHover={{ scale: 1.1, color: "#4c6ef5", rotate: 10 }}
@@ -112,16 +109,14 @@ const AddPost = () => {
               <MessageCircle size={24} />
             </motion.button>
           </Link>
-          
-            <motion.button
-              whileHover={{ scale: 1.1, color: "#e53e3e", rotate: 10 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-white"
-              onClick={()=>logout(navigate)}
-            >
-              <LogOut size={24} />
-            </motion.button>
-          
+          <motion.button
+            whileHover={{ scale: 1.1, color: "#e53e3e", rotate: 10 }}
+            whileTap={{ scale: 0.95 }}
+            className="text-white"
+            onClick={() => logout(navigate)}
+          >
+            <LogOut size={24} />
+          </motion.button>
         </div>
       </motion.div>
 
@@ -131,19 +126,17 @@ const AddPost = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 50 }}
         transition={{ duration: 0.5 }}
-        className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-800 text-white"
+        className="min-h-screen flex items-center justify-center px-4 sm:px-6 bg-gradient-to-b from-gray-900 to-gray-800 text-white"
       >
         <motion.div
           initial={{ scale: 0.8 }}
           animate={{ scale: 1 }}
           exit={{ scale: 0.8 }}
-          className="bg-gray-900 p-8 rounded-lg shadow-xl w-96"
+          className="bg-gray-900 p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-md"
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-indigo-400">
-              Create a Post
-            </h2>
-            <Link to={"/profile"}>
+            <h2 className="text-2xl font-bold text-indigo-400">Create a Post</h2>
+            <Link to="/profile">
               <motion.button
                 whileHover={{ scale: 1.2 }}
                 className="text-white bg-red-600 p-2 rounded-full hover:bg-red-700 transition"
@@ -173,7 +166,7 @@ const AddPost = () => {
             ></textarea>
 
             {/* File Upload Section */}
-            <div className="relative border-2 border-dashed border-gray-600 p-5 rounded-lg text-center">
+            <div className="relative border-2 border-dashed border-gray-600 p-5 rounded-lg text-center overflow-hidden">
               <input
                 type="file"
                 onChange={handleFileChange}
@@ -182,9 +175,13 @@ const AddPost = () => {
               <motion.div whileHover={{ scale: 1.1 }}>
                 <Upload size={40} className="text-indigo-400 mx-auto" />
                 {fileName ? (
-                  <p className="text-indigo-300 mt-2">{fileName}</p>
+                  <p className="text-indigo-300 mt-2 break-words text-sm max-w-full truncate">
+                    {fileName}
+                  </p>
                 ) : (
-                  <p className="text-gray-400">Upload your post image 📷</p>
+                  <p className="text-gray-400 text-sm">
+                    Upload your post image 📷
+                  </p>
                 )}
               </motion.div>
             </div>
