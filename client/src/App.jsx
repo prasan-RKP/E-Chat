@@ -23,6 +23,7 @@ import Toggle from "./tests/Toggle";
 import Email from "./Jsons/Email";
 import Testing from "./pages/Testing";
 import OldPost from "./TempStore/OldPost";
+import NotificationPage from "./pages/NotificationPage";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -48,7 +49,7 @@ const App = () => {
     <div>
       <Routes>
         <Route path="/testing" element={<OldPost />} />
-         
+         <Route path="/notification" element={<NotificationPage/>} />
         <Route path="/" element={<HomePage />} />
         <Route path="/adj" element={<ChatAppLanding />} />
         <Route

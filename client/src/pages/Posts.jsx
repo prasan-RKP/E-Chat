@@ -424,6 +424,7 @@ const Posts = () => {
                   </motion.button>
                 </Link>
 
+               <Link to={"/notification"}>
                 <motion.button
                   className="p-2 rounded-full hover:bg-slate-800 transition-all duration-200 relative group"
                   whileHover={{ scale: 1.1 }}
@@ -434,6 +435,7 @@ const Posts = () => {
                     Notifications
                   </span>
                 </motion.button>
+                </Link> 
 
                 <Link to="/profile">
                   <motion.button
@@ -642,7 +644,7 @@ const Posts = () => {
                         >
                           <div className="flex items-center gap-4 text-white">
                             <motion.button
-                              className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
+                              className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-400 transition-all duration-200"
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={(e) => {
@@ -653,7 +655,7 @@ const Posts = () => {
                               <Heart className="w-5 h-5" />
                             </motion.button>
                             <motion.button
-                              className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
+                              className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-blue-400 transition-all duration-200"
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={(e) => {
@@ -664,7 +666,7 @@ const Posts = () => {
                               <MessageCircle className="w-5 h-5" />
                             </motion.button>
                             <motion.button
-                              className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
+                              className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-slate-900 transition-all duration-200"
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={(e) => {

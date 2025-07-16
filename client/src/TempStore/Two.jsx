@@ -86,7 +86,7 @@ const ChatComponent = () => {
   return (
     <div className="flex h-screen bg-gray-900 text-gray-300">
       <ChatSidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <ChatHeader />
 
         {/* Pinned Message Bar (stored inside a component) */}
@@ -96,34 +96,34 @@ const ChatComponent = () => {
           setPinnedMessage={setPinnedMessage}
         />
 
-        <div className="flex-1 p-4 overflow-y-auto bg-gray-900">
+        <div className="flex-1 p-2 sm:p-4 overflow-y-auto bg-gray-900">
           {!selectedUser ? (
             <motion.div
-              className="flex flex-col items-center text-gray-400 h-full justify-center"
+              className="flex flex-col items-center text-gray-400 h-full justify-center px-4"
               animate={{ y: [0, -10, 0] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
             >
-              <MessageSquareText className="w-18 h-18" />
-              <p className="mt-2">Select a user to start chatting</p>
+              <MessageSquareText className="w-16 h-16 sm:w-18 sm:h-18" />
+              <p className="mt-2 text-center text-sm sm:text-base">Select a user to start chatting</p>
             </motion.div>
           ) : (
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-2 sm:space-y-4">
               {isFetchingMessage ? (
                 <MessagesSkeleton />
               ) : messages.length === 0 ? (
                 <motion.div
-                  className="flex flex-col items-center text-gray-400"
+                  className="flex flex-col items-center text-gray-400 px-4"
                   animate={{ y: [0, -10, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
                 >
-                  <p className="mt-16 text-center">Continue your chat</p>
+                  <p className="mt-16 text-center text-sm sm:text-base">Continue your chat</p>
                 </motion.div>
               ) : (
                 messages.map((message, index) => (
                   <div
                     key={index}
                     ref={(el) => (messageRefs.current[message._id] = el)} // Store message ref
-                    className={`relative flex items-end gap-2 p-1 transition-all duration-200 ${
+                    className={`relative flex items-end gap-1 sm:gap-2 p-1 transition-all duration-200 ${
                       message.senderId === authUser._id
                         ? "justify-end"
                         : "justify-start"
@@ -137,7 +137,7 @@ const ChatComponent = () => {
                     }}
                   >
                     {message.senderId !== authUser._id && (
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0">
                         <img
                           alt="User Avatar"
                           src={
@@ -148,8 +148,8 @@ const ChatComponent = () => {
                         />
                       </div>
                     )}
-                    <div className="relative max-w-xs bg-gray-800 text-white p-4 rounded-lg">
-                      {message.text}
+                    <div className="relative max-w-[250px] sm:max-w-xs bg-gray-800 text-white p-3 sm:p-4 rounded-lg">
+                      <div className="text-sm sm:text-base break-words">{message.text}</div>
                       {message.image && (
                         <img
                           src={message.image}
@@ -159,16 +159,18 @@ const ChatComponent = () => {
                         />
                       )}
                       <div className="text-xs text-gray-400 mt-1">
-                        
-                        <p>
+                        <p className="hidden sm:block">
                           {moment(message.createdAt).format(
                             "MMMM Do YYYY, h:mm:ss a"
                           )}
                         </p>
+                        <p className="block sm:hidden">
+                          {moment(message.createdAt).format("MMM DD, h:mm a")}
+                        </p>
                       </div>
                     </div>
                     {message.senderId === authUser._id && (
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0">
                         <img
                           alt="User Avatar"
                           src={authUser.profilePic }
@@ -178,20 +180,20 @@ const ChatComponent = () => {
                     )}
                     {/* start */}
                     {hoveredMessage === index && (
-                      <div className={`ml-2 relative `}>
+                      <div className={`ml-1 sm:ml-2 relative`}>
                         <button
-                          className={`text-gray-400 hover:text-white`}
+                          className={`text-gray-400 hover:text-white p-1`}
                           onClick={() =>
                             setDropdownMessage(
                               dropdownMessage === index ? null : index
                             )
                           }
                         >
-                          <ChevronDown className="w-5 h-5" />
+                          <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                         {dropdownMessage === index && (
                           <div
-                            className={`absolute mt-2 w-32 bg-gray-800 border border-gray-600 rounded-lg shadow-md p-2 flex flex-col z-50 ${
+                            className={`absolute mt-2 w-28 sm:w-32 bg-gray-800 border border-gray-600 rounded-lg shadow-md p-2 flex flex-col z-50 ${
                               index >= messages.length - 2
                                 ? "bottom-full mb-2"
                                 : "top-full mt-2"
@@ -216,9 +218,9 @@ const ChatComponent = () => {
                 ))
               )}
               {isSendingMessaging && (
-                <div className="flex justify-end pr-6">
-                  Sending...
-                  <Loader2 className="w-6 h-6 text-gray-400 animate-spin ml-2" />
+                <div className="flex justify-end pr-3 sm:pr-6">
+                  <span className="text-sm sm:text-base">Sending...</span>
+                  <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 animate-spin ml-2" />
                 </div>
               )}
             </div>

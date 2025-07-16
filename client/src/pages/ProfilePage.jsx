@@ -285,7 +285,7 @@ const ProfilePage = () => {
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white py-3 px-8 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl flex items-center gap-3 mx-auto transition-all duration-300"
+                className="hover:cursor-pointer bg-gradient-to-r from-purple-500 to-blue-500 text-white py-3 px-8 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl flex items-center gap-3 mx-auto transition-all duration-300"
               >
                 <PlusCircle size={24} />
                 Add Post
@@ -451,7 +451,7 @@ const ProfilePage = () => {
                             />
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                               <span className="text-white text-sm font-semibold text-center px-2">
-                                {post.title}
+                                #{post.title}
                               </span>
                             </div>
                           </motion.div>

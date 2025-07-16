@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useChatStore } from "../../store/useChatStore.js";
 import { useAuthStore } from "../../store/useAuthStore.js";
 import { useNavigate } from "react-router-dom";
+//import {profile} from "../../assets/dfp.png"
 
 const ChatSidebar = () => {
   const { getUsers, users, setSelectedUser, setIsSidebarOpen, isSidebarOpen, isUserLoading } = useChatStore();
@@ -83,7 +84,7 @@ const ChatSidebar = () => {
               >
                 <div className="flex items-center gap-3">
                   <img
-                    src={user.profilePic}
+                    src={user.profilePic || "/dfp.png"}
                     alt={user.username}
                     className="w-10 h-10 rounded-full object-cover border border-gray-700 shadow-md"
                   />
