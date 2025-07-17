@@ -34,7 +34,6 @@ const ChatMessageInput = () => {
   reader.readAsDataURL(file);
 };
 
-
   const removeImage = () => {
     setImage(null);
   };
@@ -58,36 +57,36 @@ const ChatMessageInput = () => {
   };
 
   return (
-    <div className="bg-gray-800 p-4 shadow-lg relative">
+    <div className="bg-gray-800 p-2 sm:p-4 shadow-lg relative">
       {image && (
-        <div className="absolute left-2 -top-28 w-28 h-28 rounded-lg shadow-lg border border-gray-600">
+        <div className="absolute left-2 -top-24 sm:-top-28 w-20 h-20 sm:w-28 sm:h-28 rounded-lg shadow-lg border border-gray-600">
           <img
             src={image}
             alt="Selected"
             className="w-full h-full rounded-lg object-cover"
           />
           <button
-            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 shadow-md hover:bg-red-700 transition-transform scale-110"
+            className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-red-600 text-white rounded-full p-1 shadow-md hover:bg-red-700 transition-transform scale-110"
             onClick={removeImage}
           >
-            <X className="w-5 h-5" />
+            <X className="w-3 h-3 sm:w-5 sm:h-5" />
           </button>
         </div>
       )}
 
       <form onSubmit={handleSendMessage}>
-        <div className="flex gap-2">
-          {/* Removed the 'border' class to eliminate the inner border */}
-          <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded bg-gray-700">
+        <div className="flex gap-1 sm:gap-2">
+          {/* Reduced padding and adjusted for mobile */}
+          <div className="flex-1 flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded bg-gray-700">
             <button
               type="button"
-              className="text-gray-400 hover:text-gray-300 transition-colors"
+              className="text-gray-400 hover:text-gray-300 transition-colors flex-shrink-0"
             >
-              <Smile className="w-5 h-5" />
+              <Smile className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             <input
-              className="flex-1 bg-transparent text-gray-300 focus:outline-none border-none ring-0"
+              className="flex-1 bg-transparent text-gray-300 focus:outline-none border-none ring-0 text-sm sm:text-base min-w-0"
               placeholder="Type a message..."
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -96,9 +95,9 @@ const ChatMessageInput = () => {
 
             <button
               type="button"
-              className="text-gray-400 hover:text-gray-300 transition-colors"
+              className="text-gray-400 hover:text-gray-300 transition-colors flex-shrink-0"
             >
-              <Mic className="w-5 h-5" />
+              <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
@@ -112,17 +111,17 @@ const ChatMessageInput = () => {
 
           <button
             type="button"
-            className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
             onClick={() => fileInputRef.current?.click()}
           >
-            <ImagePlus className="w-6 h-6" />
+            <ImagePlus className="w-4 h-4 sm:w-6 sm:h-6" />
           </button>
 
           <button
             type="submit"
-            className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
           >
-            <Send className="w-6 h-6" />
+            <Send className="w-4 h-4 sm:w-6 sm:h-6" />
           </button>
         </div>
       </form>

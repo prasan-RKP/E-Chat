@@ -96,18 +96,18 @@ const ChatComponent = () => {
           setPinnedMessage={setPinnedMessage}
         />
 
-        <div className="flex-1 p-4 overflow-y-auto bg-gray-900">
+        <div className="flex-1 p-2 sm:p-4 overflow-y-auto bg-gray-900">
           {!selectedUser ? (
             <motion.div
               className="flex flex-col items-center text-gray-400 h-full justify-center"
               animate={{ y: [0, -10, 0] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
             >
-              <MessageSquareText className="w-18 h-18" />
-              <p className="mt-2">Select a user to start chatting</p>
+              <MessageSquareText className="w-12 h-12 sm:w-18 sm:h-18" />
+              <p className="mt-2 text-sm sm:text-base">Select a user to start chatting</p>
             </motion.div>
           ) : (
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-2 sm:space-y-4">
               {isFetchingMessage ? (
                 <MessagesSkeleton />
               ) : messages.length === 0 ? (
@@ -116,14 +116,14 @@ const ChatComponent = () => {
                   animate={{ y: [0, -10, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
                 >
-                  <p className="mt-16 text-center">Continue your chat</p>
+                  <p className="mt-16 text-center text-sm sm:text-base">Continue your chat</p>
                 </motion.div>
               ) : (
                 messages.map((message, index) => (
                   <div
                     key={index}
                     ref={(el) => (messageRefs.current[message._id] = el)} // Store message ref
-                    className={`relative flex items-end gap-2 p-1 transition-all duration-200 ${
+                    className={`relative flex items-end gap-1 sm:gap-2 p-1 transition-all duration-200 ${
                       message.senderId === authUser._id
                         ? "justify-end"
                         : "justify-start"
@@ -136,8 +136,9 @@ const ChatComponent = () => {
                       }
                     }}
                   >
+                    {/* Hide avatars on mobile (below sm breakpoint), show on tablets and above */}
                     {message.senderId !== authUser._id && (
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
+                      <div className="hidden sm:block w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden flex-shrink-0">
                         <img
                           alt="User Avatar"
                           src={
@@ -148,27 +149,29 @@ const ChatComponent = () => {
                         />
                       </div>
                     )}
-                    <div className="relative max-w-xs bg-gray-800 text-white p-4 rounded-lg">
-                      {message.text}
+                    <div className="relative max-w-[85%] sm:max-w-xs bg-gray-800 text-white p-2 sm:p-4 rounded-lg">
+                      <div className="text-xs sm:text-sm md:text-base break-words">
+                        {message.text}
+                      </div>
                       {message.image && (
                         <img
                           src={message.image}
                           alt="Sent media"
-                          className="mt-2 rounded-lg max-w-full cursor-pointer"
+                          className="mt-1 sm:mt-2 rounded-lg max-w-full cursor-pointer"
                           onClick={() => setModalImage(message.image)}
                         />
                       )}
                       <div className="text-xs text-gray-400 mt-1">
-                        
-                        <p>
+                        <p className="text-xs">
                           {moment(message.createdAt).format(
-                            "MMMM Do YYYY, h:mm:ss a"
+                            window.innerWidth < 640 ? "MMM Do, h:mm a" : "MMMM Do YYYY, h:mm:ss a"
                           )}
                         </p>
                       </div>
                     </div>
+                    {/* Hide avatars on mobile (below sm breakpoint), show on tablets and above */}
                     {message.senderId === authUser._id && (
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
+                      <div className="hidden sm:block w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden flex-shrink-0">
                         <img
                           alt="User Avatar"
                           src={authUser.profilePic }
@@ -178,7 +181,7 @@ const ChatComponent = () => {
                     )}
                     {/* start */}
                     {hoveredMessage === index && (
-                      <div className={`ml-2 relative `}>
+                      <div className={`ml-1 sm:ml-2 relative flex-shrink-0`}>
                         <button
                           className={`text-gray-400 hover:text-white`}
                           onClick={() =>
@@ -187,11 +190,11 @@ const ChatComponent = () => {
                             )
                           }
                         >
-                          <ChevronDown className="w-5 h-5" />
+                          <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                         {dropdownMessage === index && (
                           <div
-                            className={`absolute mt-2 w-32 bg-gray-800 border border-gray-600 rounded-lg shadow-md p-2 flex flex-col z-50 ${
+                            className={`absolute mt-2 w-28 sm:w-32 bg-gray-800 border border-gray-600 rounded-lg shadow-md p-2 flex flex-col z-50 ${
                               index >= messages.length - 2
                                 ? "bottom-full mb-2"
                                 : "top-full mt-2"
@@ -216,9 +219,9 @@ const ChatComponent = () => {
                 ))
               )}
               {isSendingMessaging && (
-                <div className="flex justify-end pr-6">
-                  Sending...
-                  <Loader2 className="w-6 h-6 text-gray-400 animate-spin ml-2" />
+                <div className="flex justify-end pr-2 sm:pr-6">
+                  <span className="text-xs sm:text-sm">Sending...</span>
+                  <Loader2 className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400 animate-spin ml-1 sm:ml-2" />
                 </div>
               )}
             </div>
