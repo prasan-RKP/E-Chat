@@ -18,14 +18,17 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+
     password: {
       type: String,
       required: true,
     },
+
     profilePic: {
       type: String,
       default: "",
     },
+
     posts: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -33,12 +36,19 @@ const userSchema = new mongoose.Schema(
       },
     ],
 
-    // messages:[
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "Message"
-    //   }
-    // ]
+    // Todo:- We will do it later
+    // likeDetails: {
+    //   whoLiked: [
+    //     {
+    //       type: mongoose.Schema.Types.ObjectId,
+    //       ref: "User", // Assuming likes are from other users
+    //     },
+    //   ],
+    //   totalLikes: {
+    //     type: Number,
+    //     default: 0,
+    //   },
+    // },
   },
   { timestamps: true }
 );
