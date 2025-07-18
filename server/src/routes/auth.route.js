@@ -213,6 +213,19 @@ router.put("/likePost", protectedRoute, async (req, res) => {
   }
 });
 
+router.put("/likePost", protectedRoute, async(req, res)=> {
+
+  const loggedInUserId = req?.user?.id;
+  const {userTobeLiked} = req.body;
+
+  try {
+    // I will do it later or tommorow task
+  } catch (error) {
+    
+  }
+
+})
+
 
 // Todo :- We will handle it later
 router.get("/fetchroute",(req, res)=> {
