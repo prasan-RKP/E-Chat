@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -36,19 +36,19 @@ const userSchema = new mongoose.Schema(
       },
     ],
 
-    // Todo:- We will do it later
-    // likeDetails: {
-    //   whoLiked: [
-    //     {
-    //       type: mongoose.Schema.Types.ObjectId,
-    //       ref: "User", // Assuming likes are from other users
-    //     },
-    //   ],
-    //   totalLikes: {
-    //     type: Number,
-    //     default: 0,
-    //   },
-    // },
+    likes: {
+      whoLiked: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
+
+      totalLikes: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   { timestamps: true }
 );

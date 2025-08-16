@@ -1,4 +1,4 @@
-import { Home, LogOut, UserCircle, ImageIcon, Sparkles, Heart, MessageCircle, Share2, Grid3X3, Plus, Search, Bell, Menu, X, FileQuestion, List } from "lucide-react";
+import { Home, LogOut, UserCircle, ImageIcon, Sparkles, Heart, MessageCircle, Share2, Grid3X3, Plus, Search, Bell, Menu, X, FileQuestion, List, Loader2, Eye } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -19,13 +19,17 @@ const Posts = () => {
   const showPost = usePostStore(state => state.showPost);
   const fetchingPosts = usePostStore(state => state.fetchingPosts);
   const authPost = usePostStore(state => state.authPost);
-  
+  const addLike = useAuthStore(state => state.addLike) // This is 'addLike' from'useAuthStore.js'
+
+
+
   const [showCarousel, setShowCarousel] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
   const [hoveredPost, setHoveredPost] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // grid or list
+  const [storeId, setStoreId] = useState('');
 
   // debounce concept is here
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,6 +60,21 @@ const Posts = () => {
     setActiveIndex(index);
     setShowCarousel(true);
   };
+
+  // Open ViewSource
+
+  const handleOpenViewSource = (index) => {
+    setActiveIndex(index);
+    setShowCarousel(true);
+  }
+
+  // 'Like' Functionality is here
+  const handleLikePost = async (postId) => {
+    //console.log("GettingPostId", postId);
+    setStoreId(postId);
+    await addLike({ likedUserId: postId });
+    setStoreId('');
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -134,12 +153,12 @@ const Posts = () => {
   const filteredPosts = useMemo(() => {
     const posts = Array.isArray(authPost) ? authPost : [];
     if (!debounceSearch.trim()) return posts;
-    
+
     const searchTerm = debounceSearch.toLowerCase().trim();
     return posts.filter(post => {
       const titleMatch = post.title?.toLowerCase().includes(searchTerm);
       const descriptionMatch = post.description?.toLowerCase().includes(searchTerm);
-      
+
       return titleMatch || descriptionMatch;
     });
   }, [authPost, debounceSearch]);
@@ -205,7 +224,7 @@ const Posts = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              We couldn't find any posts matching 
+              We couldn't find any posts matching
             </motion.p>
 
             <motion.p
@@ -383,7 +402,7 @@ const Posts = () => {
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Social-iO
+                Chat-iO
               </h1>
             </motion.div>
 
@@ -424,18 +443,18 @@ const Posts = () => {
                   </motion.button>
                 </Link>
 
-               <Link to={"/notification"}>
-                <motion.button
-                  className="p-2 rounded-full hover:bg-slate-800 transition-all duration-200 relative group"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs bg-slate-800 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200">
-                    Notifications
-                  </span>
-                </motion.button>
-                </Link> 
+                <Link to={"/notification"}>
+                  <motion.button
+                    className="p-2 rounded-full hover:bg-slate-800 transition-all duration-200 relative group"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Bell className="w-5 h-5" />
+                    <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs bg-slate-800 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200">
+                      Notifications
+                    </span>
+                  </motion.button>
+                </Link>
 
                 <Link to="/profile">
                   <motion.button
@@ -642,6 +661,7 @@ const Posts = () => {
                           initial={{ scale: 0.8, opacity: 0 }}
                           whileHover={{ scale: 1, opacity: 1 }}
                         >
+                          {/* Like functionality will goes from here.. */}
                           <div className="flex items-center gap-4 text-white">
                             <motion.button
                               className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-400 transition-all duration-200"
@@ -649,21 +669,30 @@ const Posts = () => {
                               whileTap={{ scale: 0.9 }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                toast.success("Feature on the Way..!");
+                                handleLikePost(post.user?._id)
                               }}
                             >
-                              <Heart className="w-5 h-5" />
+                              {storeId === post.user?._id ? (
+                                <>
+                                  <Loader2 className="h-5 w-5 animate-spin" />
+                                </>
+                              ) : (
+                                <Heart className="w-5 h-5" />
+                              )}
+
                             </motion.button>
+
+                            {/* Todo: Like Fnctionality will goes here.. */}
                             <motion.button
                               className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-blue-400 transition-all duration-200"
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                toast.success("Feature on the Way..!");
+                                handleOpenViewSource(index);
                               }}
                             >
-                              <MessageCircle className="w-5 h-5" />
+                              <Eye className="w-5 h-5" />
                             </motion.button>
                             <motion.button
                               className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-slate-900 transition-all duration-200"
@@ -716,8 +745,8 @@ const Posts = () => {
                                 >
                                   {post.user?.profilePic ? (
                                     <img
-                                      src={post.user.profilePic}
-                                      alt={post.ownerName}
+                                      src={post?.user?.profilePic}
+                                      alt={post?.ownerName}
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (

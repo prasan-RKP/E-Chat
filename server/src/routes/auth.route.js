@@ -18,7 +18,7 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "User already exists" }); // Changed 404 to 400
     }
 
-    console.log('uservalue is', user);
+    console.log("uservalue is", user);
 
     // Check if all fields are provided
     if (!username || !email || !contact || !password) {
@@ -49,7 +49,7 @@ router.post("/signup", async (req, res) => {
         contact: newUser.contact,
         password: newUser.password,
         profilePic: newUser.profilePic,
-        posts: newUser.posts
+        posts: newUser.posts,
       });
     }
   } catch (error) {
@@ -84,7 +84,7 @@ router.post("/login", async (req, res) => {
       email: loggedInUser.email,
       contact: loggedInUser.contact,
       password: loggedInUser.password,
-      profilePic: loggedInUser.profilePic
+      profilePic: loggedInUser.profilePic,
     });
   } catch (error) {
     console.log("Error in post login", error);
@@ -95,9 +95,8 @@ router.post("/login", async (req, res) => {
 // check route
 router.get("/check", protectedRoute, async (req, res) => {
   try {
-    
-     const authval = await req.user.populate('posts');
-     //console.log(authval.posts);
+    const authval = await req.user.populate("posts");
+    //console.log(authval.posts);
 
     return res.status(200).json(req.user);
   } catch (error) {
@@ -130,12 +129,14 @@ router.put("/profile", protectedRoute, async (req, res) => {
 
     const userId = req.user._id;
 
-    console.log('userId is', userId);
+    console.log("userId is", userId);
 
     // Check if it's a valid base64 image
     const isBase64 = /^data:image\/(png|jpeg|jpg);base64,/.test(profilePic);
     if (!isBase64) {
-      return res.status(400).json({ message: "Invalid image format. Use PNG or JPG" });
+      return res
+        .status(400)
+        .json({ message: "Invalid image format. Use PNG or JPG" });
     }
 
     // Upload to Cloudinary with size limit
@@ -147,7 +148,9 @@ router.put("/profile", protectedRoute, async (req, res) => {
     });
 
     if (!uploadResponse.secure_url) {
-      return res.status(500).json({ message: "Failed to upload image to Cloudinary" });
+      return res
+        .status(500)
+        .json({ message: "Failed to upload image to Cloudinary" });
     }
 
     // Update user profile picture
@@ -168,70 +171,57 @@ router.put("/profile", protectedRoute, async (req, res) => {
   }
 });
 
-
-router.put("/likePost", protectedRoute, async (req, res) => {
+// Route for "/likePost"
+router.patch("/likePost", protectedRoute, async (req, res) => {
   const loggedInUserId = req?.user?.id;
   const { likedUserId } = req.body;
+  console.log("gettting userTobeLiked Id", likedUserId);
 
   try {
-    if (!loggedInUserId) return res.status(400).json({ message: "Unauthorized" });
-    if (!likedUserId) return res.status(400).json({ message: "Liked user ID not provided" });
+    if (!loggedInUserId)
+      return res.status(400).json({ message: "You are not LoggedIn.." });
+    if (!likedUserId)
+      return res.status(400).json({ message: "Liked user ID not Found.." });
 
     // Prevent liking yourself
-    if (loggedInUserId === likedUserId) {
-      return res.status(400).json({ message: "You can't like yourself" });
+    if (loggedInUserId.toString() === likedUserId.toString()) {
+      return res.status(400).json({ message: "You can't like yourself.." });
     }
 
     const likedUser = await User.findById(likedUserId);
-    if (!likedUser) return res.status(404).json({ message: "User to be liked not found" });
+    if (!likedUser)
+      return res.status(404).json({ message: "User to be liked not found.." });
 
     // Check if the user already liked
-    const alreadyLiked = likedUser.likeDetails.whoLiked.includes(loggedInUserId);
+    const alreadyLiked = likedUser.likes.whoLiked.includes(loggedInUserId);
 
     if (alreadyLiked) {
-      // Remove the like
-      likedUser.likeDetails.whoLiked = likedUser.likeDetails.whoLiked.filter(
-        (id) => id.toString() !== loggedInUserId
+      likedUser.likes.whoLiked = likedUser.likes.whoLiked.filter(
+        (id) => id.toString() !== loggedInUserId.toString()
       );
-      likedUser.likeDetails.totalLikes -= 1;
     } else {
-      // Add the like
-      likedUser.likeDetails.whoLiked.push(loggedInUserId);
-      likedUser.likeDetails.totalLikes += 1;
+      likedUser.likes.whoLiked.push(loggedInUserId);
     }
+
+    // ✅ Keep count consistent
+    likedUser.likes.totalLikes = likedUser.likes.whoLiked.length;
 
     await likedUser.save();
 
     return res.status(200).json({
       message: alreadyLiked ? "Like removed" : "User liked successfully",
-      totalLikes: likedUser.likeDetails.totalLikes,
-      whoLiked: likedUser.likeDetails.whoLiked,
+      totalLikes: likedUser.likes.totalLikes,
+      whoLiked: likedUser.likes.whoLiked,
     });
   } catch (error) {
-    console.error("Error in /likePost:", error.message);
-    return res.status(500).json({ message: "Server error" });
+    console.error("Error in /likePost:", error);
+    return res.status(500).json({ message: "Internal Server error" });
   }
 });
 
-router.put("/likePost", protectedRoute, async(req, res)=> {
-
-  const loggedInUserId = req?.user?.id;
-  const {userTobeLiked} = req.body;
-
-  try {
-    // I will do it later or tommorow task
-  } catch (error) {
-    
-  }
-
-})
-
-
 // Todo :- We will handle it later
-router.get("/fetchroute",(req, res)=> {
-console.log('Hitting by  the fetchRoute');
-})
-
-
+router.get("/fetchroute", (req, res) => {
+  console.log("Hitting by  the fetchRoute");
+});
 
 export default router;

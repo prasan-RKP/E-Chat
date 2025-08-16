@@ -42,7 +42,9 @@ import {
   Users2,
   ChevronDown,
   MousePointer2,
-  Waves
+  Waves,
+  Github,
+  Linkedin
 } from "lucide-react";
 
 const HomePage = () => {
@@ -588,10 +590,10 @@ const HomePage = () => {
             </p>
             <div className="flex gap-4">
               <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-300">
-                <Twitter className="w-5 h-5" />
+                <Github className="w-5 h-5" />
               </a>
               <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-blue-700/30 transition-all duration-300">
-                <Facebook className="w-5 h-5" />
+                <Linkedin className="w-5 h-5" />
               </a>
               <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-pink-500/30 transition-all duration-300">
                 <Instagram className="w-5 h-5" />
@@ -601,9 +603,9 @@ const HomePage = () => {
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
             <ul className="space-y-2 text-gray-400">
-              <li><Link to="/" className="hover:text-purple-400 transition-colors duration-300">Home</Link></li>
-              <li><Link to="/chat" className="hover:text-purple-400 transition-colors duration-300">Chat</Link></li>
-              <li><Link to="/allposts" className="hover:text-purple-400 transition-colors duration-300">All Posts</Link></li>
+              <li><Link to="/profile" className="hover:text-purple-400 transition-colors duration-300">Go to Profile</Link></li>
+              <li><Link to="/chat" className="hover:text-purple-400 transition-colors duration-300">Start Chat</Link></li>
+              <li><Link to="/allposts" className="hover:text-purple-400 transition-colors duration-300">See Posts</Link></li>
               <li><Link to="/signup" className="hover:text-purple-400 transition-colors duration-300">Sign Up</Link></li>
             </ul>
           </div>

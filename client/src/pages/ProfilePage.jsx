@@ -36,6 +36,7 @@ const ProfilePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [communityPosts, setCommunityPosts] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [totalLikes, setTotalLikes] = useState(0);
 
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.1,
@@ -69,6 +70,11 @@ const ProfilePage = () => {
 
   const navigate = useNavigate();
 
+  //Total Likes
+  useEffect(() => {
+    setTotalLikes(authUser?.likes?.totalLikes);
+  }, [authUser?.likes])
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -99,6 +105,8 @@ const ProfilePage = () => {
     { icon: FaGlobe, color: "text-green-400", href: "https://portfolio-rkp.onrender.com/" }
   ];
 
+  console.log("AuthSTire value", authUser);
+  ;
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#18181b] via-[#232136] to-[#0f172a] text-white">
       {/* Navigation Bar */}
@@ -333,8 +341,8 @@ const ProfilePage = () => {
               <motion.button
                 key={tab}
                 className={`flex-1 py-4 px-6 text-lg font-semibold transition-all duration-300 relative ${activeTab === tab
-                    ? "text-purple-400 bg-gray-800/50"
-                    : "text-gray-400 hover:text-white hover:bg-gray-800/30"
+                  ? "text-purple-400 bg-gray-800/50"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800/30"
                   }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -366,9 +374,9 @@ const ProfilePage = () => {
                   {authUser?.posts?.length > 0 ? (
                     <div
                       className={`${(authUser.posts.length > 6 && window.innerWidth >= 768) ||
-                          (authUser.posts.length > 3 && window.innerWidth < 768)
-                          ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
-                          : ''
+                        (authUser.posts.length > 3 && window.innerWidth < 768)
+                        ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
+                        : ''
                         }`}
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -397,7 +405,7 @@ const ProfilePage = () => {
                                 <div className="flex items-center gap-3">
                                   <button className="flex items-center gap-1 hover:text-red-400 transition-colors duration-300">
                                     <Heart size={16} />
-                                    24
+                                    {totalLikes}
                                   </button>
                                   <button className="flex items-center gap-1 hover:text-blue-400 transition-colors duration-300">
                                     <Share2 size={16} />
@@ -430,9 +438,9 @@ const ProfilePage = () => {
                   {authUser?.posts?.length > 0 ? (
                     <div
                       className={`${(authUser.posts.length > 6 && window.innerWidth >= 768) ||
-                          (authUser.posts.length > 3 && window.innerWidth < 768)
-                          ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
-                          : ''
+                        (authUser.posts.length > 3 && window.innerWidth < 768)
+                        ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
+                        : ''
                         }`}
                     >
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -480,9 +488,9 @@ const ProfilePage = () => {
                   {communityPosts?.length > 0 ? (
                     <div
                       className={`${(communityPosts.length > 6 && window.innerWidth >= 768) ||
-                          (communityPosts.length > 3 && window.innerWidth < 768)
-                          ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
-                          : ''
+                        (communityPosts.length > 3 && window.innerWidth < 768)
+                        ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
+                        : ''
                         }`}
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -549,7 +557,7 @@ const ProfilePage = () => {
                     href={social.href}
                     whileHover={{ scale: 1.2, y: -2 }}
                     whileTap={{ scale: 0.9 }}
-                    className={`p-2 rounded-full bg-gray-800/50 ${social.color} hover:bg-gray-700/50 transition-all duration-300`}
+                    className={`hover:cursor-pointer p-2 rounded-full bg-gray-800/50 ${social.color} hover:bg-gray-700/50 transition-all duration-300`}
                   >
                     <social.icon size={20} />
                   </motion.a>

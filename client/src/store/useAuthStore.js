@@ -21,7 +21,7 @@ export const useAuthStore = create((set, get) => ({
 
   showPost: async () => {},
 
-  fetchingPosts:async () => {},
+  fetchingPosts: async () => {},
 
   checkAuth: async () => {
     try {
@@ -101,11 +101,10 @@ export const useAuthStore = create((set, get) => ({
 
       await axiosInstance.post("/logout");
       set({ authUser: null, onlineUsers: [] }); // Clear online users list
-      if(navigate) {
-        navigate('/');
+      if (navigate) {
+        navigate("/");
       }
       toast.success("Logged out successfully");
-      
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong.");
     }
@@ -152,21 +151,20 @@ export const useAuthStore = create((set, get) => ({
 
   // for Posts logic
   // Todo:- we will handle it later
-  addLike: async(data) => {
-     set({isLikingPost: true});
-     try {
-      const res = await axiosInstance.put("/likePost", data)
-      set({authUser: res.data});
-      toast.success('Post Liked 👍');
-     } catch (error) {
-      if(error.response) {
+  addLike: async (data) => {
+    set({ isLikingPost: true });
+    try {
+      const res = await axiosInstance.patch("/likePost", data);
+      set({ authUser: res.data });
+      toast.success("Post Liked 👍");
+    } catch (error) {
+      if (error.response) {
         toast.error(error.response.data.message);
-      }
-      else{
+      } else {
         toast.error("Try Again, Something Went Wrong");
       }
-     }
-  }
-
-  
+    } finally {
+      set({ isLikingPost: false });
+    }
+  },
 }));
