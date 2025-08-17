@@ -24,6 +24,8 @@ import Email from "./Jsons/Email";
 import Testing from "./pages/Testing";
 import OldPost from "./TempStore/OldPost";
 import NotificationPage from "./pages/NotificationPage";
+import ChartSession from "./pages/ChartSession";
+import ChartSkeleton from "./skeletons/ChartSkeleton";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -31,6 +33,24 @@ const App = () => {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  // This is to if user is close the browser it will automatically loggedOut
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const data = JSON.stringify({ reason: "tab_closed" });
+      const blob = new Blob([data], { type: "application/json" });
+
+      // Send logout request that survives tab close
+      navigator.sendBeacon("http://localhost:5008/auth/logout", blob);
+
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      }
+    }
+  }, []);
+
 
   if (isCheckingAuth && !authUser)
     return (
@@ -49,9 +69,10 @@ const App = () => {
     <div>
       <Routes>
         <Route path="/testing" element={<OldPost />} />
-         <Route path="/notification" element={<NotificationPage/>} />
+        <Route path="/notification" element={<NotificationPage />} />
         <Route path="/" element={<HomePage />} />
-        <Route path="/adj" element={<ChatAppLanding />} />
+        <Route path="/adj" element={<ChartSkeleton />} />
+        <Route path="/pref-chart" element={authUser ? <ChartSession /> : <Navigate to={"/login"} replace />} />
         <Route
           path="/login"
           element={!authUser ? <Login /> : <Navigate to={"/profile"} replace />}

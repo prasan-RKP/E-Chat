@@ -4,6 +4,7 @@ import bcryptjs from "bcryptjs";
 import { generateToken } from "../lib/webToken.js";
 import { protectedRoute } from "../middleware/auth.middleware.js";
 import cloudinary from "../lib/cloudinary.js";
+import UserSession from "../models/userSession.js";
 
 const router = express.Router();
 
@@ -75,8 +76,15 @@ router.post("/login", async (req, res) => {
     );
     if (!isCorrectPassword)
       return res.status(404).json({ message: "Wrong credentials" });
-
+    // ✅ Generate JWT or session cookie
     generateToken(loggedInUser._id, res);
+
+    //// ✅ Create a session log in DB
+    await UserSession.create({
+      userId: loggedInUser._id,
+      loginTime: new Date(),
+    });
+
     return res.status(200).json({
       message: "Login successfull",
       _id: loggedInUser._id,
@@ -105,16 +113,40 @@ router.get("/check", protectedRoute, async (req, res) => {
   }
 });
 
-//logout
-router.post("/logout", async (req, res) => {
+//The logout route is updated with 'userSession' to log the logout time and calculate the session duration
+router.post("/logout", protectedRoute, async (req, res) => {
   try {
+    const userId = req.user._id; // ✅ assuming protectedRoute middleware attaches user to req
+
+    // Find the latest active session for this user
+    const session = await UserSession.findOne({
+      userId,
+      logoutTime: null,
+    }).sort({ loginTime: -1 });
+
+    if (session) {
+      session.logoutTime = new Date();
+      session.durationMinutes = Math.floor(
+        (session.logoutTime - session.loginTime) / 60000
+      );
+      await session.save();
+    }
+
+    // Clear JWT cookie
     res.cookie("jwt", "", { maxAge: 0 });
-    return res.status(200).json({ message: "logout successfully" });
+
+    return res.status(200).json({
+      message: "Logout successful",
+      duration: session ? session.durationMinutes : 0,
+    });
   } catch (error) {
-    return res.status(404).json({ message: "Internal Server Error" });
+    console.log("Error in logout:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
+
+// Route to update user profile picture
 router.put("/profile", protectedRoute, async (req, res) => {
   try {
     const { profilePic } = req.body;
@@ -222,6 +254,28 @@ router.patch("/likePost", protectedRoute, async (req, res) => {
 // Todo :- We will handle it later
 router.get("/fetchroute", (req, res) => {
   console.log("Hitting by  the fetchRoute");
+});
+
+router.get("/fetch-chart", protectedRoute, async(req, res)=> {
+  const userId = req.user._id;
+
+  try {
+    // Add await to execute the query and get the results`
+    // TODO:- it will show only 1day before data , logic is pending 
+    // Logic Flow: suppose today is 17/8/25 it will only show data from 16/8/25 all data .
+    // TODO:- The issue if the user is loggedIn and loggedOut in same days but the graph is only showing one data .
+    const userSessions = await UserSession.find({ userId }); // Filter by userId
+    
+    if (!userSessions || userSessions.length === 0) {
+      return res.status(404).json({ message: "No sessions found for this user" });
+    }
+
+    console.log("The user sessions are:", userSessions);
+    res.status(200).json(userSessions);
+  } catch (error) {
+    console.error("Error fetching user sessions:", error);
+    res.status(500).json({ message: "Error fetching user sessions", error: error.message });
+  }
 });
 
 export default router;

@@ -20,7 +20,9 @@ import {
   Github,
   Mail,
   Phone,
-  Globe
+  Globe,
+  ChartPie,
+  ChartLine
 } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { Link, useNavigate } from "react-router-dom";
@@ -102,7 +104,7 @@ const ProfilePage = () => {
     { icon: FaLinkedin, color: "text-blue-600", href: "https://www.linkedin.com/in/prasan-kumar-05a623345?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" },
     { icon: Github, color: "text-gray-300", href: "https://github.com/prasan-RKP" },
     { icon: Mail, color: "text-red-400", href: "#" },
-    { icon: FaGlobe, color: "text-green-400", href: "https://portfolio-rkp.onrender.com/" }
+    { icon: FaGlobe, color: "text-green-400", href: "https://prasan.onrender.com" }
   ];
 
   console.log("AuthSTire value", authUser);
@@ -153,6 +155,15 @@ const ProfilePage = () => {
                 <Images size={24} />
               </motion.button>
             </Link>
+            <Link to="/pref-chart">
+              <motion.button
+                whileHover={{ scale: 1.1, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-2 rounded-full hover:bg-gray-800 transition-all duration-300 text-gray-300 hover:text-white"
+              >
+                <ChartLine size={24} />
+              </motion.button>
+            </Link>
             <motion.button
               onClick={() => logout(navigate)}
               whileHover={{ scale: 1.05, y: -2 }}
@@ -195,6 +206,10 @@ const ProfilePage = () => {
                 <Link to="/allposts" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-all duration-300">
                   <Images size={20} />
                   <span>Posts</span>
+                </Link>
+                <Link to="/pref-chart" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-all duration-300">
+                  <ChartLine size={20} />
+                  <span>Performance</span>
                 </Link>
                 <button
                   onClick={() => logout(navigate)}
@@ -594,7 +609,7 @@ const ProfilePage = () => {
                 </li>
                 <li className="flex items-center gap-2 ">
                   <Globe size={16} />
-                  <a className="hover:underline hover:text-blue-600" href="https://portfolio-rkp.onrender.com/" target="_blank" rel="noopener noreferrer">Say Hello to Me!</a>
+                  <a className="hover:underline hover:text-blue-600" href="https://prasan.onrender.com/" target="_blank" rel="noopener noreferrer">Say Hello to Me!</a>
                 </li>
               </ul>
             </div>

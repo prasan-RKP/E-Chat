@@ -5,7 +5,7 @@ import { axiosPostInstace } from "../lib/axiosPostInstance.js";
 import { io } from "socket.io-client";
 
 const BASE_URL = "http://localhost:5008";
-//const BASE_URL = "http://192.168.146.238:5008";
+//const BASE_URL = "http://192.168.126.238:5008";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -165,6 +165,24 @@ export const useAuthStore = create((set, get) => ({
       }
     } finally {
       set({ isLikingPost: false });
+    }
+  },
+
+  isFetchingChartData: false,
+  chartData: null,
+  fetchChartData: async () => {
+    set({ isFetchingChartData: true });
+    try {
+      const res = await axiosInstance.get("/fetch-chart");
+      set({ chartData: res.data });
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Try Again, Something Went Wrong");
+      }
+    } finally {
+      set({ isFetchingChartData: false });
     }
   },
 }));

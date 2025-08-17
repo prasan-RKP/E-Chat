@@ -656,12 +656,13 @@ const Posts = () => {
                           whileHover={{ opacity: 1 }}
                         />
 
+                        {/* // All three hover buttons for like, view source, and share -> it will only show when user in low-End devices ((Responsive purpose only)) */}
                         <motion.div
                           className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
                           initial={{ scale: 0.8, opacity: 0 }}
                           whileHover={{ scale: 1, opacity: 1 }}
                         >
-                          {/* Like functionality will goes from here.. */}
+
                           <div className="flex items-center gap-4 text-white">
                             <motion.button
                               className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-400 transition-all duration-200"
@@ -722,6 +723,41 @@ const Posts = () => {
                         >
                           {post.description}
                         </p>
+
+                        {/* All the three buttons for mobile devices */}
+                        <div className="flex items-center gap-4 mt-3 sm:hidden">
+                          <button
+                            className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-400 transition-all duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleLikePost(post.user?._id);
+                            }}
+                          >
+                            {storeId === post.user?._id ? (
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : (
+                              <Heart className="w-5 h-5" />
+                            )}
+                          </button>
+                          <button
+                            className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-blue-400 transition-all duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenViewSource(index);
+                            }}
+                          >
+                            <Eye className="w-5 h-5" />
+                          </button>
+                          <button
+                            className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-slate-900 transition-all duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toast.success("Feature on the Way..!");
+                            }}
+                          >
+                            <Share2 className="w-5 h-5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
