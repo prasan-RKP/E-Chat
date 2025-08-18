@@ -115,6 +115,7 @@ router.get("/check", protectedRoute, async (req, res) => {
 
 //The logout route is updated with 'userSession' to log the logout time and calculate the session duration
 router.post("/logout", protectedRoute, async (req, res) => {
+  console.log("Hitting the logout route");
   try {
     const userId = req.user._id; // ✅ assuming protectedRoute middleware attaches user to req
 
@@ -270,7 +271,7 @@ router.get("/fetch-chart", protectedRoute, async(req, res)=> {
       return res.status(404).json({ message: "No sessions found for this user" });
     }
 
-    console.log("The user sessions are:", userSessions);
+    //console.log("The user sessions are:", userSessions);
     res.status(200).json(userSessions);
   } catch (error) {
     console.error("Error fetching user sessions:", error);

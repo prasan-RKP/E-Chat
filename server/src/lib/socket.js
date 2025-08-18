@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-     origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173"],
     // for mobile app testing
     //origin: ["http://192.168.126.238:5173"],
     credentials: true,
@@ -51,6 +51,8 @@ io.on("connection", (socket) => {
   });
 
   // Handle socket disconnecting (auto-disconnect)
+  // Previous Disconnect code
+  
   socket.on("disconnect", () => {
     console.log(`A user disconnected: ${socket.id}`);
 
@@ -64,6 +66,9 @@ io.on("connection", (socket) => {
       io.emit("getOnlineUsers", Object.keys(userSocketmap)); // ✅ Notify all users
     }
   });
+
+  // New Disconnect code
+  
 });
 
 export { io, server, app };
