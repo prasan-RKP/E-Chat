@@ -26,6 +26,7 @@ import OldPost from "./TempStore/OldPost";
 import NotificationPage from "./pages/NotificationPage";
 import ChartSession from "./pages/ChartSession";
 import ChartSkeleton from "./skeletons/ChartSkeleton";
+//import NewLogin from "./pages/NewLogin";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -82,7 +83,7 @@ useEffect(() => {
         <Route path="/testing" element={<OldPost />} />
         <Route path="/notification" element={<NotificationPage />} />
         <Route path="/" element={<HomePage />} />
-        <Route path="/adj" element={<ChartSkeleton />} />
+        {/* <Route path="/adj" element={<NewLogin />} /> */}
         <Route path="/pref-chart" element={authUser ? <ChartSession /> : <Navigate to={"/login"} replace />} />
         <Route
           path="/login"

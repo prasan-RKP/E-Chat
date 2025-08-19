@@ -3,16 +3,23 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, BarChart3, FileText, Clock, TrendingUp, Calendar, Award, Github, Twitter, Linkedin, Mail, Heart } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { Link, useNavigate } from 'react-router-dom';
+import { usePostStore } from '../store/usePostStore.js';
+import ChartSkeleton from '../skeletons/ChartSkeleton.jsx';
 
 const ChartSession = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [chartData, setChartData] = useState([]);
   const [authUserId, setAuthUserId] = useState(null);
+  const [storePosts, setStorePosts] = useState([]);
+  const [realPosts, setRealPosts] = useState([]); // For future use if needed
 
-  const { authUser, isFetchingChartData, fetchChartData, chartData: backendChartData } = useAuthStore();
+  const { logout, authUser, isFetchingChartData, fetchChartData, chartData: backendChartData } = useAuthStore();
+  const { authPost, showPost } = usePostStore();
 
   console.log("AuthUser value is", authUserId);
   console.log("Backend chart data:", backendChartData);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setAuthUserId(authUser?._id || "Nothing");
@@ -26,6 +33,60 @@ const ChartSession = () => {
     }
     fetchData();
   }, [authUser, fetchChartData]);
+
+  // Fetch and showPosts
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      await showPost();
+    };
+    fetchPosts();
+  }, [showPost]);
+
+  // 🔑 Watch authPost and update storePosts when it's ready
+  useEffect(() => {
+    if (authPost) {
+      setStorePosts(authPost);
+    }
+  }, [authPost]);
+
+
+  useEffect(() => {
+    if (storePosts) {
+      const posts = storePosts.filter(post => post.user._id === authUserId);
+      setRealPosts(posts);
+    }
+  }, [storePosts]);
+
+  console.log("All real Posts", realPosts);
+
+  const timeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) {
+      return `${seconds} seconds ago`;
+    }
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) {
+      return `${minutes} minutes ago`;
+    }
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return `${hours} hours ago`;
+    }
+    const days = Math.floor(hours / 24);
+    if (days < 30) {
+      return `${days} days ago`;
+    }
+    const months = Math.floor(days / 30);
+    if (months < 12) {
+      return `${months} months ago`;
+    }
+    const years = Math.floor(months / 12);
+    return `${years} years ago`;
+  };
 
   // Process backend data when it arrives
   useEffect(() => {
@@ -46,14 +107,14 @@ const ChartSession = () => {
 
     // Group sessions by date
     const sessionsByDate = {};
-    
+
     sessions.forEach(session => {
       // Ensure session has required fields
       if (!session.loginTime) return;
-      
+
       const loginDate = new Date(session.loginTime);
       const dateKey = loginDate.toISOString().split('T')[0]; // YYYY-MM-DD format
-      
+
       if (!sessionsByDate[dateKey]) {
         sessionsByDate[dateKey] = {
           date: loginDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -63,7 +124,7 @@ const ChartSession = () => {
           sessionCount: 0
         };
       }
-      
+
       // Only include sessions with logout time (completed sessions) or use durationMinutes if available
       if (session.logoutTime || session.durationMinutes > 0) {
         sessionsByDate[dateKey].sessions.push(session);
@@ -183,7 +244,7 @@ const ChartSession = () => {
     const totalMinutes = chartData.reduce((sum, day) => sum + (day.totalDuration || day.duration), 0);
     const avgDuration = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
     const bestSession = Math.max(...chartData.map(day => day.duration || 0));
-    
+
     return {
       totalSessions,
       avgDuration,
@@ -280,17 +341,17 @@ const ChartSession = () => {
                 Performance Analytics
               </h2>
               <p className="text-slate-400">
-                {isFetchingChartData 
-                  ? "Loading your session data..." 
-                  : backendChartData && Array.isArray(backendChartData) && backendChartData.length > 0 
-                    ? `Showing data from ${backendChartData.length} session${backendChartData.length !== 1 ? 's' : ''}` 
+                {isFetchingChartData
+                  ? "Loading your session data..."
+                  : backendChartData && Array.isArray(backendChartData) && backendChartData.length > 0
+                    ? `Showing data from ${backendChartData.length} session${backendChartData.length !== 1 ? 's' : ''}`
                     : "No session data available yet - start using the app to see your analytics"
                 }
               </p>
             </motion.div>
 
             {isFetchingChartData ? (
-              <motion.div 
+              <motion.div
                 variants={itemVariants}
                 className="bg-slate-800/50 backdrop-blur-sm rounded-3xl p-8 border border-slate-700/50 shadow-2xl flex items-center justify-center h-80"
               >
@@ -384,7 +445,7 @@ const ChartSession = () => {
             </motion.div>
 
             <motion.div variants={itemVariants} className="grid gap-6">
-              {[1, 2, 3].map((post) => (
+              {realPosts.map((post) => (
                 <motion.div
                   key={post}
                   whileHover={{ scale: 1.02, y: -2 }}
@@ -396,13 +457,13 @@ const ChartSession = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-white mb-2">
-                        Post Title {post}
+                        Post Title {post?.title}
                       </h3>
                       <p className="text-slate-400 mb-3">
-                        This is a sample post description that shows how your content would appear in this beautiful dashboard layout.
+                        {post?.description}
                       </p>
                       <div className="flex items-center gap-4 text-sm text-slate-500">
-                        <span>2 days ago</span>
+                        <span>{timeAgo(post.createdAt)}</span>
                         <span>•</span>
                         <span>5 min read</span>
                         <span>•</span>
@@ -420,6 +481,12 @@ const ChartSession = () => {
         return null;
     }
   };
+
+  if (isFetchingChartData && (authPost === null)) {
+    return (
+      <ChartSkeleton />
+    )
+  }
 
   return (
     <div className="min-h-screen bg-slate-850" style={{ backgroundColor: '#0f172a' }}>
@@ -530,13 +597,32 @@ const ChartSession = () => {
             <div>
               <h4 className="text-white font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-3">
-                {['Dashboard', 'Analytics', 'Profile', 'Settings', 'Support'].map((link) => (
-                  <motion.li key={link} whileHover={{ x: 4 }}>
-                    <a href="#" className="text-slate-400 hover:text-purple-400 transition-colors duration-200">
-                      {link}
-                    </a>
-                  </motion.li>
-                ))}
+
+                <motion.li whileHover={{ x: 4 }}>
+                  <Link to="/profile" className="text-slate-400 hover:text-purple-400 transition-colors duration-200">
+                    Profile
+                  </Link>
+                </motion.li>
+                <motion.li whileHover={{ x: 4 }}>
+                  <Link to="/allposts" className="text-slate-400 hover:text-purple-400 transition-colors duration-200">
+                    See Posts
+                  </Link>
+                </motion.li>
+                <motion.li whileHover={{ x: 4 }}>
+                  <Link to="/addpost" className="text-slate-400 hover:text-purple-400 transition-colors duration-200">
+                    Add Post
+                  </Link>
+                </motion.li>
+                <motion.li whileHover={{ x: 4 }}>
+                  <button
+                    onClick={() => logout(navigate)}
+                    className="text-slate-400 hover:text-purple-400 transition-colors duration-200"
+                  >
+                    LogOut
+                  </button>
+                </motion.li>
+
+
               </ul>
             </div>
 
