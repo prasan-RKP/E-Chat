@@ -1,17 +1,20 @@
+// WebToken.js
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 export const generateToken = (userId, res) => {
-  const expiryMinutes = 40;
+  // JWT expiry set to 2 minutes
+  const expiryMinutes = 45;
 
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: `${expiryMinutes}m`, // ✅ JWT expires in 40 minutes
+    expiresIn: `${expiryMinutes}m`, // 👈 token expires in 2 minutes
   });
 
+  // Cookie expiry set to 3 minutes
   res.cookie("jwt", token, {
-    maxAge: expiryMinutes * 60 * 1000, // ✅ 40 minutes in ms
+    maxAge: (expiryMinutes + 30) * 60 * 1000, // 3 minutes in ms
     httpOnly: true,
     sameSite: "strict",
     secure: process.env.NODE_ENV !== "development",
@@ -19,6 +22,8 @@ export const generateToken = (userId, res) => {
 
   return token;
 };
+
+
 
 //For mobile testing...
 // res.cookie("jwt", token, {

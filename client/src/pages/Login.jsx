@@ -179,7 +179,8 @@ const Login = () => {
       `}</style>
 
       {/* Left Side - Catchy Image */}
-      <div className="lg:w-1/2 min-h-[40vh] lg:min-h-screen relative overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex lg:block">
+      {/* from-purple-900 via-blue-900 to-indigo-900 */}
+      <div className="lg:w-1/2 min-h-[40vh] lg:min-h-screen relative overflow-hidden bg-gradient-to-br bg-gray-300  flex lg:block">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-32 sm:w-48 lg:w-72 h-32 sm:h-48 lg:h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation"></div>
@@ -226,11 +227,11 @@ const Login = () => {
         >
           {/* Header */}
           <div className="text-center mb-6 sm:mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl mb-3 sm:mb-4 hover-lift">
+            {/* <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl mb-3 sm:mb-4 hover-lift">
               <Shield size={20} className="sm:hidden text-white" />
               <Shield size={24} className="hidden sm:block lg:hidden text-white" />
               <Shield size={32} className="hidden lg:block text-white" />
-            </div>
+            </div> */}
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               Welcome Back
             </h1>

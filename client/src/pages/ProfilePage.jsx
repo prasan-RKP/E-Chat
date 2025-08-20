@@ -22,13 +22,16 @@ import {
   Phone,
   Globe,
   ChartPie,
-  ChartLine
+  ChartLine,
+  Trash,
+  Loader2
 } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { Link, useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 import { FaGlobe } from "react-icons/fa";
 import { FaLinkedin } from "react-icons/fa";
+import { usePostStore } from "../store/usePostStore.js";
 
 
 const ProfilePage = () => {
@@ -39,13 +42,15 @@ const ProfilePage = () => {
   const [communityPosts, setCommunityPosts] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [totalLikes, setTotalLikes] = useState(0);
-
+  const [deleteId, setDeleteId] = useState('');
+  const [myPosts, setMyposts] = useState([]);
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.1,
     triggerOnce: true,
   });
 
   const tabs = ["Posts", "Photos", "Community"];
+  const { deletePost } = usePostStore();
 
   // Handle image selection and convert to base64
   const handleFileInputChange = async (e) => {
@@ -75,7 +80,19 @@ const ProfilePage = () => {
   //Total Likes
   useEffect(() => {
     setTotalLikes(authUser?.likes?.totalLikes);
-  }, [authUser?.likes])
+    setMyposts(authUser?.posts || []);
+  }, [authUser?.likes, authUser?.posts])
+
+  // Handle delete post
+  const handleDeletePost = async (postId) => {
+    //console.log("getting teh postId", postId)
+    setDeleteId(postId);
+    await deletePost({ postId });
+    setMyposts((posts) => posts.filter((post) => post._id !== postId));
+    setDeleteId('');
+  };
+
+  console.log("Total posts", authUser?.posts);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -289,7 +306,7 @@ const ProfilePage = () => {
           {/* Stats */}
           <motion.div variants={itemVariants} className="grid grid-cols-3 gap-4 md:gap-8 mb-8 max-w-md mx-auto">
             <div className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-purple-400">{authUser?.posts?.length || 0}</div>
+              <div className="text-2xl md:text-3xl font-bold text-purple-400">{myPosts?.length || 0}</div>
               <div className="text-sm text-gray-400">Posts</div>
             </div>
             <div className="text-center">
@@ -386,16 +403,17 @@ const ProfilePage = () => {
                   transition={{ duration: 0.3 }}
                   className="space-y-6"
                 >
-                  {authUser?.posts?.length > 0 ? (
+                  {myPosts?.length > 0 ? (
                     <div
-                      className={`${(authUser.posts.length > 6 && window.innerWidth >= 768) ||
-                        (authUser.posts.length > 3 && window.innerWidth < 768)
+                      className={`${(myPosts?.length > 6 && window.innerWidth >= 768) ||
+                        (myPosts?.length > 3 && window.innerWidth < 768)
                         ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
                         : ''
                         }`}
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {authUser.posts.map((post, index) => (
+                        {/* updating here  */}
+                        {myPosts.map((post, index) => (
                           <motion.div
                             key={index}
                             initial={{ opacity: 0, scale: 0.9 }}
@@ -417,14 +435,24 @@ const ProfilePage = () => {
                                   <Calendar size={14} />
                                   {new Date(post.createdAt).toLocaleDateString()}
                                 </span>
-                                <div className="flex items-center gap-3">
-                                  <button className="flex items-center gap-1 hover:text-red-400 transition-colors duration-300">
+                                <div className="flex items-center gap-4">
+                                  <button className="flex items-center gap-1 hover:text-red-400 hover:cursor-pointer transition-colors duration-300">
                                     <Heart size={16} />
                                     {totalLikes}
                                   </button>
-                                  <button className="flex items-center gap-1 hover:text-blue-400 transition-colors duration-300">
+                                  <button className="flex items-center gap-1 hover:text-blue-400 hover:cursor-pointer transition-colors duration-300">
                                     <Share2 size={16} />
                                   </button>
+
+                                  {post._id === deleteId ? (
+                                    <Loader2 className="h-5 w-5 animate-spin text-red-500" />
+                                  ) : (
+                                    <>
+                                      <button onClick={() => handleDeletePost(post._id)} className="flex items-center gap-1 hover:text-red-500 hover:cursor-pointer transition-colors duration-300">
+                                        <Trash size={16} />
+                                      </button>
+                                    </>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -452,14 +480,14 @@ const ProfilePage = () => {
                 >
                   {authUser?.posts?.length > 0 ? (
                     <div
-                      className={`${(authUser.posts.length > 6 && window.innerWidth >= 768) ||
-                        (authUser.posts.length > 3 && window.innerWidth < 768)
+                      className={`${(myPosts?.length > 6 && window.innerWidth >= 768) ||
+                        (myPosts?.length > 3 && window.innerWidth < 768)
                         ? 'max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-gray-800/50 hover:scrollbar-thumb-purple-500/70'
                         : ''
                         }`}
                     >
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {authUser.posts.map((post, index) => (
+                        {myPosts?.map((post, index) => (
                           <motion.div
                             key={index}
                             initial={{ opacity: 0, scale: 0.8 }}
@@ -468,13 +496,13 @@ const ProfilePage = () => {
                             className="relative group aspect-square overflow-hidden rounded-xl bg-gray-800/50 border border-gray-700 hover:border-purple-500/50 transition-all duration-300 shadow-lg hover:shadow-xl"
                           >
                             <img
-                              src={post.postImage}
+                              src={post?.postImage}
                               alt="Post"
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                               <span className="text-white text-sm font-semibold text-center px-2">
-                                #{post.title}
+                                #{post?.title}
                               </span>
                             </div>
                           </motion.div>

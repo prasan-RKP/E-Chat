@@ -125,4 +125,47 @@ router.get("/allposts", protectedRoute, async (req, res) => {
   }
 });
 
+router.delete("/delete-post", protectedRoute, async (req, res) => {
+  const { postId } = req.body; 
+  const userId = req.user?._id;
+
+  try {
+    if (!postId) {
+      return res.status(400).json({ message: "Post ID is required ☹️" });
+    }
+
+    // 1. Find the post
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found ❌" });
+    }
+
+    // 2. Check ownership
+    if (post?.user?._id.toString() !== userId.toString()) {
+      return res.status(403).json({ message: "Not allowed to delete this post 🚫" });
+    }
+
+    // 3. Delete post
+    const deletedPost = await Post.findByIdAndDelete(postId);
+
+    // 4. Remove reference from user's posts array
+    await User.findByIdAndUpdate(
+      userId,
+      { $pull: { posts: postId } },
+      { new: true }
+    );
+
+    // ✅ Return deleted post info so frontend can update UI
+    return res.status(200).json({ 
+      message: "Post deleted successfully ✅", 
+      deletedPost: { _id: deletedPost._id } 
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error ⚡" });
+  }
+});
+
+
+
 export default router;
