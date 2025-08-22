@@ -1,5 +1,5 @@
-import React from "react";
-import { X, Menu, Home, User, LogOut, Images } from "lucide-react";
+import React, { useState } from "react";
+import { X, Menu, Home, User, LogOut, Images, Loader2 } from "lucide-react";
 import { useChatStore } from "../../store/useChatStore.js";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore.js";
@@ -8,7 +8,14 @@ import { SlUserFollow } from "react-icons/sl";
 
 const ChatHeader = () => {
   const { setSelectedUser, selectedUser, setIsSidebarOpen } = useChatStore();
-  const { logout } = useAuthStore();
+  const { logout, followFeature, isFollowing } = useAuthStore();
+  const [storeId, setStoreId] = useState('');
+
+  const handleOnFollow = async (id) => {
+    setStoreId(id);
+    await followFeature({ fid: id });
+    setStoreId('');
+  }
 
   const navigate = useNavigate();
 
@@ -60,9 +67,13 @@ const ChatHeader = () => {
              hover:from-pink-500 hover:to-pink-700 
              hover:scale-105 hover:shadow-lg 
              active:scale-95 transition-all duration-300 ease-in-out cursor-pointer"
-                onClick={() => toast.info("Feature not implemented yet!")}
+                onClick={() => handleOnFollow(selectedUser._id)}
               >
-                Follow
+                {selectedUser?._id === storeId ? (
+                  <>
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </>
+                ) : "Follow"}
               </button>
 
               <button

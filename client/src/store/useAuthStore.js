@@ -185,4 +185,21 @@ export const useAuthStore = create((set, get) => ({
       set({ isFetchingChartData: false });
     }
   },
+
+  isFollowing: false,
+  followFeature: async (data) => {
+    set({ isFollowing: true });
+    try {
+      const res = await axiosInstance.put("/follow", data);
+      set({ authUser: res.data });
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Try Again, Something Went Wrong");
+      }
+    } finally {
+      set({ isFollowing: false });
+    }
+  },
 }));

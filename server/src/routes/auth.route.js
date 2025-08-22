@@ -282,4 +282,11 @@ router.get("/fetch-chart", protectedRoute, async (req, res) => {
   }
 });
 
+router.put("/follow", protectedRoute, async(req, res)=> {
+  const {fid} = req.body;
+  const userId = req.user?.id
+
+  // TODO: - Following backend code for tommorow
+})
+
 export default router;
