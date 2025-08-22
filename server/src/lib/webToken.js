@@ -6,7 +6,7 @@ dotenv.config();
 
 export const generateToken = (userId, res) => {
   // JWT expiry set to 2 minutes
-  const expiryMinutes = 45;
+  const expiryMinutes = 54;
 
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: `${expiryMinutes}m`, // 👈 token expires in 2 minutes
@@ -14,7 +14,7 @@ export const generateToken = (userId, res) => {
 
   // Cookie expiry set to 3 minutes
   res.cookie("jwt", token, {
-    maxAge: (expiryMinutes + 30) * 60 * 1000, // 3 minutes in ms
+    maxAge: (expiryMinutes + 5) * 60 * 1000, // 3 minutes in ms
     httpOnly: true,
     sameSite: "strict",
     secure: process.env.NODE_ENV !== "development",

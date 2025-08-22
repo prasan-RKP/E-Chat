@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axiosInstance.js";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { axiosPostInstace } from "../lib/axiosPostInstance.js";
 import { io } from "socket.io-client";
 

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { axiosPostInstace } from "../lib/axiosPostInstance";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { useAuthStore } from "./useAuthStore.js";
 
 export const usePostStore = create((set, get) => ({

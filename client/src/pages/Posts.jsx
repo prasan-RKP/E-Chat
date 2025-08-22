@@ -9,7 +9,7 @@ import { useInView } from "react-intersection-observer";
 
 import "../stylesheets/myCustom.css";
 import PostCarousel from "../assets/PostCarousel.jsx";
-import toast from "react-hot-toast";
+import {toast} from "sonner";
 import { useDebounce } from 'use-debounce';
 
 const Posts = () => {

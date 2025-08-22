@@ -12,7 +12,7 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { useAuthStore } from "../store/useAuthStore";
 
 const SignUp = () => {

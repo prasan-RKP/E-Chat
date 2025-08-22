@@ -265,8 +265,8 @@ const ProfilePage = () => {
                 ) : (
                   <img
                     src={
-                      authUser.profilePic ||
-                      "https://img.freepik.com/premium-psd/contact-icon-illustration-isolated_23-2151903357.jpg?ga=GA1.1.609031703.1716957572&semt=ais_hybrid"
+                      authUser?.profilePic ||
+                      "/dfp.png"
                     }
                     className="w-full h-full object-cover"
                     alt="Profile"

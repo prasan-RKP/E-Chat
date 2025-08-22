@@ -11,7 +11,7 @@ import MessageDropdown from "../assets/MessageDropdown.jsx";
 import moment from "moment";
 import PinnedMessage from "../assets/PinnedMessage.jsx";
 import ModalImage from "../assets/ModalImage.jsx";
-import {toast} from "react-hot-toast";
+import {toast} from "sonner";
 //import {myProfile} from '../assets/dfp.png'
 
 const ChatComponent = () => {
@@ -142,7 +142,7 @@ const ChatComponent = () => {
                         <img
                           alt="User Avatar"
                           src={
-                            selectedUser.profilePic
+                            selectedUser.profilePic || "/dfp.png"
                            
                           }
                           className="w-full h-full object-cover"

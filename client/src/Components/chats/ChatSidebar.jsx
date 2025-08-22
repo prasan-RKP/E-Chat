@@ -4,6 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useChatStore } from "../../store/useChatStore.js";
 import { useAuthStore } from "../../store/useAuthStore.js";
 import { useNavigate } from "react-router-dom";
+import {toast} from "sonner";
+import { SlUserFollow } from "react-icons/sl";
+import { LiaUserPlusSolid } from "react-icons/lia";
+
 //import {profile} from "../../assets/dfp.png"
 
 const ChatSidebar = () => {
@@ -91,6 +95,8 @@ const ChatSidebar = () => {
                   <span className="font-medium text-gray-300">{user.username}</span>
                 </div>
                 <span className={`w-3 h-3 rounded-full ${isOnline ? "bg-green-500" : "bg-gray-500"}`}></span>
+                 <LiaUserPlusSolid onClick={()=> toast.info("Following to you ✅")} className="w-5 h-5" />
+
               </motion.div>
             );
           })
@@ -125,7 +131,7 @@ const ChatSidebar = () => {
                 <div className="flex flex-col space-y-4 mt-4">
                   <button 
                     onClick={() => {
-                      navigate("/new-group");
+                      toast.info("Feature coming soon! 🚧");
                       setIsModalOpen(false);
                     }} 
                     className="text-gray-300 hover:text-blue-500 py-2 px-4 rounded hover:bg-gray-800 transition-colors"
@@ -134,25 +140,7 @@ const ChatSidebar = () => {
                   </button>
                   <button 
                     onClick={() => {
-                      navigate("/linked-device");
-                      setIsModalOpen(false);
-                    }} 
-                    className="text-gray-300 hover:text-green-500 py-2 px-4 rounded hover:bg-gray-800 transition-colors"
-                  >
-                    Linked Device
-                  </button>
-                  <button 
-                    onClick={() => {
-                      navigate("/faved-people");
-                      setIsModalOpen(false);
-                    }} 
-                    className="text-gray-300 hover:text-purple-500 py-2 px-4 rounded hover:bg-gray-800 transition-colors"
-                  >
-                    Faved People
-                  </button>
-                  <button 
-                    onClick={() => {
-                      navigate("/settings");
+                      toast.info("Follow feature coming soon! 🚧");
                       setIsModalOpen(false);
                     }} 
                     className="text-gray-300 hover:text-yellow-500 py-2 px-4 rounded hover:bg-gray-800 transition-colors"

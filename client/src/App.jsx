@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from 'sonner';
 import { useAuthStore } from "./store/useAuthStore";
 import ProfilePage from "./pages/ProfilePage";
 import { Loader } from "lucide-react";
@@ -26,6 +26,7 @@ import OldPost from "./TempStore/OldPost";
 import NotificationPage from "./pages/NotificationPage";
 import ChartSession from "./pages/ChartSession";
 import ChartSkeleton from "./skeletons/ChartSkeleton";
+import VisitUser from "./pages/VisitUser";
 //import NewLogin from "./pages/NewLogin";
 
 const App = () => {
@@ -80,7 +81,7 @@ useEffect(() => {
   return (
     <div>
       <Routes>
-        <Route path="/testing" element={<OldPost />} />
+        <Route path="/testing" element={<VisitUser />} />
         <Route path="/notification" element={<NotificationPage />} />
         <Route path="/" element={<HomePage />} />
         {/* <Route path="/adj" element={<NewLogin />} /> */}
@@ -119,7 +120,7 @@ useEffect(() => {
           element={authUser ? <Posts /> : <Navigate to={"/login"} replace />}
         />
       </Routes>
-      <Toaster />
+      <Toaster position="bottom-right" />
     </div>
   );
 };
