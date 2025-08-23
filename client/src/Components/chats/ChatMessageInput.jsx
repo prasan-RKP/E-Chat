@@ -95,7 +95,8 @@ const ChatMessageInput = () => {
 
             <button
               type="button"
-              className="text-gray-400 hover:text-gray-300 transition-colors flex-shrink-0"
+              className="text-gray-400 hover:text-gray-300 transition-colors flex-shrink-0 hover:scale-110 hover:cursor-pointer"
+              onClick={() => toast.info("Voice messages coming soon! 🎤") }
             >
               <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
@@ -111,7 +112,7 @@ const ChatMessageInput = () => {
 
           <button
             type="button"
-            className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
+            className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0 hover:cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
           >
             <ImagePlus className="w-4 h-4 sm:w-6 sm:h-6" />
@@ -119,7 +120,7 @@ const ChatMessageInput = () => {
 
           <button
             type="submit"
-            className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
+            className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0 hover:cursor-pointer"
           >
             <Send className="w-4 h-4 sm:w-6 sm:h-6" />
           </button>

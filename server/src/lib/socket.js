@@ -1,13 +1,15 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173"],
+    origin: [process.env.VITE_FRONTEND_URL || "http://localhost:5173"],
     // for mobile app testing
     //origin: ["http://192.168.126.238:5173"],
     credentials: true,
@@ -52,7 +54,7 @@ io.on("connection", (socket) => {
 
   // Handle socket disconnecting (auto-disconnect)
   // Previous Disconnect code
-  
+
   socket.on("disconnect", () => {
     console.log(`A user disconnected: ${socket.id}`);
 
@@ -68,7 +70,6 @@ io.on("connection", (socket) => {
   });
 
   // New Disconnect code
-  
 });
 
 export { io, server, app };

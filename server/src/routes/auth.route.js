@@ -282,11 +282,54 @@ router.get("/fetch-chart", protectedRoute, async (req, res) => {
   }
 });
 
-router.put("/follow", protectedRoute, async(req, res)=> {
-  const {fid} = req.body;
-  const userId = req.user?.id
+router.patch("/follow", protectedRoute, async (req, res) => {
+  const { fid } = req.body; // id of the user to follow/unfollow
+  const userId = req.user?.id; // logged-in user id
 
-  // TODO: - Following backend code for tommorow
-})
+  try {
+    if (!fid)
+      return res.status(400).json({ message: "Followed user not found" });
+    if (fid === userId)
+      return res.status(400).json({ message: "You can't follow yourself" });
+
+    const user = await User.findById(userId);
+    const targetUser = await User.findById(fid);
+
+    if (!user || !targetUser)
+      return res.status(404).json({ message: "User not found" });
+
+    // check if already following BEFORE update
+    const isAlreadyFollowing = user.following.some(
+      (id) => id.toString() === fid
+    );
+
+    let action = "";
+    if (isAlreadyFollowing) {
+      // UNFOLLOW
+      await User.findByIdAndUpdate(userId, { $pull: { following: fid } });
+      await User.findByIdAndUpdate(fid, { $pull: { followers: userId } });
+      action = "unfollowed";
+    } else {
+      // FOLLOW
+      await User.findByIdAndUpdate(userId, { $addToSet: { following: fid } });
+      await User.findByIdAndUpdate(fid, { $addToSet: { followers: userId } });
+      action = "followed";
+    }
+
+    const refreshedUser = await User.findById(userId)
+      .select("-password")
+      .populate("following", "username profilePic")
+      .populate("followers", "username profilePic");
+
+    return res.status(200).json({
+      status: "success",
+      action, // 👈 either "followed" or "unfollowed"
+      user: refreshedUser,
+    });
+  } catch (error) {
+    console.error("Error in follow/unfollow:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 export default router;

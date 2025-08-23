@@ -11,8 +11,6 @@ import MessageDropdown from "../assets/MessageDropdown.jsx";
 import moment from "moment";
 import PinnedMessage from "../assets/PinnedMessage.jsx";
 import ModalImage from "../assets/ModalImage.jsx";
-import {toast} from "sonner";
-//import {myProfile} from '../assets/dfp.png'
 
 const ChatComponent = () => {
   const {
@@ -30,13 +28,18 @@ const ChatComponent = () => {
   const [hoveredMessage, setHoveredMessage] = useState(null);
   const [modalImage, setModalImage] = useState(null);
   const [dropdownMessage, setDropdownMessage] = useState(null);
-  const [pinnedMessage, setPinnedMessage] = useState(null); // Store pinned message
-  const messageRefs = useRef({}); // Store message DOM elements
+  const [pinnedMessage, setPinnedMessage] = useState(null);
+  const messageRefs = useRef({});
+  const longPressTimer = useRef(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const dropdownRef = useRef(null);
 
   const [removeMessages, setRemoveMessages] = useState(messages);
 
-
   useEffect(() => {
+    // Check if device is touch-enabled
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    
     subscribeToMessages();
 
     if (selectedUser) {
@@ -46,9 +49,41 @@ const ChatComponent = () => {
     return () => unSubscribeFromMessages();
   }, [selectedUser, getMessages, subscribeToMessages, unSubscribeFromMessages]);
 
+  // Add effect to handle outside clicks
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownMessage(null);
+      }
+    };
 
-  // for delete condition
-  
+    // Add event listener when dropdown is open
+    if (dropdownMessage !== null) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    // Clean up event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [dropdownMessage]);
+
+  // Handle long press on touch devices
+  const handleTouchStart = (index) => {
+    if (!isTouchDevice) return;
+    
+    longPressTimer.current = setTimeout(() => {
+      setDropdownMessage(dropdownMessage === index ? null : index);
+    }, 500); // 500ms delay for long press
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+    }
+  };
 
   // Scroll to pinned message when clicked
   const handleScrollToPinnedMessage = () => {
@@ -65,23 +100,13 @@ const ChatComponent = () => {
       }, 1000);
     }
   };
-  
-
-  // for remove message
-  ///const [removeMessages, setRemoveMessages] = useState(messages);
-
-  //console.log('messages updates', messages);
 
   const removeMessage = (message) => {
-    if(window.confirm("Are you sure you want to delete the message ? ")) {
+    if (window.confirm("Are you sure you want to delete the message ? ")) {
       console.log('The doubt messageId', message._id);
-    removeMessageAction(message);
+      removeMessageAction(message);
     }
-    //67cdcc8f6ad53163108af805
   }
-
-  
-  
 
   return (
     <div className="flex h-screen bg-gray-900 text-gray-300">
@@ -89,7 +114,7 @@ const ChatComponent = () => {
       <div className="flex-1 flex flex-col">
         <ChatHeader />
 
-        {/* Pinned Message Bar (stored inside a component) */}
+        {/* Pinned Message Bar */}
         <PinnedMessage
           pinnedMessage={pinnedMessage}
           handleScrollToPinnedMessage={handleScrollToPinnedMessage}
@@ -122,29 +147,29 @@ const ChatComponent = () => {
                 messages.map((message, index) => (
                   <div
                     key={index}
-                    ref={(el) => (messageRefs.current[message._id] = el)} // Store message ref
-                    className={`relative flex items-end gap-1 sm:gap-2 p-1 transition-all duration-200 ${
-                      message.senderId === authUser._id
+                    ref={(el) => (messageRefs.current[message._id] = el)}
+                    className={`relative flex items-end gap-1 sm:gap-2 p-1 transition-all duration-200 ${message.senderId === authUser._id
                         ? "justify-end"
                         : "justify-start"
-                    }`}
-                    onMouseEnter={() => setHoveredMessage(index)}
+                      }`}
+                    onMouseEnter={() => !isTouchDevice && setHoveredMessage(index)}
                     onMouseLeave={() => {
-                      setHoveredMessage(null);
-                      if (index < messages.length - 2) {
-                        setDropdownMessage(null);
+                      if (!isTouchDevice) {
+                        setHoveredMessage(null);
+                        if (index < messages.length - 2) {
+                          setDropdownMessage(null);
+                        }
                       }
                     }}
+                    onTouchStart={() => handleTouchStart(index)}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchMove={handleTouchEnd}
                   >
-                    {/* Hide avatars on mobile (below sm breakpoint), show on tablets and above */}
                     {message.senderId !== authUser._id && (
                       <div className="hidden sm:block w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden flex-shrink-0">
                         <img
                           alt="User Avatar"
-                          src={
-                            selectedUser.profilePic || "/dfp.png"
-                           
-                          }
+                          src={selectedUser.profilePic || "/dfp.png"}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -169,52 +194,52 @@ const ChatComponent = () => {
                         </p>
                       </div>
                     </div>
-                    {/* Hide avatars on mobile (below sm breakpoint), show on tablets and above */}
                     {message.senderId === authUser._id && (
                       <div className="hidden sm:block w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden flex-shrink-0">
                         <img
                           alt="User Avatar"
-                          src={authUser.profilePic }
+                          src={authUser?.profilePic || "/dfp.png"}
                           className="w-full h-full object-cover"
                         />
                       </div>
                     )}
-                    {/* start */}
-                    {hoveredMessage === index && (
+                    
+                    {/* Show dropdown on hover (desktop) or long press (mobile) */}
+                    {(hoveredMessage === index || dropdownMessage === index) && (
                       <div className={`ml-1 sm:ml-2 relative flex-shrink-0`}>
-                        <button
-                          className={`text-gray-400 hover:text-white`}
-                          onClick={() =>
-                            setDropdownMessage(
-                              dropdownMessage === index ? null : index
-                            )
-                          }
-                        >
-                          <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </button>
+                        {!isTouchDevice && (
+                          <button
+                            className={`text-gray-400 hover:text-white`}
+                            onClick={() =>
+                              setDropdownMessage(
+                                dropdownMessage === index ? null : index
+                              )
+                            }
+                          >
+                            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
+                          </button>
+                        )}
                         {dropdownMessage === index && (
                           <div
-                            className={`absolute mt-2 w-28 sm:w-32 bg-gray-800 border border-gray-600 rounded-lg shadow-md p-2 flex flex-col z-50 ${
-                              index >= messages.length - 2
+                            ref={dropdownRef}
+                            className={`absolute mt-2 w-28 sm:w-32 bg-gray-800 border border-gray-600 rounded-lg shadow-md p-2 flex flex-col z-50 ${index >= messages.length - 2
                                 ? "bottom-full mb-2"
                                 : "top-full mt-2"
-                            } ${
-                              message.senderId === authUser._id
+                              } ${message.senderId === authUser._id
                                 ? "right-0"
                                 : "left-0"
-                            }`}
+                              }`}
                           >
-                            {/* Stored all the buttons inside the "MessageDropdown" component  */}
                             <MessageDropdown
                               message={message}
-                              onPinMessage={() => setPinnedMessage(message)} 
-                              removeMessage={()=>removeMessage(message)}
+                              onPinMessage={() => setPinnedMessage(message)}
+                              removeMessage={() => removeMessage(message)}
+                              onClose={() => setDropdownMessage(null)}
                             />
                           </div>
                         )}
                       </div>
                     )}
-                    {/* End */}
                   </div>
                 ))
               )}
@@ -230,7 +255,6 @@ const ChatComponent = () => {
         {selectedUser && <ChatMessageInput />}
       </div>
 
-      {/* Stored the modalImage functionality inside the "ModalImage" component */}
       <ModalImage modalImage={modalImage} setModalImage={setModalImage} />
     </div>
   );

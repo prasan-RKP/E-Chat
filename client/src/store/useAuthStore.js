@@ -3,8 +3,10 @@ import { axiosInstance } from "../lib/axiosInstance.js";
 import { toast } from "sonner";
 import { axiosPostInstace } from "../lib/axiosPostInstance.js";
 import { io } from "socket.io-client";
+// import dotenv from "dotenv";
+// dotenv.config();
 
-const BASE_URL = "http://localhost:5008";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5008";
 //const BASE_URL = "http://192.168.126.238:5008";
 
 export const useAuthStore = create((set, get) => ({
@@ -190,8 +192,13 @@ export const useAuthStore = create((set, get) => ({
   followFeature: async (data) => {
     set({ isFollowing: true });
     try {
-      const res = await axiosInstance.put("/follow", data);
+      const res = await axiosInstance.patch("/follow", data);
       set({ authUser: res.data });
+      if (res.data?.action === "followed") {
+        toast.success("User Followed ✅");
+      } else {
+        toast.success("User Unfollowed ❌");
+      }
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);

@@ -120,7 +120,7 @@ useEffect(() => {
           element={authUser ? <Posts /> : <Navigate to={"/login"} replace />}
         />
       </Routes>
-      <Toaster position="bottom-right" />
+      <Toaster position="top-right" />
     </div>
   );
 };
