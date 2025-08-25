@@ -298,7 +298,7 @@ const Login = () => {
               type="button"
               onClick={handleSubmit}
               disabled={isLoading}
-              className={`w-full py-2.5 sm:py-3 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center justify-center space-x-2 hover-lift ${isLoading
+              className={`w-full hover:cursor-pointer py-2.5 sm:py-3 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center justify-center space-x-2 hover-lift ${isLoading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                 }`}
@@ -313,7 +313,7 @@ const Login = () => {
                 </>
               ) : (
                 <>
-                  <span>Sign In</span>
+                  <span className="hover:cursor-pointer">Sign In</span>
                   <ArrowRight size={18} />
                 </>
               )}

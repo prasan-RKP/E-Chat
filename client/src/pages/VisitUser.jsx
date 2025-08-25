@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MoreHorizontal, MapPin, ExternalLink, Grid3X3, Heart, MessageCircle, Share, Home, Search, Plus, User, Menu, X, Star, Zap, Award, Sun, Moon, Bell, Settings, Play } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { useAuthStore } from '../store/useAuthStore';
+
 
 const VisitUser = () => {
     const [activeTab, setActiveTab] = useState('Posts');
@@ -11,6 +14,24 @@ const VisitUser = () => {
     const statsRef = useRef(null);
     const postsRef = useRef(null);
 
+    const { visitUser } = useAuthStore();
+
+
+    //All logics will start from here..
+    const { id } = useParams();
+
+    console.log("Getting userId from params:", id);
+
+    useEffect(() => {
+        const isLoad = async () => {
+            await visitUser({ userId: id });
+        }
+
+        isLoad();
+    }, []);
+
+
+    // All logic Ends from here
     useEffect(() => {
         // Add a small delay to ensure DOM is fully rendered
         const timer = setTimeout(() => {

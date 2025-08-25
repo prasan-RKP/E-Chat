@@ -332,4 +332,32 @@ router.patch("/follow", protectedRoute, async (req, res) => {
   }
 });
 
+router.get("/visit-user/:userId", protectedRoute, async (req, res) => {
+  console.log("Hitting the visit user route");
+  const { userId } = req.params;
+  console.log("Got userId:", userId);
+
+  if (!userId) {
+    return res.status(400).json({ message: "Selected User not found" });
+  }
+
+  try {
+    const visitUser = await User.findById(userId)
+      .select("-password")
+      .populate("posts");
+    if (!visitUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Todo: - We will do it later 
+
+    // console.log("The visit user is", visitUser);
+    return res.status(200).json(visitUser);
+  } catch (error) {
+    console.log("Error in '/visit-user'", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+    // 
+  }
+});
+
 export default router;

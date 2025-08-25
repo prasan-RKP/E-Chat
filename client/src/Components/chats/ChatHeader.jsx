@@ -1,45 +1,80 @@
 import React, { useEffect, useState } from "react";
 import { X, Menu, Home, User, LogOut, Images, Loader2 } from "lucide-react";
 import { useChatStore } from "../../store/useChatStore.js";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore.js";
 import { toast } from "sonner";
-import { SlUserFollow } from "react-icons/sl";
+import { SlUserFollow, SlUserFollowing, SlUserUnfollow } from "react-icons/sl";
+import { GrView } from "react-icons/gr";
 
 const ChatHeader = () => {
   const { setSelectedUser, selectedUser, setIsSidebarOpen } = useChatStore();
   const { logout, followFeature, isFollowing, authUser } = useAuthStore();
   const [loadingUserId, setLoadingUserId] = useState('');
+  const [localFollowing, setLocalFollowing] = useState([]);
 
   const navigate = useNavigate();
 
-  // Check if already following - this will re-calculate when authUser changes
-  // Magic Logic is here..
+  // Sync local following state with auth user
+  useEffect(() => {
+    if (authUser?.following) {
+      setLocalFollowing(authUser.following);
+    }
+  }, [authUser?.following]);
+
+  // Check if already following using local state for instant updates
   const isAlreadyFollowing = React.useMemo(() => {
-    if (!authUser?.following || !selectedUser?._id) return false;
-    
-    return authUser.following.some((followedUser) => {
+    if (!localFollowing || !selectedUser?._id) return false;
+
+    return localFollowing.some((followedUser) => {
       // Handle both populated objects and ObjectId strings
       const followedId = typeof followedUser === 'object' ? followedUser._id : followedUser;
       return followedId.toString() === selectedUser._id.toString();
     });
-  }, [authUser?.following, selectedUser?._id]);
+  }, [localFollowing, selectedUser?._id]);
 
+  // 'handleFollow' with optimistic UI updates
   const handleOnFollow = async (id) => {
     try {
       setLoadingUserId(id);
+
+      // Check current follow status using local state
+      const isCurrentlyFollowing = localFollowing?.some((followedUser) => {
+        const followedId = typeof followedUser === 'object' ? followedUser._id : followedUser;
+        return followedId.toString() === id.toString();
+      });
+
+      // Optimistic update - update local state immediately
+      const updatedFollowing = isCurrentlyFollowing
+        ? localFollowing.filter((followedUser) => {
+          const followedId = typeof followedUser === 'object' ? followedUser._id : followedUser;
+          return followedId.toString() !== id.toString();
+        })
+        : [...localFollowing, id];
+
+      // Update local state for instant UI update
+      setLocalFollowing(updatedFollowing);
+
+      // Make API call
       await followFeature({ fid: id });
-      // No need to manually update UI - the authUser update will trigger re-render
+
     } catch (error) {
       console.error('Follow/Unfollow error:', error);
+      toast.error("Something went wrong!");
+
+      // Rollback local state on error
+      setLocalFollowing(authUser?.following || []);
     } finally {
       setLoadingUserId('');
     }
   };
 
+  // 'visitUser' functionality can be added here
+
+
   // Debug logs (remove in production)
   console.log("The value of isAlreadyFollowing is:", isAlreadyFollowing);
-  console.log("authUser following:", authUser?.following);
+  console.log("localFollowing:", localFollowing);
   console.log("selectedUser._id:", selectedUser?._id);
 
   return (
@@ -84,8 +119,15 @@ const ChatHeader = () => {
 
           {selectedUser && (
             <>
+              {/* Visit-user functionality */}
+              <Link to={`/visit-user/${selectedUser?._id}`}
+                className="hover:cursor-pointer p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all flex-shrink-0"
+              >
+                <GrView className="w-5 h-5" />
+              </Link>
+
               <button
-                className="px-5 py-2 bg-gradient-to-r from-slate-500 to-slate-700 
+                className="px-2.5 py-2.5 bg-gradient-to-r from-slate-500 to-slate-700 
                   text-gray-200 font-semibold rounded-full shadow-md 
                   hover:from-slate-600 hover:to-slate-800 
                   hover:scale-105 hover:shadow-lg 
@@ -94,18 +136,43 @@ const ChatHeader = () => {
                 onClick={() => handleOnFollow(selectedUser._id)}
                 disabled={loadingUserId === selectedUser._id}
               >
-                {loadingUserId === selectedUser._id ? (
+                {/* UI-1 */}
+                {/* {loadingUserId === selectedUser._id ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>{isAlreadyFollowing ? "Unfollowing..." : "Following..."}</span>
                   </div>
                 ) : (
                   <span>{isAlreadyFollowing ? "Unfollow" : "Follow"}</span>
+                )} */}
+
+                {/* UI-2 - Fixed with instant updates and text */}
+                {loadingUserId === selectedUser._id ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-300" />
+                    <span className="text-sm">
+                      {isAlreadyFollowing ? "Unfollowing..." : "Following..."}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    {isAlreadyFollowing ? (
+                      <>
+                        <SlUserUnfollow className="w-5 h-5 text-red-400" />
+                        {/* <span className="text-sm">Unfollow</span> */}
+                      </>
+                    ) : (
+                      <>
+                        <SlUserFollow className="w-5 h-5 text-green-400" />
+                        {/* <span className="text-sm">Follow</span> */}
+                      </>
+                    )}
+                  </div>
                 )}
               </button>
 
               <button
-                className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all flex-shrink-0"
+                className="hover:cursor-pointer p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all flex-shrink-0"
                 onClick={() => setSelectedUser(null)}
               >
                 <X className="w-5 h-5" />

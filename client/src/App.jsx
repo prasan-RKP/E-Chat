@@ -37,31 +37,31 @@ const App = () => {
   }, [checkAuth]);
 
   // We will renove this thing, TODO:- we have add like if someone goes to the other tabs and aftr ome time if he/she comes back then we will loggout the user
-/*
-useEffect(() => {
-  let isNavigating = false;
-  
-  const handleBeforeUnload = () => {
-    isNavigating = true;
-    // Check if it's a reload
-    const navEntries = performance.getEntriesByType("navigation");
-    const isReload = navEntries[0]?.type === "reload" || 
-                    performance.navigation?.type === 1;
+  /*
+  useEffect(() => {
+    let isNavigating = false;
     
-    if (!isReload) {
-      const data = JSON.stringify({ reason: "tab_closed" });
-      const blob = new Blob([data], { type: "application/json" });
-      navigator.sendBeacon("http://localhost:5008/auth/logout", blob);
-    }
-  };
-
-  window.addEventListener("beforeunload", handleBeforeUnload);
+    const handleBeforeUnload = () => {
+      isNavigating = true;
+      // Check if it's a reload
+      const navEntries = performance.getEntriesByType("navigation");
+      const isReload = navEntries[0]?.type === "reload" || 
+                      performance.navigation?.type === 1;
+      
+      if (!isReload) {
+        const data = JSON.stringify({ reason: "tab_closed" });
+        const blob = new Blob([data], { type: "application/json" });
+        navigator.sendBeacon("http://localhost:5008/auth/logout", blob);
+      }
+    };
   
-  return () => {
-    window.removeEventListener("beforeunload", handleBeforeUnload);
-  };
-}, []);
-*/
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+  */
 
 
 
@@ -81,11 +81,14 @@ useEffect(() => {
   return (
     <div>
       <Routes>
-        <Route path="/testing" element={<VisitUser />} />
+        {/* <Route path="/testing" element={<VisitUser />} /> */}
         <Route path="/notification" element={<NotificationPage />} />
         <Route path="/" element={<HomePage />} />
         {/* <Route path="/adj" element={<NewLogin />} /> */}
         <Route path="/pref-chart" element={authUser ? <ChartSession /> : <Navigate to={"/login"} replace />} />
+
+        <Route path="/visit-user/:id" element={authUser ? <VisitUser /> : <Navigate to={"/login"} replace />} />
+
         <Route
           path="/login"
           element={!authUser ? <Login /> : <Navigate to={"/profile"} replace />}

@@ -14,7 +14,7 @@ export const generateToken = (userId, res) => {
 
   // Cookie expiry set to 1 hour 15 minutes (10 min extra)
   res.cookie("jwt", token, {
-    maxAge: (expiryMinutes + 10) * 60 * 1000, // 1 hour 15 min in ms
+    maxAge: (expiryMinutes + 12) * 60 * 1000, // 1 hour 15 min in ms
     httpOnly: true,
     sameSite: "strict",
     secure: process.env.NODE_ENV !== "development",

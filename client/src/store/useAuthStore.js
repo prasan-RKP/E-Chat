@@ -209,4 +209,24 @@ export const useAuthStore = create((set, get) => ({
       set({ isFollowing: false });
     }
   },
+
+  // visit user logic
+  isVisitingUser: false,
+  visitUser: async ({userId}) => {
+    set({ isVisitingUser: true });
+    try {
+      // basically i will send teh response from frontend like this {userId: id }, how  i can fetch it in the next line 
+      const res = await axiosInstance.get(`/visit-user/${userId}`);
+      set({ authUser: res.data });
+      //toast.success("User visited ✅");
+    } catch (error) {
+      if (error.response.data.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Try Again, Something Went Wrong");
+      }
+    } finally {
+      set({ isVisitingUser: false });
+    }
+  },
 }));
