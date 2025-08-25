@@ -10,16 +10,15 @@ import { LuUserRoundPlus } from "react-icons/lu";
 import { LuUserRoundMinus } from "react-icons/lu";
 import { Loader2 } from "lucide-react";
 
-//import {profile} from "../../assets/dfp.png"
-
 const ChatSidebar = () => {
-  const { getUsers, users, setSelectedUser, setIsSidebarOpen, isSidebarOpen, isUserLoading } = useChatStore();
+  const { selectedUser, getUsers, users, setSelectedUser, setIsSidebarOpen, isSidebarOpen, isUserLoading } = useChatStore();
   const { onlineUsers, followFeature, authUser } = useAuthStore();
   const navigate = useNavigate();
 
   const [filterOnline, setFilterOnline] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingUserId, setLoadingUserId] = useState('');
+  const [localFollowing, setLocalFollowing] = useState([]);
 
   const fetchUsers = useCallback(() => {
     getUsers();
@@ -29,46 +28,62 @@ const ChatSidebar = () => {
     fetchUsers();
   }, [fetchUsers]);
 
+  // Sync local following state with auth user
+  useEffect(() => {
+    if (authUser?.following) {
+      setLocalFollowing(authUser.following);
+    }
+  }, [authUser?.following]);
+
   const filteredUsers = filterOnline
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
 
   console.log("Filtered Users", filteredUsers);
 
-  // Check if already following - this will re-calculate when authUser changes
-  // Magic Logic is here..
-  const isAlreadyFollowing = React.useMemo(() => {
-    if (!authUser?.following || !loadingUserId) return false;
-    return authUser.following.some((followedUser) => {
-      // Handle both populated objects and ObjectId strings
-      const followedId = typeof followedUser === 'object' ? followedUser._id : followedUser;
-      return followedId.toString() === loadingUserId.toString();
-    });
-  }, [authUser?.following, loadingUserId]);
-
-  // HandleFollow the follow button click
+  // HandleFollow the follow button click with local optimistic updates
   const handleFollow = async (userId) => {
-    //alert(`Follow ID: ${userId}`);
     try {
       setLoadingUserId(userId);
+
+      // Check if currently following using local state
+      const isCurrentlyFollowing = localFollowing?.some((followedUser) => {
+        const followedId = typeof followedUser === 'object' ? followedUser._id : followedUser;
+        return followedId.toString() === userId.toString();
+      });
+
+      // Optimistic update - update local state immediately
+      const updatedFollowing = isCurrentlyFollowing
+        ? localFollowing.filter((followedUser) => {
+          const followedId = typeof followedUser === 'object' ? followedUser._id : followedUser;
+          return followedId.toString() !== userId.toString();
+        })
+        : [...localFollowing, userId];
+
+      // Update local state for instant UI update
+      setLocalFollowing(updatedFollowing);
+
+      // Make API call
       await followFeature({ fid: userId });
+
     } catch (error) {
       console.log("Follow/Unfollow error:", error);
-    }
-    finally {
+      toast.error("Something went wrong!");
+
+      // Rollback local state on error
+      setLocalFollowing(authUser?.following || []);
+    } finally {
       setLoadingUserId('');
     }
   }
 
-  //alert(`Is Already Following: ${isAlreadyFollowing}`);
-  // Todo:- IF someone is already following <FaRoundUserMinus/> is not showing 
   return (
     <div
-      className={`fixed inset-y-0 left-0 z-50 w-72 bg-gray-800 p-4 shadow-lg transition-transform duration-300 ease-in-out 
+      className={`fixed inset-y-0 left-0 z-50 w-72 bg-gray-800 shadow-lg transition-transform duration-300 ease-in-out flex flex-col
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0 sm:relative`}
     >
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      {/* Header - Fixed at top */}
+      <div className="flex justify-between items-center p-4 border-b border-gray-700 flex-shrink-0">
         <h2 className="text-lg font-bold text-gray-300">Chats</h2>
         <div className="flex items-center gap-4">
           <button className="sm:hidden text-gray-300 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
@@ -80,74 +95,115 @@ const ChatSidebar = () => {
         </div>
       </div>
 
-      {/* Online Filter Toggle */}
-      <div className="flex justify-between items-center">
-        <div
-          className={`relative w-12 h-6 rounded-full cursor-pointer flex items-center transition-all duration-300 
-            ${filterOnline ? "bg-blue-500" : "bg-gray-600"}`}
-          onClick={() => setFilterOnline(!filterOnline)}
-        >
+      {/* Online Filter Toggle - Fixed */}
+      <div className="p-4 flex-shrink-0">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-400">Show Online Only</span>
           <div
-            className={`absolute w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 
-              ${filterOnline ? "translate-x-6" : "translate-x-1"}`}
-          ></div>
+            className={`relative w-12 h-6 rounded-full cursor-pointer flex items-center transition-all duration-300 
+              ${filterOnline ? "bg-blue-500" : "bg-gray-600"}`}
+            onClick={() => setFilterOnline(!filterOnline)}
+          >
+            <div
+              className={`absolute w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 
+                ${filterOnline ? "translate-x-6" : "translate-x-1"}`}
+            ></div>
+          </div>
         </div>
       </div>
 
-      {/* Users List / Skeleton Loader */}
-      <div className="mt-4 space-y-3 relative">
-        {isUserLoading ? (
-          Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="flex items-center gap-3 p-3 rounded-lg animate-pulse">
-              <div className="w-10 h-10 bg-gray-600 rounded-full"></div>
-              <div className="w-32 h-4 bg-gray-600 rounded-md"></div>
-            </div>
-          ))
-        ) : filteredUsers.length > 0 ? (
-          filteredUsers.map((user) => {
-            const isOnline = onlineUsers.includes(user._id);
-            return (
-              <motion.div
-                key={user._id}
-                whileHover={{ scale: 1.05 }}
-                className="flex items-center justify-between p-3 hover:bg-gray-700 rounded-lg cursor-pointer transition-all"
-                onClick={() => {
-                  setSelectedUser(user);
-                  setIsSidebarOpen(false);
-                }}
-              >
-                <div className="flex items-center gap-3">
+      {/* Users List - Scrollable */}
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
+        <div className="space-y-2 relative">
+          {isUserLoading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="flex items-center gap-3 p-3 rounded-lg animate-pulse">
+                <div className="w-10 h-10 bg-gray-600 rounded-full flex-shrink-0"></div>
+                <div className="flex-1">
+                  <div className="w-32 h-4 bg-gray-600 rounded-md"></div>
+                </div>
+                <div className="w-4 h-4 bg-gray-600 rounded-full flex-shrink-0"></div>
+                <div className="w-6 h-6 bg-gray-600 rounded flex-shrink-0"></div>
+              </div>
+            ))
+          ) : filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => {
+              const isOnline = onlineUsers.includes(user._id);
+
+              // Fixed: Check if THIS specific user is being followed using local state
+              const isAlreadyFollowing = localFollowing?.some((followedUser) => {
+                const followedId = typeof followedUser === 'object' ? followedUser._id : followedUser;
+                return followedId.toString() === user._id.toString();
+              });
+
+              return (
+                <motion.div
+                  key={user._id}
+                  whileHover={{ scale: 1.02 }}
+                  className="flex items-center gap-3 p-3 hover:bg-gray-700 rounded-lg cursor-pointer transition-all"
+                  onClick={() => {
+                    setSelectedUser(user);
+                    setIsSidebarOpen(false);
+                  }}
+                >
+                  {/* Profile Picture */}
                   <img
                     src={user.profilePic || "/dfp.png"}
                     alt={user.username}
-                    className="w-10 h-10 rounded-full object-cover border border-gray-700 shadow-md"
+                    className="w-10 h-10 rounded-full object-cover border border-gray-700 shadow-md flex-shrink-0"
                   />
-                  <span className="font-medium text-gray-300">{user?.username}</span>
-                </div>
-                <span className={`w-4 h-4 rounded-full ${isOnline ? "bg-green-500" : "bg-gray-500"}`}></span>
-                {/* Follow button */}
-                <span onClick={() => handleFollow(user?._id)} className="cursor-pointer">
-                  {loadingUserId === user?._id ? (
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                  ) : isAlreadyFollowing ? (
-                    <LuUserRoundMinus className="w-6 h-6" />
-                  ) : (
-                    <LuUserRoundPlus className="w-6 h-6" />
-                  )}
-                </span>
-              </motion.div>
-            );
-          })
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col items-center text-center text-gray-400 mt-10"
-          >
-            <p className="text-sm text-gray-500">No online users at the moment ☁️.</p>
-          </motion.div>
-        )}
+                  
+                  {/* Username - Flexible width */}
+                  <div className="flex-1 min-w-0">
+                    <span className="font-medium text-gray-300 block truncate">
+                      {user?.username?.length > 11
+                        ? `${user.username.slice(0, 11)}...`
+                        : user?.username}
+                    </span>
+                  </div>
+
+                  {/* Online Status - Fixed width */}
+                  <span 
+                    className={`w-4 h-4 rounded-full flex-shrink-0 ${isOnline ? "bg-green-500" : "bg-gray-500"}`}
+                  ></span>
+
+                  {/* Follow Button - Fixed width */}
+                  <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
+                    {selectedUser === null ? (
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent opening chat when clicking follow button
+                          handleFollow(user?._id);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        {loadingUserId === user?._id ? (
+                          <Loader2 className="w-6 h-6 animate-spin" />
+                        ) : isAlreadyFollowing ? (
+                          <LuUserRoundMinus className="w-6 h-6 text-red-400 hover:text-red-300" />
+                        ) : (
+                          <LuUserRoundPlus className="w-6 h-6 text-green-400 hover:text-green-300" />
+                        )}
+                      </span>
+                    ) : (
+                      <div className="w-6 h-6"></div>
+                      /* Empty space to maintain alignment when no follow button */
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col items-center text-center text-gray-400 mt-10"
+            >
+              <p className="text-sm text-gray-500">No online users at the moment ☁️.</p>
+            </motion.div>
+          )}
+        </div>
 
         {/* Modal */}
         <AnimatePresence>
@@ -157,31 +213,34 @@ const ChatSidebar = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 w-full px-4 z-50"
+              className="fixed inset-0 flex items-center justify-center z-[100] bg-black bg-opacity-50"
             >
-              <div className="bg-gray-900 rounded-lg shadow-xl p-4 border border-gray-700">
-                <button
-                  className="absolute top-2 right-7 text-gray-400 hover:text-red"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  <X className="w-6 h-6 hover:text-red-400" />
-                </button>
-                <div className="flex flex-col space-y-4 mt-4">
+              <div className="bg-gray-900 rounded-lg shadow-xl p-6 border border-gray-700 w-64 mx-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-300">Options</h3>
+                  <button
+                    className="text-gray-400 hover:text-red-400"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                <div className="flex flex-col space-y-3">
                   <button
                     onClick={() => {
                       toast.info("Feature coming soon! 🚧");
                       setIsModalOpen(false);
                     }}
-                    className="text-gray-300 hover:text-blue-500 py-2 px-4 rounded hover:bg-gray-800 transition-colors"
+                    className="text-left text-gray-300 hover:text-blue-500 py-2 px-4 rounded hover:bg-gray-800 transition-colors"
                   >
                     New Group
                   </button>
                   <button
                     onClick={() => {
-                      toast.info("Follow feature coming soon! 🚧");
+                      toast.info("Settings coming soon! 🚧");
                       setIsModalOpen(false);
                     }}
-                    className="text-gray-300 hover:text-yellow-500 py-2 px-4 rounded hover:bg-gray-800 transition-colors"
+                    className="text-left text-gray-300 hover:text-yellow-500 py-2 px-4 rounded hover:bg-gray-800 transition-colors"
                   >
                     Settings
                   </button>
