@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MoreHorizontal, MapPin, ExternalLink, Grid3X3, Heart, MessageCircle, Share, Home, Search, Plus, User, Menu, X, Star, Zap, Award, Sun, Moon, Bell, Settings, Play } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { MoreHorizontal, MapPin, ExternalLink, Grid3X3, Heart, MessageCircle, Share, Home, Search, Plus, User, Menu, X, Star, Zap, Award, Sun, Moon, Bell, Settings, Play, Loader2 } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
+import VisitUserSkeleton from '../skeletons/VisitUserSkeleton';
 
 
 const VisitUser = () => {
@@ -14,13 +15,21 @@ const VisitUser = () => {
     const statsRef = useRef(null);
     const postsRef = useRef(null);
 
-    const { visitUser } = useAuthStore();
+    const [userData, setUserData] = useState(null);
+    const [posts, setPosts] = useState([]);
+    const [loadingId, setLoadingId] = useState('');
 
+    const { visitUser, visitUserValue, authUser, followFeature } = useAuthStore();
+
+
+    //console.log("Auth User in VisitUser:", userData);   
+
+    // Checking if user already been following
+
+    const isAlreadyFollowing = userData?.followers?.includes(authUser?._id);
 
     //All logics will start from here..
     const { id } = useParams();
-
-    console.log("Getting userId from params:", id);
 
     useEffect(() => {
         const isLoad = async () => {
@@ -29,6 +38,38 @@ const VisitUser = () => {
 
         isLoad();
     }, []);
+
+    // Storing the user details in a variable
+
+    useEffect(() => {
+        if (visitUserValue) {
+            setUserData(visitUserValue);
+            setPosts(visitUserValue.posts || []);
+        }
+    }, [visitUserValue])
+
+
+    // Follow from here 
+
+    const handleFollow = async (id) => {
+        setLoadingId(id);
+
+        // optimistic update before API returns
+        setUserData((prev) => {
+            if (!prev) return prev;
+            const already = prev.followers.includes(authUser._id);
+            return {
+                ...prev,
+                followers: already
+                    ? prev.followers.filter((f) => f !== authUser._id) // unfollow
+                    : [...prev.followers, authUser._id], // follow
+            };
+        });
+
+        await followFeature({ fid: id }); // sync with backend
+        setLoadingId('');
+    };
+
 
 
     // All logic Ends from here
@@ -83,26 +124,29 @@ const VisitUser = () => {
     };
 
     const stats = [
-        { label: 'Posts', value: '25', icon: Grid3X3, color: 'from-blue-500 to-cyan-500' },
-        { label: 'Followers', value: '1.2k', icon: Heart, color: 'from-pink-500 to-rose-500' },
-        { label: 'Following', value: '320', icon: Star, color: 'from-purple-500 to-indigo-500' }
+        { label: 'Posts', value: userData?.posts?.length, icon: Grid3X3, color: 'from-blue-500 to-cyan-500' },
+        {
+            label: 'Followers', value: userData?.followers?.length
+            , icon: Heart, color: 'from-pink-500 to-rose-500'
+        },
+        { label: 'Following', value: userData?.following?.length, icon: Star, color: 'from-purple-500 to-indigo-500' }
     ];
 
     const tabs = ['Posts', 'Liked', 'Tagged'];
 
-    const posts = Array(9).fill(null).map((_, i) => ({
-        id: i,
-        image: `https://picsum.photos/400/400?random=${i + 1}`,
-        likes: Math.floor(Math.random() * 1000) + 100,
-        comments: Math.floor(Math.random() * 50) + 5,
-        isVideo: i % 3 === 0
-    }));
+    // const posts = Array(9).fill(null).map((_, i) => ({
+    //     id: i,
+    //     image: `https://picsum.photos/400/400?random=${i + 1}`,
+    //     likes: Math.floor(Math.random() * 1000) + 100,
+    //     comments: Math.floor(Math.random() * 50) + 5,
+    //     isVideo: i % 3 === 0
+    // }));
 
     const navItems = [
-        { label: 'Home', icon: Home },
-        { label: 'Explore', icon: Search },
-        { label: 'Messages', icon: MessageCircle },
-        { label: 'Profile', icon: User }
+        { label: 'Home', icon: Home, toGo: "/" },
+        { label: 'Explore', icon: Search, toGo: "/allposts" },
+        { label: 'Messages', icon: MessageCircle, toGo: "/chat" },
+        { label: 'Profile', icon: User, toGo: "/profile" }
     ];
 
     const containerVariants = {
@@ -139,6 +183,12 @@ const VisitUser = () => {
         textMuted: isDarkMode ? "text-gray-400" : "text-gray-500",
         hover: isDarkMode ? "hover:bg-slate-700/50" : "hover:bg-white/50"
     };
+
+    if (visitUserValue === null) {
+        return (
+            <><VisitUserSkeleton /></>
+        )
+    }
 
     return (
         <div className={`min-h-screen ${themeClasses.background} relative overflow-hidden transition-all duration-500`}>
@@ -208,16 +258,25 @@ const VisitUser = () => {
                         {/* Desktop Navigation */}
                         <nav className="hidden lg:flex items-center gap-6">
                             {navItems.map((item, index) => (
-                                <motion.a
-                                    key={item.label}
-                                    href="#"
+                                <Link
+                                    to={`${item?.toGo}`}
+                                    key={index}
                                     className={`relative flex items-center gap-2 px-3 py-2 text-sm font-medium ${themeClasses.textSecondary} 
-        hover:text-orange-400 transition-colors duration-300`}
-                                    whileHover={{ y: -2 }}
-                                    whileTap={{ scale: 0.95 }}
+              hover:text-orange-400 transition-colors duration-300`}
                                 >
-                                    <item.icon size={18} className="transition-colors duration-300 group-hover:text-blue-500" />
-                                    <span>{item.label}</span>
+                                    <item.icon
+                                        size={18}
+                                        className="transition-colors duration-300 group-hover:text-blue-500"
+                                    />
+
+                                    {/* Floating label on hover */}
+                                    <motion.span
+                                        className="relative"
+                                        whileHover={{ y: -3 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    >
+                                        {item.label}
+                                    </motion.span>
 
                                     {/* Underline Animation */}
                                     <motion.span
@@ -225,11 +284,11 @@ const VisitUser = () => {
                                         whileHover={{ width: "100%" }}
                                         transition={{ duration: 0.3 }}
                                     />
-                                </motion.a>
+                                </Link>
                             ))}
                         </nav>
 
-                        {/* Theme Toggle & Actions */}
+                        {/* Theme Toggle & Mobile Menu */}
                         <div className="flex items-center gap-2">
                             <motion.button
                                 onClick={toggleTheme}
@@ -261,24 +320,6 @@ const VisitUser = () => {
                                     )}
                                 </AnimatePresence>
                             </motion.button>
-
-                            {/* Additional Action Buttons - Hidden on mobile */}
-                            <div className="hidden md:flex items-center gap-2">
-                                <motion.button
-                                    className={`p-3 rounded-2xl ${isDarkMode ? 'bg-slate-700/50 text-gray-300 border-slate-600/50' : 'bg-white/20 text-gray-700 border-white/20'} backdrop-blur-sm border hover:scale-110 transition-all duration-300`}
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                >
-                                    <Bell size={20} />
-                                </motion.button>
-                                <motion.button
-                                    className={`p-3 rounded-2xl ${isDarkMode ? 'bg-slate-700/50 text-gray-300 border-slate-600/50' : 'bg-white/20 text-gray-700 border-white/20'} backdrop-blur-sm border hover:scale-110 transition-all duration-300`}
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                >
-                                    <Settings size={20} />
-                                </motion.button>
-                            </div>
 
                             {/* Mobile menu button */}
                             <motion.button
@@ -342,6 +383,8 @@ const VisitUser = () => {
                 </div>
             </header>
 
+            {/* Header section Ends here  */}
+
             {/* Main Content */}
             <main className="flex-1 relative z-10">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-12">
@@ -371,7 +414,7 @@ const VisitUser = () => {
                                         transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                                     />
                                     <img
-                                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face"
+                                        src={userData?.profilePic || "/dfp.png"}
                                         alt="Profile"
                                         className="relative w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full object-cover border-4 border-white shadow-2xl"
                                     />
@@ -389,10 +432,10 @@ const VisitUser = () => {
                                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-6">
                                         <motion.div variants={itemVariants}>
                                             <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r ${isDarkMode ? 'from-gray-100 via-blue-200 to-purple-200' : 'from-gray-900 via-blue-800 to-purple-800'} bg-clip-text text-transparent mb-2`}>
-                                                cristiano
+                                                {userData?.username}
                                             </h2>
                                             <p className={`${themeClasses.textSecondary} text-lg lg:text-xl flex items-center justify-center lg:justify-start gap-2`}>
-                                                @cristiano
+                                                @{userData?.username}
                                                 <Award className="text-blue-500" size={18} />
                                             </p>
                                         </motion.div>
@@ -451,14 +494,14 @@ const VisitUser = () => {
                             {/* Enhanced Bio */}
                             <motion.div className="space-y-6 text-center lg:text-left" variants={itemVariants}>
                                 <h3 className={`text-2xl lg:text-3xl font-bold bg-gradient-to-r ${isDarkMode ? 'from-gray-100 to-gray-300' : 'from-gray-900 to-gray-700'} bg-clip-text text-transparent`}>
-                                    Cristiano Ronaldo
+                                    {userData?.username}
                                 </h3>
                                 <p className={`${themeClasses.text} text-lg lg:text-xl leading-relaxed font-medium`}>
-                                    Footballer ⚽ | Fitness 🏋️ | Father 🖤
+                                    {userData?.passion || "-> Not Mentioned Yet 😑"}
                                 </p>
                                 <div className={`flex items-center justify-center lg:justify-start ${themeClasses.textSecondary} mb-3 text-lg`}>
                                     <MapPin size={20} className="mr-3 text-red-500" />
-                                    <span>Madrid, Spain</span>
+                                    <span>{userData?.location || "Default"}</span>
                                 </div>
                                 <motion.a
                                     href="#"
@@ -466,30 +509,52 @@ const VisitUser = () => {
                                     whileHover={{ scale: 1.05 }}
                                 >
                                     <ExternalLink size={20} className="mr-3" />
-                                    www.cr7.com
+                                    {userData?.profileLink || "WWW.default.com"}
                                 </motion.a>
                             </motion.div>
 
                             {/* Enhanced Action Buttons */}
                             <div className="flex flex-col sm:flex-row gap-4 mt-10">
                                 <motion.button
-                                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 lg:py-5 px-8 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group text-lg"
+                                    className="hover:cursor-pointer flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 lg:py-5 px-8 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group text-lg flex items-center justify-center"
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
+                                    onClick={() => handleFollow(userData?._id)}
                                 >
-                                    <span className="relative z-10">Follow</span>
+                                    {loadingId === userData?._id ? (
+                                        <div className="flex items-center gap-2">
+                                            <span>Loading</span>
+                                            <Loader2 className="h-5 w-5 animate-spin" />
+                                            <span>...</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <span className="relative z-10">
+                                                {userData && authUser
+                                                    ? isAlreadyFollowing
+                                                        ? "UnFollow"
+                                                        : "Follow"
+                                                    : "Loading..."}
+                                            </span>
+                                        </>
+                                    )}
                                     <motion.div
                                         className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                                         whileHover={{ scale: 1.05 }}
                                     />
                                 </motion.button>
-                                <motion.button
-                                    className={`flex-1 ${isDarkMode ? 'bg-slate-700/70 text-gray-100 border-slate-600/50' : 'bg-gray-300 text-gray-900 border-white/20'} backdrop-blur-sm py-4 lg:py-5 px-8 rounded-2xl font-bold border hover:${isDarkMode ? 'bg-slate-600/80' : 'bg-white/90'} transition-all duration-300 shadow-lg text-lg`}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
+
+                                <Link
+                                    to="/chat"
+                                    className={`flex-1 flex items-center justify-center ${isDarkMode ?
+                                        "bg-slate-700/70 text-gray-100 border-slate-600/50" :
+                                        "bg-gray-300 text-gray-900 border-white/20"} 
+                                         backdrop-blur-sm py-4 lg:py-5 px-8 rounded-2xl font-bold border 
+                                       hover:${isDarkMode ? "bg-slate-600/80" : "bg-white/90"} 
+                                         transition-all duration-300 shadow-lg text-lg`}
                                 >
                                     Message
-                                </motion.button>
+                                </Link>
                             </div>
 
                             {/* Enhanced Interest Icons */}
@@ -552,15 +617,15 @@ const VisitUser = () => {
                             >
                                 {posts.map((post, index) => (
                                     <motion.div
-                                        key={post.id}
+                                        key={index}
                                         variants={itemVariants}
                                         className={`relative aspect-square ${isDarkMode ? 'bg-gradient-to-br from-gray-800 to-gray-700' : 'bg-gradient-to-br from-gray-100 to-gray-200'} rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-500`}
                                         whileHover={{ scale: 1.05, rotate: 2 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         <img
-                                            src={post.image}
-                                            alt={`Post ${post.id}`}
+                                            src={post?.postImage}
+                                            alt={`Post ${post?.title}`}
                                             className="w-full h-full object-cover rounded-2xl"
                                         />
                                         {/* Overlay for video posts */}
@@ -577,7 +642,7 @@ const VisitUser = () => {
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <MessageCircle className="w-5 h-5 text-blue-500" />
-                                                <span className="font-semibold text-gray-700 dark:text-gray-200">{post.comments}</span>
+                                                {/* <span className="font-semibold text-gray-700 dark:text-gray-200">{post?.description}</span> */}
                                             </div>
                                             <Share className="w-5 h-5 text-gray-500 dark:text-gray-300 cursor-pointer" />
                                         </div>

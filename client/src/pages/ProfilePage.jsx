@@ -140,7 +140,7 @@ const ProfilePage = () => {
             whileHover={{ scale: 1.05 }}
             className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"
           >
-            Chat-i
+            Chat-iO
           </motion.span>
 
           {/* Desktop Navigation */}
@@ -310,11 +310,11 @@ const ProfilePage = () => {
               <div className="text-sm text-gray-400">Posts</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-blue-400">1.2K</div>
+              <div className="text-2xl md:text-3xl font-bold text-blue-400">{authUser?.followers?.length}</div>
               <div className="text-sm text-gray-400">Followers</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-red-400">890</div>
+              <div className="text-2xl md:text-3xl font-bold text-red-400">{authUser?.following?.length}</div>
               <div className="text-sm text-gray-400">Following</div>
             </div>
           </motion.div>
@@ -588,7 +588,7 @@ const ProfilePage = () => {
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
               <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
-                Chat-i
+                Chat-iO
               </h3>
               <p className="text-gray-400 mb-6 max-w-md">
                 Connect, share, and discover amazing content with our vibrant community. Your story matters, and we're here to help you tell it.

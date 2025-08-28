@@ -212,12 +212,13 @@ export const useAuthStore = create((set, get) => ({
 
   // visit user logic
   isVisitingUser: false,
-  visitUser: async ({userId}) => {
+  visitUserValue: null,
+  visitUser: async ({ userId }) => {
     set({ isVisitingUser: true });
     try {
-      // basically i will send teh response from frontend like this {userId: id }, how  i can fetch it in the next line 
+      // basically i will send teh response from frontend like this {userId: id }, how  i can fetch it in the next line
       const res = await axiosInstance.get(`/visit-user/${userId}`);
-      set({ authUser: res.data });
+      set({ visitUserValue: res.data });
       //toast.success("User visited ✅");
     } catch (error) {
       if (error.response.data.message) {
@@ -227,6 +228,24 @@ export const useAuthStore = create((set, get) => ({
       }
     } finally {
       set({ isVisitingUser: false });
+    }
+  },
+
+  isAddingFullBio: false,
+  addFullBio: async (data) => {
+    set({ isAddingFullBio: true });
+    try {
+      const res = await axiosInstance.patch("/add-full-bio", data);
+      set({ authUser: res.data });
+      toast.success("Bio updated successfully ✅");
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Something went wrong Please try Again..!");
+      }
+    } finally {
+      set({ isAddingFullBio: false });
     }
   },
 }));

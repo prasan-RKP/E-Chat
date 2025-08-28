@@ -64,6 +64,11 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+
+    // new Field for "/visit-user" compatitbility
+    passion: { type: String, default: "" },
+    location: { type: String, default: "" },
+    profileLink: { type: String, default: "" },
   },
   { timestamps: true }
 );

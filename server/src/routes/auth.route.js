@@ -286,6 +286,8 @@ router.patch("/follow", protectedRoute, async (req, res) => {
   const { fid } = req.body; // id of the user to follow/unfollow
   const userId = req.user?.id; // logged-in user id
 
+  console.log("The fid is:", fid);
+
   try {
     if (!fid)
       return res.status(400).json({ message: "Followed user not found" });
@@ -358,6 +360,16 @@ router.get("/visit-user/:userId", protectedRoute, async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
     // 
   }
+});
+
+
+router.patch("/add-full-bio", protectedRoute, async(req, res) => {
+
+  const {username, email, contact, location, passion, profileLink} = req.body;
+  const userId = req.user?._id;
+
+  // Todo-:- We will do it later 
+
 });
 
 export default router;
