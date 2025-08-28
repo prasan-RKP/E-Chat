@@ -123,7 +123,7 @@ const App = () => {
           element={authUser ? <Posts /> : <Navigate to={"/login"} replace />}
         />
       </Routes>
-      <Toaster position="top-right" />
+      <Toaster richColors position="top-right" />
     </div>
   );
 };

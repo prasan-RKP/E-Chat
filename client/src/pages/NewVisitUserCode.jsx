@@ -4,7 +4,7 @@ import { MoreHorizontal, MapPin, ExternalLink, Grid3X3, Heart, MessageCircle, Sh
 import { Link, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import VisitUserSkeleton from '../skeletons/VisitUserSkeleton';
-
+import { SlCalender } from 'react-icons/sl';
 
 const VisitUser = () => {
     const [activeTab, setActiveTab] = useState('Posts');
@@ -21,11 +21,7 @@ const VisitUser = () => {
 
     const { visitUser, visitUserValue, authUser, followFeature } = useAuthStore();
 
-
-    //console.log("Auth User in VisitUser:", userData);   
-
     // Checking if user already been following
-
     const isAlreadyFollowing = userData?.followers?.includes(authUser?._id);
 
     //All logics will start from here..
@@ -35,12 +31,10 @@ const VisitUser = () => {
         const isLoad = async () => {
             await visitUser({ userId: id });
         }
-
         isLoad();
     }, []);
 
     // Storing the user details in a variable
-
     useEffect(() => {
         if (visitUserValue) {
             setUserData(visitUserValue);
@@ -48,9 +42,7 @@ const VisitUser = () => {
         }
     }, [visitUserValue])
 
-
     // Follow from here 
-
     const handleFollow = async (id) => {
         setLoadingId(id);
 
@@ -69,8 +61,6 @@ const VisitUser = () => {
         await followFeature({ fid: id }); // sync with backend
         setLoadingId('');
     };
-
-
 
     // All logic Ends from here
     useEffect(() => {
@@ -133,14 +123,6 @@ const VisitUser = () => {
     ];
 
     const tabs = ['Posts', 'Liked', 'Tagged'];
-
-    // const posts = Array(9).fill(null).map((_, i) => ({
-    //     id: i,
-    //     image: `https://picsum.photos/400/400?random=${i + 1}`,
-    //     likes: Math.floor(Math.random() * 1000) + 100,
-    //     comments: Math.floor(Math.random() * 50) + 5,
-    //     isVideo: i % 3 === 0
-    // }));
 
     const navItems = [
         { label: 'Home', icon: Home, toGo: "/" },
@@ -232,8 +214,8 @@ const VisitUser = () => {
                 />
             </div>
 
-            {/* Enhanced Header with Glassmorphism */}
-            <header className={`backdrop-blur-xl ${isDarkMode ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white/90 border-white/20'} shadow-2xl border-b sticky top-0 z-50 transition-all duration-300 `}>
+            {/* Enhanced Header with Fixed Sticky Positioning */}
+            <header className={`fixed top-0 left-0 right-0 backdrop-blur-xl ${isDarkMode ? 'bg-slate-900/95 border-slate-700/50' : 'bg-white/95 border-white/30'} shadow-2xl border-b z-[9999] transition-all duration-300`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         {/* Enhanced Logo */}
@@ -365,17 +347,21 @@ const VisitUser = () => {
                                 className={`lg:hidden py-4 border-t ${isDarkMode ? 'border-slate-700/50' : 'border-white/20'}`}
                             >
                                 {navItems.map((item, index) => (
-                                    <motion.a
+                                    <motion.div
                                         key={item.label}
-                                        href="#"
-                                        className={`block px-4 py-3 ${themeClasses.textSecondary} ${themeClasses.hover} rounded-2xl transition-all duration-200 backdrop-blur-sm flex items-center gap-3`}
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: index * 0.1 }}
                                     >
-                                        <item.icon size={20} />
-                                        {item.label}
-                                    </motion.a>
+                                        <Link
+                                            to={item.toGo}
+                                            className={`block px-4 py-3 ${themeClasses.textSecondary} ${themeClasses.hover} rounded-2xl transition-all duration-200 backdrop-blur-sm flex items-center gap-3`}
+                                            onClick={() => setIsMenuOpen(false)}
+                                        >
+                                            <item.icon size={20} />
+                                            {item.label}
+                                        </Link>
+                                    </motion.div>
                                 ))}
                             </motion.div>
                         )}
@@ -384,8 +370,8 @@ const VisitUser = () => {
             </header>
             {/* Header section Ends here  */}
 
-            {/* Main Content */}
-            <main className="flex-1 relative z-10">
+            {/* Main Content - Added top padding to account for fixed header */}
+            <main className="flex-1 relative z-10 pt-16">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-12">
                     {/* Profile Card with Enhanced Glassmorphism */}
                     <motion.div
@@ -496,21 +482,19 @@ const VisitUser = () => {
                                     {userData?.username}
                                 </h3>
                                 <p className={`${themeClasses.text} text-lg lg:text-xl leading-relaxed font-medium`}>
-                                    {userData?.passion || "-> Not Mentioned Yet 😑"}
+                                    {userData?.passion || "-> Not Mentioned Yet 😒"}
                                 </p>
                                 <div className={`flex items-center justify-center lg:justify-start ${themeClasses.textSecondary} mb-3 text-lg`}>
                                     <MapPin size={20} className="mr-3 text-red-500" />
                                     <span>{userData?.location || "Default"}</span>
                                 </div>
                                 <motion.a
-                                    href={userData?.profileLink || "https://www.default.com"}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    href="#"
                                     className="inline-flex items-center text-blue-500 hover:text-blue-600 transition-colors duration-200 font-semibold text-lg"
                                     whileHover={{ scale: 1.05 }}
                                 >
                                     <ExternalLink size={20} className="mr-3" />
-                                    {userData?.profileLink || "www.default.com"}
+                                    {userData?.profileLink || "WWW.default.com"}
                                 </motion.a>
                             </motion.div>
 
@@ -590,15 +574,14 @@ const VisitUser = () => {
                                             ? 'text-blue-500'
                                             : `${themeClasses.textSecondary} hover:${themeClasses.text}`
                                             }`}
-                                        whileHover={{ scale: 1.02 }}
+                                                                                whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.98 }}
                                     >
                                         {tab}
                                         {activeTab === tab && (
                                             <motion.div
-                                                className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
                                                 layoutId="activeTab"
-                                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                                className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500"
                                             />
                                         )}
                                     </motion.button>
@@ -606,50 +589,94 @@ const VisitUser = () => {
                             </div>
                         </div>
 
-                        {/* Enhanced Posts Grid */}
-                        {/* TODO: - This grid should be a scrollable container */}
-                        <div className="p-6 lg:p-8">
-                            <motion.div
-                                ref={postsRef}
-                                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6"
-                                variants={containerVariants}
-                                initial="hidden"
-                                animate="visible"
-                            >
-                                {posts.map((post, index) => (
+                        {/* Tab Content */}
+                        <div ref={postsRef} className="py-8">
+                            <AnimatePresence mode="wait">
+                                {activeTab === "Posts" && (
                                     <motion.div
-                                        key={index}
-                                        variants={itemVariants}
-                                        className={`relative aspect-square ${isDarkMode ? 'bg-gradient-to-br from-gray-800 to-gray-700' : 'bg-gradient-to-br from-gray-100 to-gray-200'} rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-500`}
-                                        whileHover={{ scale: 1.05, rotate: 2 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        key="posts"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                                     >
-                                        <img
-                                            src={post?.postImage}
-                                            alt={`Post ${post?.title}`}
-                                            className="w-full h-full object-cover rounded-2xl"
-                                        />
-                                        {/* Overlay for video posts */}
-                                        {post.isVideo && (
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                                <Play className="w-10 h-10 text-white opacity-80" />
+                                        {posts.length > 0 ? (
+                                            posts.map((post, idx) => (
+                                                <motion.div
+                                                    key={post._id || idx}
+                                                    initial={{ opacity: 0, scale: 0.9 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    transition={{ delay: idx * 0.1 }}
+                                                    className="bg-white/70 dark:bg-slate-800/70 rounded-xl overflow-hidden border border-gray-300 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                                                >
+                                                    <div className="aspect-square overflow-hidden">
+                                                        <img
+                                                            src={post.postImage || "/default-post.png"}
+                                                            alt={post.title || "Post"}
+                                                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                                                        />
+                                                    </div>
+                                                    <div className="p-4">
+                                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{post.title}</h3>
+                                                        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                                                            <span className="flex items-center gap-1">
+                                                                <SlCalender size={14} />
+                                                                {new Date(post.createdAt).toLocaleDateString()}
+                                                            </span>
+                                                            <div className="flex items-center gap-4">
+                                                                <button className="flex items-center gap-1 hover:text-red-400 transition-colors duration-300">
+                                                                    <Heart size={16} />
+                                                                    {post.likes?.length || 0}
+                                                                </button>
+                                                                <button className="flex items-center gap-1 hover:text-blue-400 transition-colors duration-300">
+                                                                    <Share size={16} />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            ))
+                                        ) : (
+                                            <div className="col-span-full text-center py-12">
+                                                <div className="text-6xl mb-4">📝</div>
+                                                <h3 className="text-xl font-semibold text-gray-400 mb-2">No posts yet</h3>
+                                                <p className="text-gray-500">Start sharing your thoughts!</p>
                                             </div>
                                         )}
-                                        {/* Post actions */}
-                                        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between bg-white/70 dark:bg-slate-800/70 rounded-xl px-3 py-2 shadow-lg transition-all duration-300">
-                                            <div className="flex items-center gap-3">
-                                                <Heart className="w-5 h-5 text-pink-500" />
-                                                <span className="font-semibold text-gray-700 dark:text-gray-200">{post.likes}</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <MessageCircle className="w-5 h-5 text-blue-500" />
-                                                {/* <span className="font-semibold text-gray-700 dark:text-gray-200">{post?.description}</span> */}
-                                            </div>
-                                            <Share className="w-5 h-5 text-gray-500 dark:text-gray-300 cursor-pointer" />
-                                        </div>
                                     </motion.div>
-                                ))}
-                            </motion.div>
+                                )}
+
+                                {activeTab === "Liked" && (
+                                    <motion.div
+                                        key="liked"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="text-center py-12 text-gray-400"
+                                    >
+                                        <div className="text-6xl mb-4">❤️</div>
+                                        <h3 className="text-xl font-semibold mb-2">No liked posts yet</h3>
+                                        <p>Like some posts to see them here!</p>
+                                    </motion.div>
+                                )}
+
+                                {activeTab === "Tagged" && (
+                                    <motion.div
+                                        key="tagged"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="text-center py-12 text-gray-400"
+                                    >
+                                        <div className="text-6xl mb-4">🏷️</div>
+                                        <h3 className="text-xl font-semibold mb-2">No tagged posts yet</h3>
+                                        <p>Get tagged in posts to see them here!</p>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                     </motion.div>
                 </div>
@@ -659,7 +686,7 @@ const VisitUser = () => {
             <footer className={`w-full py-8 mt-12 text-center ${isDarkMode ? 'bg-slate-900/80 border-t border-slate-700/50' : 'bg-white/80 border-t border-white/20'} backdrop-blur-md`}>
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                     <p className={`${themeClasses.textMuted} text-sm`}>
-                        &copy; {new Date().getFullYear()} SocialVibe. All rights reserved.
+                        &copy; {new Date().getFullYear()} Chat-Io. All rights reserved.
                     </p>
                     <div className="flex justify-center gap-4 mt-4">
                         <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-300">

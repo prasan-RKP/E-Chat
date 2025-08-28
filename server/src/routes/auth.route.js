@@ -351,25 +351,41 @@ router.get("/visit-user/:userId", protectedRoute, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Todo: - We will do it later 
+    // Todo: - We will do it later
 
     // console.log("The visit user is", visitUser);
     return res.status(200).json(visitUser);
   } catch (error) {
     console.log("Error in '/visit-user'", error);
     return res.status(500).json({ message: "Internal Server Error" });
-    // 
+    //
   }
 });
 
-
-router.patch("/add-full-bio", protectedRoute, async(req, res) => {
-
-  const {username, email, contact, location, passion, profileLink} = req.body;
+router.patch("/add-full-bio", protectedRoute, async (req, res) => {
+  const { username, contact, location, passion, profileLink } = req.body;
   const userId = req.user?._id;
 
-  // Todo-:- We will do it later 
+  try {
+    const user = await User.findById(userId).select("-password").populate('posts');
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
+    // Only update provided fields
+    if (username) user.username = username;
+    if (contact) user.contact = contact;
+    if (location) user.location = location;
+    if (passion) user.passion = passion;
+    if (profileLink) user.profileLink = profileLink;
+
+    await user.save();
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error in '/add-full-bio':", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 
 export default router;

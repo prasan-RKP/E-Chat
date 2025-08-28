@@ -236,7 +236,7 @@ export const useAuthStore = create((set, get) => ({
     set({ isAddingFullBio: true });
     try {
       const res = await axiosInstance.patch("/add-full-bio", data);
-      set({ authUser: res.data });
+      set({ authUser: res.data});
       toast.success("Bio updated successfully ✅");
     } catch (error) {
       if (error.response) {

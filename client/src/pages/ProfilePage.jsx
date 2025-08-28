@@ -32,6 +32,8 @@ import { useInView } from "react-intersection-observer";
 import { FaGlobe } from "react-icons/fa";
 import { FaLinkedin } from "react-icons/fa";
 import { usePostStore } from "../store/usePostStore.js";
+import AddFullBio from "./AddFullBio.jsx";
+import { toast } from "sonner";
 
 
 const ProfilePage = () => {
@@ -125,7 +127,21 @@ const ProfilePage = () => {
   ];
 
   console.log("AuthSTire value", authUser);
-  ;
+
+
+
+  // All detaisl for "Add Full Bio" modal
+  const [isFullBioModalOpen, setIsFullBioModalOpen] = useState(false);
+
+  const handleOpenBioModal = () => {
+    setIsFullBioModalOpen(true);
+  };
+
+  const handleCloseBioModal = () => {
+    setIsFullBioModalOpen(false);
+  };
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#18181b] via-[#232136] to-[#0f172a] text-white">
       {/* Navigation Bar */}
@@ -296,8 +312,8 @@ const ProfilePage = () => {
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
               {authUser?.username}
             </h1>
-            <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-              "I am a dedicated writer known for compelling storytelling in poem. With a background in Film industry, they have authored 20/40 works"
+            <p className="text-lg md:text-xl sm:text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              "{authUser?.passion || "No passion added yet."}"
             </p>
           </motion.div>
 
@@ -320,17 +336,31 @@ const ProfilePage = () => {
           </motion.div>
 
           {/* Add Post Button */}
-          <motion.div variants={itemVariants}>
-            <Link to="/addpost">
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col md:flex-row gap-4 md:gap-8 justify-center items-center mt-6 mb-8"
+          >
+            <Link to="/addpost" className="w-full md:w-auto">
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="hover:cursor-pointer bg-gradient-to-r from-purple-500 to-blue-500 text-white py-3 px-8 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl flex items-center gap-3 mx-auto transition-all duration-300"
+                className="w-full md:w-auto hover:cursor-pointer bg-gradient-to-r from-purple-500 to-blue-500 text-white py-3 px-8 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl flex items-center justify-center gap-3 transition-all duration-300"
               >
                 <PlusCircle size={24} />
                 Add Post
               </motion.button>
             </Link>
+
+            {/* FullBio modalOpen button */}
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full md:w-auto hover:cursor-pointer bg-gradient-to-r from-purple-500 to-blue-500 text-white py-3 px-8 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl flex items-center justify-center gap-3 transition-all duration-300"
+              onClick={handleOpenBioModal}
+            >
+              <PlusCircle size={24} />
+             Edit/Add Full Bio
+            </motion.button>
           </motion.div>
         </div>
       </motion.section>
@@ -440,7 +470,9 @@ const ProfilePage = () => {
                                     <Heart size={16} />
                                     {totalLikes}
                                   </button>
-                                  <button className="flex items-center gap-1 hover:text-blue-400 hover:cursor-pointer transition-colors duration-300">
+                                  <button className="flex items-center gap-1 hover:text-blue-400 hover:cursor-pointer transition-colors duration-300"
+                                  onClick={() => toast.info("Feature coming soon!")}
+                                  >
                                     <Share2 size={16} />
                                   </button>
 
@@ -648,6 +680,12 @@ const ProfilePage = () => {
           </div>
         </div>
       </footer>
+
+      {/* Adddingn FullBio form handle configuration here  */}
+      <AddFullBio
+        isOpen={isFullBioModalOpen}
+        onClose={handleCloseBioModal}
+      />
     </div>
   );
 };
