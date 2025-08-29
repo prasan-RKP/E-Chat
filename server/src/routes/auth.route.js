@@ -346,7 +346,9 @@ router.get("/visit-user/:userId", protectedRoute, async (req, res) => {
   try {
     const visitUser = await User.findById(userId)
       .select("-password")
-      .populate("posts");
+      .populate("posts")
+      .populate("followers", "-password -__v") // add followers data
+      .populate("following", "-password -__v"); // add following data
     if (!visitUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -367,7 +369,9 @@ router.patch("/add-full-bio", protectedRoute, async (req, res) => {
   const userId = req.user?._id;
 
   try {
-    const user = await User.findById(userId).select("-password").populate('posts');
+    const user = await User.findById(userId)
+      .select("-password")
+      .populate("posts");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

@@ -48,6 +48,17 @@ const AddFullBio = ({ isOpen, onClose }) => {
     const modalRef = useRef(null);
     const formRef = useRef(null);
 
+    // Adding the extra logic to set/fill the form Fileds 
+    useEffect(() => {
+        setFormData({
+            username: authUser?.username || '',
+            contact: authUser?.contact || '',
+            location: authUser?.location || '',
+            passion: authUser?.passion || '',
+            profileLink: authUser?.profileLink || ''
+        });
+    }, [authUser]);
+
 
 
     // Handle input changes
@@ -126,9 +137,9 @@ const AddFullBio = ({ isOpen, onClose }) => {
         // form submission is here 
 
         console.log("Form Data Submitted:", formData);
-        
+
         await addFullBio(formData);
-        
+
         handleClose();
     };
 

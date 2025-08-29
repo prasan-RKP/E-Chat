@@ -24,12 +24,13 @@ import {
   ChartPie,
   ChartLine,
   Trash,
-  Loader2
+  Loader2,
+  Map
 } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { Link, useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
-import { FaGlobe } from "react-icons/fa";
+import { FaGlobe, FaMapMarkerAlt } from "react-icons/fa";
 import { FaLinkedin } from "react-icons/fa";
 import { usePostStore } from "../store/usePostStore.js";
 import AddFullBio from "./AddFullBio.jsx";
@@ -312,9 +313,15 @@ const ProfilePage = () => {
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
               {authUser?.username}
             </h1>
-            <p className="text-lg md:text-xl sm:text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl sm:text-sm text-gray-300 max-w-2xl mx-auto mb-3.5 leading-relaxed">
               "{authUser?.passion || "No passion added yet."}"
             </p>
+            <div className="flex items-center justify-center gap-2 text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              <FaMapMarkerAlt className="h-5 w-5 text-green-500" />
+              <span className="text-sm sm:text-base md:text-lg">
+                {authUser?.location || "Not Added"}
+              </span>
+            </div>
           </motion.div>
 
 
@@ -359,7 +366,7 @@ const ProfilePage = () => {
               onClick={handleOpenBioModal}
             >
               <PlusCircle size={24} />
-             Edit/Add Full Bio
+              Edit/Add Full Bio
             </motion.button>
           </motion.div>
         </div>
@@ -471,7 +478,7 @@ const ProfilePage = () => {
                                     {totalLikes}
                                   </button>
                                   <button className="flex items-center gap-1 hover:text-blue-400 hover:cursor-pointer transition-colors duration-300"
-                                  onClick={() => toast.info("Feature coming soon!")}
+                                    onClick={() => toast.info("Feature coming soon!")}
                                   >
                                     <Share2 size={16} />
                                   </button>

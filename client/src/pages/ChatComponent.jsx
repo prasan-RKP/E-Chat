@@ -11,6 +11,7 @@ import MessageDropdown from "../assets/MessageDropdown.jsx";
 import moment from "moment";
 import PinnedMessage from "../assets/PinnedMessage.jsx";
 import ModalImage from "../assets/ModalImage.jsx";
+import SendModal from "../Components/openModals/SendModal.jsx";
 
 const ChatComponent = () => {
   const {
@@ -24,6 +25,9 @@ const ChatComponent = () => {
     removeMessageAction
   } = useChatStore();
   const { authUser } = useAuthStore();
+
+  // This logic for 'send' button in messageHover click (new - Added)
+  const [forwardMessage, setForwardMessage] = useState(null);
 
   const [hoveredMessage, setHoveredMessage] = useState(null);
   const [modalImage, setModalImage] = useState(null);
@@ -39,7 +43,7 @@ const ChatComponent = () => {
   useEffect(() => {
     // Check if device is touch-enabled
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
-    
+
     subscribeToMessages();
 
     if (selectedUser) {
@@ -73,7 +77,7 @@ const ChatComponent = () => {
   // Handle long press on touch devices
   const handleTouchStart = (index) => {
     if (!isTouchDevice) return;
-    
+
     longPressTimer.current = setTimeout(() => {
       setDropdownMessage(dropdownMessage === index ? null : index);
     }, 500); // 500ms delay for long press
@@ -149,8 +153,8 @@ const ChatComponent = () => {
                     key={index}
                     ref={(el) => (messageRefs.current[message._id] = el)}
                     className={`relative flex items-end gap-1 sm:gap-2 p-1 transition-all duration-200 ${message.senderId === authUser._id
-                        ? "justify-end"
-                        : "justify-start"
+                      ? "justify-end"
+                      : "justify-start"
                       }`}
                     onMouseEnter={() => !isTouchDevice && setHoveredMessage(index)}
                     onMouseLeave={() => {
@@ -203,7 +207,7 @@ const ChatComponent = () => {
                         />
                       </div>
                     )}
-                    
+
                     {/* Show dropdown on hover (desktop) or long press (mobile) */}
                     {(hoveredMessage === index || dropdownMessage === index) && (
                       <div className={`ml-1 sm:ml-2 relative flex-shrink-0`}>
@@ -223,8 +227,8 @@ const ChatComponent = () => {
                           <div
                             ref={dropdownRef}
                             className={`absolute mt-2 w-28 sm:w-32 bg-gray-800 border border-gray-600 rounded-lg shadow-md p-2 flex flex-col z-50 ${index >= messages.length - 2
-                                ? "bottom-full mb-2"
-                                : "top-full mt-2"
+                              ? "bottom-full mb-2"
+                              : "top-full mt-2"
                               } ${message.senderId === authUser._id
                                 ? "right-0"
                                 : "left-0"
@@ -235,6 +239,8 @@ const ChatComponent = () => {
                               onPinMessage={() => setPinnedMessage(message)}
                               removeMessage={() => removeMessage(message)}
                               onClose={() => setDropdownMessage(null)}
+                              // new Added 'send'
+                              onForward={() => setForwardMessage(message)}
                             />
                           </div>
                         )}
@@ -256,6 +262,17 @@ const ChatComponent = () => {
       </div>
 
       <ModalImage modalImage={modalImage} setModalImage={setModalImage} />
+
+
+      {/* new - added 'send' */}
+
+      {forwardMessage && (
+        <SendModal
+          open={true}
+          message={forwardMessage}
+          onClose={() => setForwardMessage(null)}
+        />
+      )}
     </div>
   );
 };

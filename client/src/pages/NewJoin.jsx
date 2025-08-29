@@ -1,106 +1,103 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MoreHorizontal, MapPin, ExternalLink, Grid3X3, Heart, MessageCircle, Share, Home, Search, Plus, User, Menu, X, Star, Zap, Award, Sun, Moon, Bell, Settings, Play, Loader2, Users, UserPlus } from 'lucide-react';
+import { MoreHorizontal, MapPin, ExternalLink, Grid3X3, Heart, MessageCircle, Share, Home, Search, Plus, User, Menu, X, Star, Zap, Award, Sun, Moon, Bell, Settings, Play, Loader2 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import VisitUserSkeleton from '../skeletons/VisitUserSkeleton';
-//import { useNavigate} from 'react-router-dom'
 
 // Modal Component for Followers/Following
-
-//const navigate = useNavigate();
-
-
-
-
-const FollowersModal = ({ isOpen, onClose, users, type, isDarkMode, themeClasses }) => {
+const FollowersModal = ({ isOpen, onClose, users, title, isDarkMode, onUserClick }) => {
     if (!isOpen) return null;
+
+    const themeClasses = {
+        cardBg: isDarkMode
+            ? "backdrop-blur-xl bg-slate-800/90 border-slate-700/50"
+            : "backdrop-blur-xl bg-white/90 border-white/20",
+        text: isDarkMode ? "text-gray-100" : "text-gray-900",
+        textSecondary: isDarkMode ? "text-gray-300" : "text-gray-600",
+        hover: isDarkMode ? "hover:bg-slate-700/50" : "hover:bg-white/50"
+    };
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
-                {/* Backdrop */}
+            <motion.div
+                className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={onClose}
+            >
                 <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={onClose}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                />
-
-                {/* Modal */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className={`relative w-full max-w-md mx-4 ${themeClasses.cardBg} rounded-3xl shadow-2xl border max-h-[70vh] flex flex-col`}
+                    className={`${themeClasses.cardBg} rounded-2xl shadow-2xl border max-w-md w-full max-h-96 overflow-hidden`}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
-                    <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <div className="p-4 border-b border-slate-700/50">
                         <div className="flex items-center justify-between">
-                            <h3 className={`text-xl font-bold ${themeClasses.text}`}>
-                                {type === 'followers' ? 'Followers' : 'Following'}
-                                <span className={`ml-2 text-sm ${themeClasses.textMuted}`}>
-                                    ({users.length})
-                                </span>
+                            <h3 className={`text-lg font-bold ${themeClasses.text}`}>
+                                {title} ({users?.length || 0})
                             </h3>
-                            <motion.button
+                            <button
                                 onClick={onClose}
                                 className={`p-2 rounded-full ${themeClasses.hover} transition-colors`}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
                             >
-                                <X size={20} className={themeClasses.textSecondary} />
-                            </motion.button>
+                                <X size={18} className={themeClasses.textSecondary} />
+                            </button>
                         </div>
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 overflow-y-auto p-4">
-                        {users.length === 0 ? (
-                            <div className="text-center py-8">
-                                <Users className={`w-12 h-12 mx-auto mb-3 ${themeClasses.textMuted}`} />
-                                <p className={themeClasses.textMuted}>
-                                    No {type} yet
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {users?.map((user, index) => (
+                    <div className="overflow-y-auto max-h-80">
+                        {users && users.length > 0 ? (
+                            <div className="p-4 space-y-3">
+                                {users.map((user, index) => (
                                     <motion.div
                                         key={user._id || index}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
+                                        className={`flex items-center gap-3 p-3 rounded-xl ${themeClasses.hover} cursor-pointer transition-all duration-200`}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: index * 0.05 }}
-                                        className={`flex items-center gap-3 p-3 rounded-2xl ${themeClasses.hover} transition-colors cursor-pointer`}
+                                        whileHover={{ scale: 1.02 }}
+                                        onClick={() => onUserClick(user)}
                                     >
                                         <img
-                                            src={user?.profilePic || "/dfp.png"}
-                                            alt={user?.username}
-                                            className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
+                                            src={user.profilePic || "/dfp.png"}
+                                            alt={user.username}
+                                            className="w-12 h-12 rounded-full object-cover border-2 border-slate-600/30"
                                         />
                                         <div className="flex-1 min-w-0">
                                             <p className={`font-semibold ${themeClasses.text} truncate`}>
-                                                {user?.username}
+                                                {user.username}
                                             </p>
-                                            <p className={`text-sm ${themeClasses.textMuted} truncate`}>
-                                                @{user?.username}
+                                            <p className={`text-sm ${themeClasses.textSecondary} truncate`}>
+                                                @{user.username}
                                             </p>
                                         </div>
-                                        <motion.button
-                                            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full text-sm font-medium"
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
-                                            View
-                                        </motion.button>
                                     </motion.div>
                                 ))}
+                            </div>
+                        ) : (
+                            <div className="p-8 text-center">
+                                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
+                                    <User size={24} className="text-white" />
+                                </div>
+                                <p className={`${themeClasses.text} font-medium mb-2`}>
+                                    No {title.toLowerCase()} yet
+                                </p>
+                                <p className={`${themeClasses.textSecondary} text-sm`}>
+                                    {title === 'Followers' 
+                                        ? 'No one is following this user currently'
+                                        : 'This user is not following anyone currently'
+                                    }
+                                </p>
                             </div>
                         )}
                     </div>
                 </motion.div>
-            </div>
+            </motion.div>
         </AnimatePresence>
     );
 };
@@ -110,8 +107,8 @@ const VisitUser = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
-    const [followersModalOpen, setFollowersModalOpen] = useState(false);
-    const [followingModalOpen, setFollowingModalOpen] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalData, setModalData] = useState({ users: [], title: '' });
     const profileRef = useRef(null);
     const statsRef = useRef(null);
     const postsRef = useRef(null);
@@ -122,17 +119,21 @@ const VisitUser = () => {
 
     const { visitUser, visitUserValue, authUser, followFeature } = useAuthStore();
 
+    // Checking if user already been following
     const isAlreadyFollowing = userData?.followers?.includes(authUser?._id);
 
+    //All logics will start from here..
     const { id } = useParams();
 
     useEffect(() => {
         const isLoad = async () => {
             await visitUser({ userId: id });
         }
+
         isLoad();
     }, []);
 
+    // Storing the user details in a variable
     useEffect(() => {
         if (visitUserValue) {
             setUserData(visitUserValue);
@@ -140,29 +141,49 @@ const VisitUser = () => {
         }
     }, [visitUserValue])
 
+    // Follow from here 
     const handleFollow = async (id) => {
         setLoadingId(id);
 
+        // optimistic update before API returns
         setUserData((prev) => {
             if (!prev) return prev;
             const already = prev.followers.includes(authUser._id);
             return {
                 ...prev,
                 followers: already
-                    ? prev.followers.filter((f) => f !== authUser._id)
-                    : [...prev.followers, authUser._id],
+                    ? prev.followers.filter((f) => f !== authUser._id) // unfollow
+                    : [...prev.followers, authUser._id], // follow
             };
         });
 
-        await followFeature({ fid: id });
+        await followFeature({ fid: id }); // sync with backend
         setLoadingId('');
     };
 
+    // Handle modal opening for followers/following
+    const handleStatsHover = (statLabel, users) => {
+        if (statLabel === 'Followers' || statLabel === 'Following') {
+            setModalData({ users: users || [], title: statLabel });
+            setModalOpen(true);
+        }
+    };
+
+    const handleUserClick = (user) => {
+        setModalOpen(false);
+        // Navigate to user profile - you can implement this based on your routing
+        window.location.href = `/visit/${user._id}`;
+    };
+
+    // All logic Ends from here
     useEffect(() => {
+        // Add a small delay to ensure DOM is fully rendered
         const timer = setTimeout(() => {
+            // Import GSAP only if available (for environments that don't have it)
             if (typeof window !== 'undefined' && window.gsap) {
                 const tl = window.gsap.timeline();
 
+                // Ensure elements exist before animating
                 if (profileRef.current) {
                     tl.from(profileRef.current, {
                         duration: 1.2,
@@ -172,6 +193,7 @@ const VisitUser = () => {
                     });
                 }
 
+                // More robust stats animation with fallback
                 if (statsRef.current && statsRef.current.children.length > 0) {
                     tl.from(Array.from(statsRef.current.children), {
                         duration: 0.8,
@@ -182,6 +204,7 @@ const VisitUser = () => {
                     }, "-=0.8");
                 }
 
+                // More robust posts animation with fallback
                 if (postsRef.current && postsRef.current.children.length > 0) {
                     tl.from(Array.from(postsRef.current.children), {
                         duration: 0.6,
@@ -192,8 +215,9 @@ const VisitUser = () => {
                     }, "-=0.4");
                 }
             }
+
             setIsLoaded(true);
-        }, 150);
+        }, 150); // Increased delay to ensure React has rendered
 
         return () => clearTimeout(timer);
     }, []);
@@ -205,18 +229,18 @@ const VisitUser = () => {
     const stats = [
         { label: 'Posts', value: userData?.posts?.length, icon: Grid3X3, color: 'from-blue-500 to-cyan-500' },
         {
-            label: 'Followers',
+            label: 'Followers', 
             value: userData?.followers?.length,
-            icon: Heart,
+            icon: Heart, 
             color: 'from-pink-500 to-rose-500',
-            onClick: () => setFollowersModalOpen(true)
+            users: userData?.followers
         },
-        {
-            label: 'Following',
-            value: userData?.following?.length,
-            icon: Star,
+        { 
+            label: 'Following', 
+            value: userData?.following?.length, 
+            icon: Star, 
             color: 'from-purple-500 to-indigo-500',
-            onClick: () => setFollowingModalOpen(true)
+            users: userData?.following
         }
     ];
 
@@ -264,25 +288,10 @@ const VisitUser = () => {
         hover: isDarkMode ? "hover:bg-slate-700/50" : "hover:bg-white/50"
     };
 
-    // Filter posts based on active tab
-    const getFilteredPosts = () => {
-        switch (activeTab) {
-            case 'Posts':
-                return posts;
-            case 'Liked':
-                return []; // Return empty array for now as liked posts aren't available
-            case 'Tagged':
-                return []; // Return empty array for now as tagged posts aren't available
-            default:
-                return posts;
-        }
-    };
-
-    const filteredPosts = getFilteredPosts();
-    const shouldShowScrollable = filteredPosts.length > 6;
-
     if (visitUserValue === null) {
-        return <VisitUserSkeleton />;
+        return (
+            <><VisitUserSkeleton /></>
+        )
     }
 
     return (
@@ -364,6 +373,7 @@ const VisitUser = () => {
                                         className="transition-colors duration-300 group-hover:text-blue-500"
                                     />
 
+                                    {/* Floating label on hover */}
                                     <motion.span
                                         className="relative"
                                         whileHover={{ y: -3 }}
@@ -372,6 +382,7 @@ const VisitUser = () => {
                                         {item.label}
                                     </motion.span>
 
+                                    {/* Underline Animation */}
                                     <motion.span
                                         className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
                                         whileHover={{ width: "100%" }}
@@ -475,6 +486,7 @@ const VisitUser = () => {
                     </AnimatePresence>
                 </div>
             </header>
+            {/* Header section Ends here  */}
 
             {/* Main Content */}
             <main className="flex-1 relative z-10">
@@ -548,7 +560,7 @@ const VisitUser = () => {
                                         style={{
                                             opacity: 1,
                                             visibility: 'visible',
-                                            minHeight: '120px'
+                                            minHeight: '120px' // Ensure minimum height for stats section
                                         }}
                                     >
                                         {stats.map((stat, index) => (
@@ -568,7 +580,7 @@ const VisitUser = () => {
                                                     type: "spring",
                                                     stiffness: 100
                                                 }}
-                                                onClick={stat.onClick || (() => { })}
+                                                onMouseEnter={() => handleStatsHover(stat.label, stat.users)}
                                             >
                                                 <div className={`w-10 h-10 lg:w-12 lg:h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-r ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                                                     <stat.icon size={20} className="text-white" />
@@ -589,11 +601,11 @@ const VisitUser = () => {
                                     {userData?.username}
                                 </h3>
                                 <p className={`${themeClasses.text} text-lg lg:text-xl leading-relaxed font-medium`}>
-                                    {userData?.passion || "-> Not Mentioned Yet 😎"}
+                                    {userData?.passion || "-> Not Mentioned Yet 😐"}
                                 </p>
                                 <div className={`flex items-center justify-center lg:justify-start ${themeClasses.textSecondary} mb-3 text-lg`}>
                                     <MapPin size={20} className="mr-3 text-red-500" />
-                                    <span>{userData?.location || "Default"}</span>
+                                                                        <span>{userData?.location || "Default"}</span>
                                 </div>
                                 <motion.a
                                     href={userData?.profileLink || "https://www.default.com"}
@@ -607,7 +619,7 @@ const VisitUser = () => {
                                 </motion.a>
                             </motion.div>
 
-                            {/* Enhanced Action Buttons */}
+                            {/* Follow/Unfollow and Message Buttons */}
                             <div className="flex flex-col sm:flex-row gap-4 mt-10">
                                 <motion.button
                                     className="hover:cursor-pointer flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 lg:py-5 px-8 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group text-lg flex items-center justify-center"
@@ -789,20 +801,12 @@ const VisitUser = () => {
 
             {/* Followers/Following Modal */}
             <FollowersModal
-                isOpen={followersModalOpen}
-                onClose={() => setFollowersModalOpen(false)}
-                users={userData?.followers || []}
-                type="followers"
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                users={modalData.users}
+                title={modalData.title}
                 isDarkMode={isDarkMode}
-                themeClasses={themeClasses}
-            />
-            <FollowersModal
-                isOpen={followingModalOpen}
-                onClose={() => setFollowingModalOpen(false)}
-                users={userData?.following || []}
-                type="following"
-                isDarkMode={isDarkMode}
-                themeClasses={themeClasses}
+                onUserClick={handleUserClick}
             />
 
             {/* Footer */}
@@ -825,7 +829,7 @@ const VisitUser = () => {
                 </div>
             </footer>
         </div>
-    );
-};
 
-export default VisitUser;
+    )};
+
+    export default VisitUser;

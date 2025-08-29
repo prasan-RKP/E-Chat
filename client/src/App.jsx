@@ -27,6 +27,7 @@ import NotificationPage from "./pages/NotificationPage";
 import ChartSession from "./pages/ChartSession";
 import ChartSkeleton from "./skeletons/ChartSkeleton";
 import VisitUser from "./pages/VisitUser";
+import PostCarousel from "./assets/PostCarousel";
 //import NewLogin from "./pages/NewLogin";
 
 const App = () => {
@@ -84,7 +85,7 @@ const App = () => {
         {/* <Route path="/testing" element={<VisitUser />} /> */}
         <Route path="/notification" element={<NotificationPage />} />
         <Route path="/" element={<HomePage />} />
-        {/* <Route path="/adj" element={<NewLogin />} /> */}
+        <Route path="/adj" element={<PostCarousel />} />
         <Route path="/pref-chart" element={authUser ? <ChartSession /> : <Navigate to={"/login"} replace />} />
 
         <Route path="/visit-user/:id" element={authUser ? <VisitUser /> : <Navigate to={"/login"} replace />} />

@@ -66,6 +66,8 @@ router.get("/getMessages/:id", protectedRoute, async (req, res) => {
 });
 
 // changed for mobile support as well 
+// old "/sendMessage/:id" code
+/*
 router.post("/sendMessage/:id", protectedRoute, async (req, res) => {
   const { text, image } = req.body;
   const senderId = req.user._id;
@@ -111,6 +113,68 @@ router.post("/sendMessage/:id", protectedRoute, async (req, res) => {
     await newMessage.save();
 
     // 🔁 Notify receiver via Socket.IO
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
+
+    return res.status(200).json(newMessage);
+  } catch (error) {
+    console.error("❌ Error in /sendMessage:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+*/
+
+// new "/sendMessage/:id" code
+router.post("/sendMessage/:id", protectedRoute, async (req, res) => {
+  const { text, image } = req.body;
+  const senderId = req.user._id;
+  const receiverId = req.params.id;
+
+  let imageUrl;
+
+  try {
+    if (image) {
+      // Check if image is already a URL (forwarded image) or Base64 (new image)
+      if (image.startsWith('http://') || image.startsWith('https://')) {
+        // Image is already uploaded - just use the existing URL
+        imageUrl = image;
+        console.log(`✅ Using existing image URL: ${imageUrl}`);
+      } else {
+        // New image - validate and upload Base64
+        const base64HeaderPattern = /^data:image\/(png|jpeg|jpg|webp);base64,/;
+        if (!base64HeaderPattern.test(image)) {
+          return res.status(400).json({ message: "Invalid image format. Must be Base64 with MIME type." });
+        }
+
+        const base64Data = image.split(',')[1];
+        const imageFileSize = Buffer.byteLength(base64Data, "base64");
+        const maxFileSize = 10 * 1024 * 1024; // 10MB
+
+        if (imageFileSize > maxFileSize) {
+          return res.status(400).json({ message: "Image too large. Max 10MB allowed." });
+        }
+
+        const uploadResponse = await cloudinary.uploader.upload(image, {
+          folder: "chat_images",
+        });
+
+        imageUrl = uploadResponse.secure_url;
+        console.log(`✅ Uploaded new image: ${imageUrl}`);
+      }
+    }
+
+    const newMessage = new Message({
+      senderId,
+      receiverId,
+      text,
+      image: imageUrl,
+    });
+
+    await newMessage.save();
+
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
