@@ -458,9 +458,9 @@ const VisitUser = () => {
                                 className={`lg:hidden py-4 border-t ${isDarkMode ? 'border-slate-700/50' : 'border-white/20'}`}
                             >
                                 {navItems.map((item, index) => (
-                                    <motion.a
+                                    <Link 
+                                    to={`${item?.toGo}`}
                                         key={item.label}
-                                        href="#"
                                         className={`block px-4 py-3 ${themeClasses.textSecondary} ${themeClasses.hover} rounded-2xl transition-all duration-200 backdrop-blur-sm flex items-center gap-3`}
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
@@ -468,7 +468,7 @@ const VisitUser = () => {
                                     >
                                         <item.icon size={20} />
                                         {item.label}
-                                    </motion.a>
+                                    </Link>
                                 ))}
                             </motion.div>
                         )}

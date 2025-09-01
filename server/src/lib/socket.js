@@ -1,3 +1,7 @@
+
+
+// old code of socket.js
+/*
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
@@ -70,6 +74,88 @@ io.on("connection", (socket) => {
   });
 
   // New Disconnect code
+});
+
+export { io, server, app };
+
+*/
+
+import { Server } from "socket.io";
+import http from "http";
+import express from "express";
+import dotenv from "dotenv";
+dotenv.config();
+
+const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: [process.env.VITE_FRONTEND_URL || "http://localhost:5173"],
+    credentials: true,
+  },
+});
+
+// To store logged-in users (userId -> socketId)
+const userSocketmap = {};
+
+// Helper function to get a user's socket ID
+export function getReceiverSocketId(userId) {
+  return userSocketmap[userId];
+}
+
+// Main connection
+io.on("connection", (socket) => {
+  console.log(`A user connected: ${socket.id}`);
+
+  const userId = socket.handshake.query.userId;
+  if (userId) {
+    userSocketmap[userId] = socket.id;
+    io.emit("getOnlineUsers", Object.keys(userSocketmap));
+  }
+
+  console.log("Connected Users:", userSocketmap);
+
+  // Handle user reconnecting
+  socket.on("userReconnected", (userId) => {
+    if (userId) {
+      userSocketmap[userId] = socket.id;
+      io.emit("getOnlineUsers", Object.keys(userSocketmap));
+    }
+  });
+
+  // Handle user disconnecting manually
+  socket.on("userDisconnected", (userId) => {
+    if (userId) {
+      delete userSocketmap[userId];
+      io.emit("getOnlineUsers", Object.keys(userSocketmap));
+    }
+  });
+
+  // NEW: Handle message deletion confirmation (OPTIONAL - for additional real-time features)
+  socket.on("messageDeleted", ({ messageId, conversationUsers }) => {
+    // Broadcast deletion to specific conversation participants
+    conversationUsers.forEach(userId => {
+      const socketId = getReceiverSocketId(userId);
+      if (socketId && socketId !== socket.id) {
+        io.to(socketId).emit("messageDeletedFromBoth", { messageId });
+      }
+    });
+  });
+
+  // Handle socket disconnecting
+  socket.on("disconnect", () => {
+    console.log(`A user disconnected: ${socket.id}`);
+
+    const userId = Object.keys(userSocketmap).find(
+      (key) => userSocketmap[key] === socket.id
+    );
+
+    if (userId) {
+      delete userSocketmap[userId];
+      io.emit("getOnlineUsers", Object.keys(userSocketmap));
+    }
+  });
 });
 
 export { io, server, app };

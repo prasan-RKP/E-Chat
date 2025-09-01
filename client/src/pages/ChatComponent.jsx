@@ -12,6 +12,7 @@ import moment from "moment";
 import PinnedMessage from "../assets/PinnedMessage.jsx";
 import ModalImage from "../assets/ModalImage.jsx";
 import SendModal from "../Components/openModals/SendModal.jsx";
+import { toast } from 'sonner';
 
 const ChatComponent = () => {
   const {
@@ -22,13 +23,12 @@ const ChatComponent = () => {
     isSendingMessaging,
     subscribeToMessages,
     unSubscribeFromMessages,
-    removeMessageAction
+    deleteFromBoth,
+    isDeletingBoth
   } = useChatStore();
   const { authUser } = useAuthStore();
 
-  // This logic for 'send' button in messageHover click (new - Added)
   const [forwardMessage, setForwardMessage] = useState(null);
-
   const [hoveredMessage, setHoveredMessage] = useState(null);
   const [modalImage, setModalImage] = useState(null);
   const [dropdownMessage, setDropdownMessage] = useState(null);
@@ -37,13 +37,10 @@ const ChatComponent = () => {
   const longPressTimer = useRef(null);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const dropdownRef = useRef(null);
-
-  const [removeMessages, setRemoveMessages] = useState(messages);
+  const [deletingMessageId, setDeletingMessageId] = useState(null);
 
   useEffect(() => {
-    // Check if device is touch-enabled
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
-
     subscribeToMessages();
 
     if (selectedUser) {
@@ -53,7 +50,6 @@ const ChatComponent = () => {
     return () => unSubscribeFromMessages();
   }, [selectedUser, getMessages, subscribeToMessages, unSubscribeFromMessages]);
 
-  // Add effect to handle outside clicks
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -61,26 +57,23 @@ const ChatComponent = () => {
       }
     };
 
-    // Add event listener when dropdown is open
     if (dropdownMessage !== null) {
       document.addEventListener("mousedown", handleClickOutside);
       document.addEventListener("touchstart", handleClickOutside);
     }
 
-    // Clean up event listener
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
     };
   }, [dropdownMessage]);
 
-  // Handle long press on touch devices
   const handleTouchStart = (index) => {
     if (!isTouchDevice) return;
 
     longPressTimer.current = setTimeout(() => {
       setDropdownMessage(dropdownMessage === index ? null : index);
-    }, 500); // 500ms delay for long press
+    }, 500);
   };
 
   const handleTouchEnd = () => {
@@ -89,7 +82,6 @@ const ChatComponent = () => {
     }
   };
 
-  // Scroll to pinned message when clicked
   const handleScrollToPinnedMessage = () => {
     if (pinnedMessage && messageRefs.current[pinnedMessage._id]) {
       messageRefs.current[pinnedMessage._id].scrollIntoView({
@@ -97,7 +89,6 @@ const ChatComponent = () => {
         block: "center",
       });
 
-      // Add highlight effect
       messageRefs.current[pinnedMessage._id].classList.add("bg-gray-700");
       setTimeout(() => {
         messageRefs.current[pinnedMessage._id].classList.remove("bg-gray-700");
@@ -105,10 +96,24 @@ const ChatComponent = () => {
     }
   };
 
-  const removeMessage = (message) => {
-    if (window.confirm("Are you sure you want to delete the message ? ")) {
-      console.log('The doubt messageId', message._id);
-      removeMessageAction(message);
+  // UPDATED: Handle delete from both function
+  const handleDeleteFromBoth = async (messageId) => { 
+    console.log(`Attempting to delete message with ID: ${messageId}`);
+    
+    // Set loading state for this specific message
+    setDeletingMessageId(messageId);
+    
+    try {
+      await deleteFromBoth(messageId);
+      
+      // Close dropdown after successful deletion
+      setDropdownMessage(null);
+      
+    } catch (error) {
+      console.error("Failed to delete message:", error);
+      toast.error("Failed to delete message");
+    } finally {
+      setDeletingMessageId(null);
     }
   }
 
@@ -118,7 +123,6 @@ const ChatComponent = () => {
       <div className="flex-1 flex flex-col">
         <ChatHeader />
 
-        {/* Pinned Message Bar */}
         <PinnedMessage
           pinnedMessage={pinnedMessage}
           handleScrollToPinnedMessage={handleScrollToPinnedMessage}
@@ -150,7 +154,7 @@ const ChatComponent = () => {
               ) : (
                 messages.map((message, index) => (
                   <div
-                    key={index}
+                    key={index} // Use message._id instead of index
                     ref={(el) => (messageRefs.current[message._id] = el)}
                     className={`relative flex items-end gap-1 sm:gap-2 p-1 transition-all duration-200 ${message.senderId === authUser._id
                       ? "justify-end"
@@ -179,6 +183,16 @@ const ChatComponent = () => {
                       </div>
                     )}
                     <div className="relative max-w-[85%] sm:max-w-xs bg-gray-800 text-white p-2 sm:p-4 rounded-lg">
+                      {/* NEW: Loading overlay for deleting message */}
+                      {deletingMessageId === message._id && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg z-10">
+                          <div className="flex items-center gap-2 text-white">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="text-xs">Deleting...</span>
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="text-xs sm:text-sm md:text-base break-words">
                         {message.text}
                       </div>
@@ -208,7 +222,6 @@ const ChatComponent = () => {
                       </div>
                     )}
 
-                    {/* Show dropdown on hover (desktop) or long press (mobile) */}
                     {(hoveredMessage === index || dropdownMessage === index) && (
                       <div className={`ml-1 sm:ml-2 relative flex-shrink-0`}>
                         {!isTouchDevice && (
@@ -237,10 +250,10 @@ const ChatComponent = () => {
                             <MessageDropdown
                               message={message}
                               onPinMessage={() => setPinnedMessage(message)}
-                              removeMessage={() => removeMessage(message)}
                               onClose={() => setDropdownMessage(null)}
-                              // new Added 'send'
+                              handleDeleteFromBoth={() => handleDeleteFromBoth(message._id)}
                               onForward={() => setForwardMessage(message)}
+                              isDeleting={deletingMessageId === message._id || isDeletingBoth}
                             />
                           </div>
                         )}
@@ -262,9 +275,6 @@ const ChatComponent = () => {
       </div>
 
       <ModalImage modalImage={modalImage} setModalImage={setModalImage} />
-
-
-      {/* new - added 'send' */}
 
       {forwardMessage && (
         <SendModal

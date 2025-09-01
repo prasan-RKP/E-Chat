@@ -1,13 +1,21 @@
 import React from "react";
 import { toast } from 'sonner';
 import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
+import { Loader2, Forward, Copy, Pin, Trash2 } from "lucide-react";
+import { IoReturnUpForward } from "react-icons/io5";
 
-const MessageDropdown = ({ message, onPinMessage, removeMessage, onForward, onClose }) => {
+
+const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForward, onClose, isDeleting }) => {
 
     // State management codes below
-    const { users } = useChatStore();
+    const { users, isDeletingBoth } = useChatStore();
+    const { authUser } = useAuthStore();
 
-    console.log("Getting users from messageDropwdow", users);
+    console.log("Getting users from messageDropdown", users);
+
+    // Check if current user can delete this message (only sender can delete for both)
+    const canDelete = message.senderId === authUser?._id;
 
     // Copy functionality
     const handleCopy = async () => {
@@ -25,12 +33,12 @@ const MessageDropdown = ({ message, onPinMessage, removeMessage, onForward, onCl
                 await navigator.clipboard.writeText(message.text);
             }
 
-            toast('Copied to the clipboard!', { icon: '🏾' });
+            toast('Copied to the clipboard!', { icon: '🎾' });
         } catch (error) {
             console.error("Failed to copy:", error);
             toast('Failed to copy!', { icon: '❌' });
         }
-        
+
         // Close dropdown after action
         onClose();
     };
@@ -46,40 +54,93 @@ const MessageDropdown = ({ message, onPinMessage, removeMessage, onForward, onCl
         onClose();
     };
 
-    const handleDelete = () => {
-        removeMessage();
-        onClose();
+    const handleDelete = async () => {
+        if (!canDelete) {
+            toast.error("You can only delete your own messages");
+            onClose();
+            return;
+        }
+
+        console.log(`Deleting message ${message?._id}`);
+        
+        try {
+            await handleDeleteFromBoth();
+            // onClose() will be called from the parent component after successful deletion
+        } catch (error) {
+            console.error("Failed to delete message:", error);
+            onClose();
+        }
     };
+
+    // Check if any deletion operation is in progress
+    const isDeletingInProgress = isDeleting || isDeletingBoth;
 
     return (
         <div
             className="flex flex-col gap-1 max-h-40 overflow-y-auto 
           scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
         >
-            <button 
-                className="px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left"
+            {/* Forward Button */}
+            <button
+                className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left"
                 onClick={handleSend}
+                disabled={isDeletingInProgress}
             >
-                Forward
+                
+               Forward
             </button>
+
+            {/* Copy Button */}
             <button
                 onClick={handleCopy}
-                className="px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left"
+                className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left"
+                disabled={isDeletingInProgress}
             >
+                <Copy className="w-4 h-4" />
                 Copy
             </button>
+
+            {/* Pin Button */}
             <button
                 onClick={handlePin}
-                className="px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left"
+                className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left"
+                disabled={isDeletingInProgress}
             >
+                <Pin className="w-4 h-4" />
                 Pin
             </button>
-            <button
-                onClick={handleDelete}
-                className="px-3 py-2 text-red-300 hover:bg-red-900/30 rounded-md transition-colors text-left"
-            >
-                Delete
-            </button>
+
+            {/* Delete Button - Only show if user can delete */}
+            {canDelete && (
+                <button
+                    onClick={handleDelete}
+                    disabled={isDeletingInProgress}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-left ${
+                        isDeletingInProgress 
+                            ? 'text-red-400 bg-red-900/20 cursor-not-allowed opacity-60' 
+                            : 'text-red-300 hover:bg-red-900/30'
+                    }`}
+                >
+                    {isDeletingInProgress ? (
+                        <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Deleting...
+                        </>
+                    ) : (
+                        <>
+                            <Trash2 className="w-4 h-4" />
+                            Delete for everyone
+                        </>
+                    )}
+                </button>
+            )}
+
+            {/* Show message if user can't delete */}
+            {!canDelete && (
+                <div className="px-3 py-2 text-xs text-gray-500 italic">
+                    Only sender can delete for everyone
+                </div>
+            )}
         </div>
     );
 };

@@ -21,7 +21,7 @@ router.post("/removeMsg/:id", protectedRoute, async (req, res) => {
 
     // Return updated messages (so frontend can refresh the UI)
     const updatedMessages = await Message.find();
-    
+
     //Todo relatime deletion wii be coming soon....!
     io.emit("messageDeleted", { messageId });
 
@@ -65,7 +65,7 @@ router.get("/getMessages/:id", protectedRoute, async (req, res) => {
   }
 });
 
-// changed for mobile support as well 
+// changed for mobile support as well
 // old "/sendMessage/:id" code
 /*
 router.post("/sendMessage/:id", protectedRoute, async (req, res) => {
@@ -138,7 +138,7 @@ router.post("/sendMessage/:id", protectedRoute, async (req, res) => {
   try {
     if (image) {
       // Check if image is already a URL (forwarded image) or Base64 (new image)
-      if (image.startsWith('http://') || image.startsWith('https://')) {
+      if (image.startsWith("http://") || image.startsWith("https://")) {
         // Image is already uploaded - just use the existing URL
         imageUrl = image;
         console.log(`✅ Using existing image URL: ${imageUrl}`);
@@ -146,15 +146,19 @@ router.post("/sendMessage/:id", protectedRoute, async (req, res) => {
         // New image - validate and upload Base64
         const base64HeaderPattern = /^data:image\/(png|jpeg|jpg|webp);base64,/;
         if (!base64HeaderPattern.test(image)) {
-          return res.status(400).json({ message: "Invalid image format. Must be Base64 with MIME type." });
+          return res.status(400).json({
+            message: "Invalid image format. Must be Base64 with MIME type.",
+          });
         }
 
-        const base64Data = image.split(',')[1];
+        const base64Data = image.split(",")[1];
         const imageFileSize = Buffer.byteLength(base64Data, "base64");
         const maxFileSize = 10 * 1024 * 1024; // 10MB
 
         if (imageFileSize > maxFileSize) {
-          return res.status(400).json({ message: "Image too large. Max 10MB allowed." });
+          return res
+            .status(400)
+            .json({ message: "Image too large. Max 10MB allowed." });
         }
 
         const uploadResponse = await cloudinary.uploader.upload(image, {
@@ -187,5 +191,103 @@ router.post("/sendMessage/:id", protectedRoute, async (req, res) => {
   }
 });
 
+//old code -> '/delete-both' Code for deleting all messages between two users (for future use)
+
+/*
+
+router.delete("/delete-both", protectedRoute, async (req, res) => {
+  const { messageId } = req.body;
+  const userId = req.user._id;
+
+  try {
+    const message = await Message.findById(messageId);
+    if (!message) return res.status(404).json({ message: "Message not found" });
+
+    // Only sender can delete message from both side
+    if (message.senderId.toString() !== userId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this message" });
+    }
+
+    await Message.findByIdAndDelete(messageId);
+
+    res.status(200).json(Message);
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+*/
+
+//New code -> '/delete-both' Code for deleting all messages between two users
+router.delete("/delete-both", protectedRoute, async (req, res) => {
+  const { messageId } = req.body;
+  const userId = req.user._id;
+
+  try {
+    console.log("Attempting to delete message:", messageId, "by user:", userId);
+
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+
+    // Only sender can delete message from both sides
+    if (message.senderId.toString() !== userId.toString()) {
+      return res.status(403).json({
+        message: "You are not authorized to delete this message",
+      });
+    }
+
+    // Store conversation info before deletion
+    const receiverId = message.receiverId.toString();
+    const senderId = message.senderId.toString();
+
+    // Delete the message
+    await Message.findByIdAndDelete(messageId);
+    console.log("Message deleted successfully");
+
+    // Emit real-time deletion to both users
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    const senderSocketId = getReceiverSocketId(senderId);
+
+    console.log(
+      "Socket IDs - Receiver:",
+      receiverSocketId,
+      "Sender:",
+      senderSocketId
+    );
+
+    // Notify receiver
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("messageDeletedFromBoth", {
+        messageId,
+        deletedBy: userId,
+        conversationWith: senderId,
+      });
+    }
+
+    // Notify sender
+    if (senderSocketId && senderSocketId !== receiverSocketId) {
+      io.to(senderSocketId).emit("messageDeletedFromBoth", {
+        messageId,
+        deletedBy: userId,
+        conversationWith: receiverId,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Message deleted for everyone",
+      messageId: messageId,
+    });
+  } catch (error) {
+    console.error("Error in delete-both:", error);
+    if (error.name === "CastError") {
+      return res.status(400).json({ message: "Invalid message ID format" });
+    }
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 export default router;

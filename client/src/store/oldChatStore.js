@@ -12,7 +12,6 @@ export const useChatStore = create((set, get) => ({
   isSendingMessaging: false,
   isFetchingMessage: false,
   isRemovingMessage: false,
-  isDeletingBoth: false,
 
   getUsers: async () => {
     set({ isUserLoading: true });
@@ -50,66 +49,61 @@ export const useChatStore = create((set, get) => ({
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);
-      } else {
-        toast.error("Something went wrong 😴");
       }
+      toast.error("Something went wrong 😴");
     } finally {
       set({ isFetchingMessage: false });
     }
   },
 
-  subscribeToMessages: () => {
-    const socket = useAuthStore.getState().socket;
-    if (!socket) return;
+  /*
+  sendMessage: async (data) => {
+    const { selectedUser, messages } = get();
+    set({ isSendingMessaging: true });
 
-    // Listen for new messages
+    try {
+      const res = await axiosMessageInstance.post(
+        `/sendMessage/${selectedUser._id}`,
+        data
+      );
+      set({ messages: [...messages, res.data] });
+    } catch (error) {
+      toast.error(error.response.data.message);
+    } finally {
+      set({ isSendingMessaging: false });
+    }
+  },
+  */
+
+  subscribeToMessages: async () => {
+    const { selectedUser } = get();
+    if (!selectedUser) return;
+
+    // this line 🍟🍟🍟🍟
+    const socket = useAuthStore.getState().socket;
+
     socket.on("newMessage", (newMessage) => {
-      const { messages, selectedUser } = get();
-      
-      // Only add message if it's for current conversation
-      if (selectedUser && (
-        newMessage.senderId === selectedUser._id || 
-        newMessage.receiverId === selectedUser._id
-      )) {
-        set({ messages: [...messages, newMessage] });
-      }
+      if (newMessage.senderId !== selectedUser._id) return;
+
+      set({
+        messages: [...get().messages, newMessage],
+      });
     });
 
-    // Listen for old message deletion (single user)
+    // listening events for 'DeletedMessages'
+
     socket.on("messageDeleted", ({ messageId }) => {
-      const { messages } = get();
-      const updatedMessages = messages.filter((msg) => msg._id !== messageId);
-      set({ messages: updatedMessages });
-    });
-
-    // NEW: Listen for message deletion from both sides
-    socket.on("messageDeletedFromBoth", ({ messageId, deletedBy, conversationWith }) => {
-      console.log("Received deletion event:", { messageId, deletedBy, conversationWith });
-      
-      const { messages } = get();
-      
-      // Update messages by removing the deleted one
-      const updatedMessages = messages.filter(msg => msg._id !== messageId);
-      set({ messages: updatedMessages });
-      
-      // Show notification (only if not deleted by current user)
-      const { authUser } = useAuthStore.getState();
-      if (deletedBy !== authUser?._id) {
-        toast.info("A message was deleted");
-      }
+      set({ messages: get().messages.filter((msg) => msg._id !== messageId) });
     });
   },
 
-  unSubscribeFromMessages: () => {
+  unSubscribeFromMessages: async () => {
     const socket = useAuthStore.getState().socket;
-    if (!socket) return;
-    
     socket.off("newMessage");
-    socket.off("messageDeleted");
-    socket.off("messageDeletedFromBoth"); // NEW: Clean up deletion listener
   },
 
-  // Old remove message functionality (single user delete)
+  // 'delete' messages functionality
+
   removeMessageAction: async (messageData) => {
     set({ isRemovingMessage: true });
     try {
@@ -119,7 +113,7 @@ export const useChatStore = create((set, get) => ({
       set({ messages: res.data });
       toast.success("Message deleted successfully");
     } catch (error) {
-      if (error.response) {
+      if (err.response) {
         toast.error(error.response.data.message);
       } else {
         toast.error("Something went wrong 😴");
@@ -129,7 +123,8 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Send message functionality
+  //// This is new Logic that i have added to 'showModal' a new feature forward message (new - Added)
+  // here i am trying a new feature for send Message by 'claudde AI'
   sendMessage: async (data) => {
     const { selectedUser, messages } = get();
     set({ isSendingMessaging: true });
@@ -165,7 +160,8 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Forward message to multiple users
+  // Add a new method for forwarding to multiple users
+  // If it will not work then i will remove it
   forwardMessage: async (messageData, receiverIds) => {
     set({ isSendingMessaging: true });
 
@@ -212,27 +208,20 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // NEW: Updated deleteFromBoth function for real-time deletion
-  deleteFromBoth: async (messageId) => {
+  // Deleting messages from bothSide
+
+  isDeletingBoth: false,
+  deleteFromBoth: async (data) => {
     set({ isDeletingBoth: true });
     try {
-      console.log("Deleting message ID:", messageId);
-      
-      const res = await axiosMessageInstance.delete("/delete-both", {
-        data: { messageId }
-      });
-      
-      console.log("Delete response:", res.data);
-      
-      // Don't update messages here - socket will handle it
+      const res = await axiosMessageInstance.delete("/delete-both", data);
+      set({ messages: res.data });
       toast.success("Message deleted for everyone");
-      
     } catch (error) {
-      console.error("Delete error:", error);
-      if (error.response?.data?.message) {
+      if (error.response) {
         toast.error(error.response.data.message);
       } else {
-        toast.error("Failed to delete message");
+        toast.error("Something went wrong 😴");
       }
     } finally {
       set({ isDeletingBoth: false });
