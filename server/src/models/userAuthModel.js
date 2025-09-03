@@ -35,21 +35,6 @@ const userSchema = new mongoose.Schema(
         ref: "Post",
       },
     ],
-
-    likes: {
-      whoLiked: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-      ],
-
-      totalLikes: {
-        type: Number,
-        default: 0,
-      },
-    },
-
     // 'Followers' and 'Following' added
     followers: [
       {

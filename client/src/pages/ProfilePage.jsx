@@ -47,15 +47,24 @@ const ProfilePage = () => {
   const [totalLikes, setTotalLikes] = useState(0);
   const [deleteId, setDeleteId] = useState('');
   const [myPosts, setMyposts] = useState([]);
+  const [storeMyId, setStoreMyId] = useState('');
+  const [tempPosts, setTempPosts] = useState([]);
   const { ref: heroRef, inView: heroInView } = useInView({
     threshold: 0.1,
     triggerOnce: true,
   });
 
-  const tabs = ["Posts", "Photos", "Community"];
-  const { deletePost } = usePostStore();
+  const [storeLoadId, setStoreLoadId] = useState("");
 
-  // Handle image selection and convert to base64
+  const tabs = ["Posts", "Photos", "Community"];
+  //const { deletePost, addLike } = usePostStore();
+
+  const deletePost = usePostStore(state => state.deletePost);
+  const addLike = usePostStore(state => state.addLike);
+  const showPost = usePostStore(state => state.showPost);
+  const authPost = usePostStore(state => state.authPost);
+
+  // Handle imtage selection and convert to base64
   const handleFileInputChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -72,19 +81,43 @@ const ProfilePage = () => {
     checkAuth();
   }, [checkAuth]);
 
+  // Callling the post section
   useEffect(() => {
-    fetch("https://dummyjson.com/quotes?limit=30")
-      .then((res) => res.json())
-      .then((data) => setCommunityPosts(data.quotes));
-  }, []);
+
+    const loadPost = async () => {
+      await showPost();
+    }
+    loadPost();
+  }, [showPost]);
+
+  // storing the post Value
+  // TODO: from here 
+
+  useEffect(() => {
+    if (authPost && authPost.length > 0 && storeMyId) {
+      setTempPosts(authPost);
+      const realPost = authPost.filter((post) => post?.user?._id === storeMyId);
+      setMyposts(realPost || []);
+    }
+  }, [authPost, storeMyId]);
+
+  //console.log('My Post fter useEffct', tempPosts);
+
+
+  // useEffect(() => {
+  //   fetch("https://dummyjson.com/quotes?limit=30")
+  //     .then((res) => res.json())
+  //     .then((data) => setCommunityPosts(data.quotes));
+  // }, []);
 
   const navigate = useNavigate();
 
   //Total Likes
   useEffect(() => {
-    setTotalLikes(authUser?.likes?.totalLikes);
-    setMyposts(authUser?.posts || []);
-  }, [authUser?.likes, authUser?.posts])
+    if (authUser?._id) {
+      setStoreMyId(authUser._id);
+    }
+  }, [authUser])
 
   // Handle delete post
   const handleDeletePost = async (postId) => {
@@ -95,7 +128,7 @@ const ProfilePage = () => {
     setDeleteId('');
   };
 
-  console.log("Total posts", authUser?.posts);
+  console.log("Total posts", authUser);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -127,7 +160,7 @@ const ProfilePage = () => {
     { icon: FaGlobe, color: "text-green-400", href: "https://prasan.onrender.com" }
   ];
 
-  console.log("AuthSTire value", authUser);
+
 
 
 
@@ -141,6 +174,18 @@ const ProfilePage = () => {
   const handleCloseBioModal = () => {
     setIsFullBioModalOpen(false);
   };
+
+  // 'khudKo Like karo '
+
+  const handleOwnLike = async (post) => {
+    let postId = post?._id;
+    let userId = post?.user?._id;
+
+    setStoreLoadId(post?._id);
+    await addLike({ authUserId: userId, postId: postId })
+    setStoreLoadId("");
+    // console.log('Getting userId', post?.user, 'Getting PostId', post?._id);
+  }
 
 
   return (
@@ -473,15 +518,24 @@ const ProfilePage = () => {
                                   {new Date(post.createdAt).toLocaleDateString()}
                                 </span>
                                 <div className="flex items-center gap-4">
-                                  <button className="flex items-center gap-1 hover:text-red-400 hover:cursor-pointer transition-colors duration-300">
-                                    <Heart size={16} />
-                                    {totalLikes}
+                                  <button className="flex items-center gap-1 hover:text-red-400 hover:cursor-pointer transition-colors duration-300"
+                                    onClick={() => handleOwnLike(post)}
+                                  >
+                                    {storeLoadId === post?.user?._id ? (
+                                      <Loader2 className="h-5 w-5 animate-spin" />
+                                    ) : (
+                                      <div className="flex items-center gap-1">
+                                        <Heart size={16} className="text-red-500" />
+                                        <span className="text-sm font-medium">{post?.likes?.totalLikes}</span>
+                                      </div>
+                                    )}
+
                                   </button>
-                                  <button className="flex items-center gap-1 hover:text-blue-400 hover:cursor-pointer transition-colors duration-300"
+                                  {/* <button className="flex items-center gap-1 hover:text-blue-400 hover:cursor-pointer transition-colors duration-300"
                                     onClick={() => toast.info("Feature coming soon!")}
                                   >
                                     <Share2 size={16} />
-                                  </button>
+                                  </button> */}
 
                                   {post._id === deleteId ? (
                                     <Loader2 className="h-5 w-5 animate-spin text-red-500" />

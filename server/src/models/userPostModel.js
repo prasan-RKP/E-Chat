@@ -17,13 +17,27 @@ const postSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: "User",
     },
 
     ownerName: {
       type: String,
       required: true,
-    }
+    },
+    // Re-Correcting the model concept
+    likes: {
+      whoLiked: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
+
+      totalLikes: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   { timestamps: true }
 );

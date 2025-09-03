@@ -8,7 +8,7 @@ import { usePostStore } from '../store/usePostStore.js';
 import ChartSkeleton from '../skeletons/ChartSkeleton.jsx';
 
 const ChartSession = () => {
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('analytics');
   const [chartData, setChartData] = useState([]);
   const [authUserId, setAuthUserId] = useState(null);
   const [storePosts, setStorePosts] = useState([]);
@@ -17,8 +17,8 @@ const ChartSession = () => {
   const { logout, authUser, isFetchingChartData, fetchChartData, chartData: backendChartData } = useAuthStore();
   const { authPost, showPost } = usePostStore();
 
-  console.log("AuthUser value is", authUserId);
-  console.log("Backend chart data:", backendChartData);
+  // console.log("AuthUser value is", authUserId);
+  console.log("Backend chart data:", realPosts);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -204,8 +204,8 @@ const ChartSession = () => {
   };
 
   const navItems = [
-    { id: 'profile', label: 'Profile', icon: User },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'profile', label: 'Profile', icon: User },
     { id: 'posts', label: 'Posts', icon: FileText }
   ];
 
@@ -465,9 +465,7 @@ const ChartSession = () => {
                       <div className="flex items-center gap-4 text-sm text-slate-500">
                         <span>{timeAgo(post.createdAt)}</span>
                         <span>•</span>
-                        <span>5 min read</span>
-                        <span>•</span>
-                        <span>12 likes</span>
+                        <span>👍{post?.likes?.totalLikes}</span>
                       </div>
                     </div>
                   </div>
@@ -576,14 +574,14 @@ const ChartSession = () => {
               </p>
               <div className="flex gap-4">
                 {[
-                  { icon: Github, href: '#' },
+                  { icon: Github, href: 'https://github.com/prasan-RKP', },
                   { icon: Twitter, href: '#' },
-                  { icon: Linkedin, href: '#' },
-                  { icon: Mail, href: '#' }
                 ].map((social, index) => (
                   <motion.a
                     key={index}
                     href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     className="w-10 h-10 bg-slate-800/50 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 rounded-lg flex items-center justify-center border border-slate-700/50 hover:border-transparent transition-all duration-300"
@@ -626,7 +624,7 @@ const ChartSession = () => {
               </ul>
             </div>
 
-            <div>
+            {/* <div>
               <h4 className="text-white font-semibold mb-4">Resources</h4>
               <ul className="space-y-3">
                 {['Documentation', 'API Reference', 'Help Center', 'Community', 'Blog'].map((link) => (
@@ -637,13 +635,13 @@ const ChartSession = () => {
                   </motion.li>
                 ))}
               </ul>
-            </div>
+            </div> */}
           </div>
 
           <div className="border-t border-slate-700/50 mt-12 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-slate-400 text-sm">
-                © 2025 Dashboard. All rights reserved.
+                © 2025 Chat-Io. All rights reserved.
               </p>
               <motion.div
                 initial={{ opacity: 0 }}

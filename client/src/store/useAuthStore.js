@@ -151,25 +151,6 @@ export const useAuthStore = create((set, get) => ({
     if (socket?.connected) socket.disconnect();
   },
 
-  // for Posts logic
-  // Todo:- we will handle it later
-  addLike: async (data) => {
-    set({ isLikingPost: true });
-    try {
-      const res = await axiosInstance.patch("/likePost", data);
-      set({ authUser: res.data });
-      toast.success("Post Liked 👍");
-    } catch (error) {
-      if (error.response) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Try Again, Something Went Wrong");
-      }
-    } finally {
-      set({ isLikingPost: false });
-    }
-  },
-
   isFetchingChartData: false,
   chartData: null,
   fetchChartData: async () => {

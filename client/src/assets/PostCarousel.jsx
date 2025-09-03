@@ -58,19 +58,19 @@ const PostCarousel = ({ posts, onClose, initialIndex }) => {
           modules={[Navigation, Pagination, EffectCreative]}
           className="w-full h-[450px] md:h-[550px] lg:h-[600px] rounded-lg overflow-hidden"
         >
-          {posts.map((post) => (
-            <SwiperSlide key={post._id}>
+          {posts?.map((post) => (
+            <SwiperSlide key={post?._id}>
               <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900 p-4 rounded-lg">
                 <img
-                  src={post.postImage}
-                  alt={post.title}
+                  src={post?.postImage}
+                  alt={post?.title}
                   className="w-full h-[350px] md:h-[450px] lg:h-[500px] object-cover rounded-lg shadow-md"
                 />
                 <div className="mt-4 text-center">
                   <h2 className="text-xl font-bold text-white">
-                    {post.title}
+                    {post?.title}
                   </h2>
-                  <p className="text-gray-400 mt-2">{post.description}</p>
+                  <p className="text-gray-400 mt-2 mb-5">{post?.description}</p>
                 </div>
               </div>
             </SwiperSlide>

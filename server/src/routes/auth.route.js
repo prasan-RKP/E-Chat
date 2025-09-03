@@ -203,53 +203,6 @@ router.put("/profile", protectedRoute, async (req, res) => {
   }
 });
 
-// Route for "/likePost"
-router.patch("/likePost", protectedRoute, async (req, res) => {
-  const loggedInUserId = req?.user?.id;
-  const { likedUserId } = req.body;
-  console.log("gettting userTobeLiked Id", likedUserId);
-
-  try {
-    if (!loggedInUserId)
-      return res.status(400).json({ message: "You are not LoggedIn.." });
-    if (!likedUserId)
-      return res.status(400).json({ message: "Liked user ID not Found.." });
-
-    // Prevent liking yourself
-    if (loggedInUserId.toString() === likedUserId.toString()) {
-      return res.status(400).json({ message: "You can't like yourself.." });
-    }
-
-    const likedUser = await User.findById(likedUserId);
-    if (!likedUser)
-      return res.status(404).json({ message: "User to be liked not found.." });
-
-    // Check if the user already liked
-    const alreadyLiked = likedUser.likes.whoLiked.includes(loggedInUserId);
-
-    if (alreadyLiked) {
-      likedUser.likes.whoLiked = likedUser.likes.whoLiked.filter(
-        (id) => id.toString() !== loggedInUserId.toString()
-      );
-    } else {
-      likedUser.likes.whoLiked.push(loggedInUserId);
-    }
-
-    // ✅ Keep count consistent
-    likedUser.likes.totalLikes = likedUser.likes.whoLiked.length;
-
-    await likedUser.save();
-
-    return res.status(200).json({
-      message: alreadyLiked ? "Like removed" : "User liked successfully",
-      totalLikes: likedUser.likes.totalLikes,
-      whoLiked: likedUser.likes.whoLiked,
-    });
-  } catch (error) {
-    console.error("Error in /likePost:", error);
-    return res.status(500).json({ message: "Internal Server error" });
-  }
-});
 
 // Todo :- We will handle it later
 router.get("/fetchroute", (req, res) => {
@@ -295,6 +248,7 @@ router.patch("/follow", protectedRoute, async (req, res) => {
       return res.status(400).json({ message: "You can't follow yourself" });
 
     const user = await User.findById(userId);
+  
     const targetUser = await User.findById(fid);
 
     if (!user || !targetUser)

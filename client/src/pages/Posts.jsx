@@ -1,4 +1,6 @@
-import { Home, LogOut, UserCircle, ImageIcon, Sparkles, Heart, MessageCircle, Share2, Grid3X3, Plus, Search, Bell, Menu, X, FileQuestion, List, Loader2, Eye } from "lucide-react";
+import { Home, LogOut, UserCircle, ImageIcon, Sparkles, Heart, MessageCircle, Share2, Grid3X3, Plus, Search, Bell, Menu, X, FileQuestion, List, Loader2, Eye, ChartArea } from "lucide-react";
+import { IoChatboxEllipsesOutline, IoChatboxOutline } from "react-icons/io5";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -9,8 +11,10 @@ import { useInView } from "react-intersection-observer";
 
 import "../stylesheets/myCustom.css";
 import PostCarousel from "../assets/PostCarousel.jsx";
-import {toast} from "sonner";
+import { toast } from "sonner";
 import { useDebounce } from 'use-debounce';
+import { IoMdArrowRoundForward } from "react-icons/io";
+
 
 const Posts = () => {
 
@@ -19,7 +23,7 @@ const Posts = () => {
   const showPost = usePostStore(state => state.showPost);
   const fetchingPosts = usePostStore(state => state.fetchingPosts);
   const authPost = usePostStore(state => state.authPost);
-  const addLike = useAuthStore(state => state.addLike) // This is 'addLike' from'useAuthStore.js'
+  const addLike = usePostStore(state => state.addLike) // This is 'addLike' from'useAuthStore.js'
 
 
 
@@ -69,12 +73,24 @@ const Posts = () => {
   }
 
   // 'Like' Functionality is here
-  const handleLikePost = async (postId) => {
+  const handleLikePost = async (post) => {
     //console.log("GettingPostId", postId);
-    setStoreId(postId);
-    await addLike({ likedUserId: postId });
+    // setStoreId(postId);
+    // await addLike({ likedUserId: postId });
+    // setStoreId('');
+
+    setStoreId(post._id);
+    await addLike({ authUserId: post?.user?._id, postId: post._id });
     setStoreId('');
+    // console.log(`The postId ${post._id} is liked by userId ${post.user?._id}`);
   }
+
+
+
+  const [storeLen, setStoreLen] = useState(0);
+  useEffect(() => {
+    setStoreLen(authPost?.likes?.whoLiked?.length);
+  }, [authPost?.likes?.totalLikes])
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -443,15 +459,15 @@ const Posts = () => {
                   </motion.button>
                 </Link>
 
-                <Link to={"/notification"}>
+                <Link to={"/chat"}>
                   <motion.button
                     className="p-2 rounded-full hover:bg-slate-800 transition-all duration-200 relative group"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                   >
-                    <Bell className="w-5 h-5" />
+                    <IoChatboxEllipsesOutline className='w-5 h-5' />
                     <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs bg-slate-800 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200">
-                      Notifications
+                      Chat
                     </span>
                   </motion.button>
                 </Link>
@@ -665,25 +681,29 @@ const Posts = () => {
 
                           <div className="flex items-center gap-4 text-white">
                             <motion.button
-                              className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-400 transition-all duration-200"
+                              className="relative hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-400 transition-all duration-200"
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleLikePost(post.user?._id)
+                                handleLikePost(post);
                               }}
                             >
                               {storeId === post.user?._id ? (
-                                <>
-                                  <Loader2 className="h-5 w-5 animate-spin" />
-                                </>
+                                <Loader2 className="h-5 w-5 animate-spin" />
                               ) : (
                                 <Heart className="w-5 h-5" />
                               )}
 
+                              {/* 🔹 Like Count Badge */}
+                              {post?.likes?.totalLikes > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs font-medium px-1.5 py-0.5 rounded-full shadow-md">
+                                  {post?.likes?.totalLikes}
+                                </span>
+                              )}
                             </motion.button>
 
-                            {/* Todo: Like Fnctionality will goes here.. */}
+                            {/* Eye Button */}
                             <motion.button
                               className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-blue-400 transition-all duration-200"
                               whileHover={{ scale: 1.1 }}
@@ -695,18 +715,19 @@ const Posts = () => {
                             >
                               <Eye className="w-5 h-5" />
                             </motion.button>
-                            <motion.button
-                              className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-slate-900 transition-all duration-200"
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toast.success("Feature on the Way..!");
-                              }}
-                            >
-                              <Share2 className="w-5 h-5" />
-                            </motion.button>
+
+                            {/* Share Button */}
+                            <Link to={`/visit-user/${post?.user?._id}`}>
+                              <motion.button
+                                className="hover:cursor-pointer p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-slate-900 transition-all duration-200"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                              >
+                                <IoMdArrowRoundForward className="w-5 h-5" />
+                              </motion.button>
+                            </Link>
                           </div>
+
                         </motion.div>
                       </div>
 
@@ -730,13 +751,18 @@ const Posts = () => {
                             className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-400 transition-all duration-200"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleLikePost(post.user?._id);
+                              handleLikePost(post);
                             }}
                           >
-                            {storeId === post.user?._id ? (
+                            {storeId === post?.user?._id ? (
                               <Loader2 className="h-5 w-5 animate-spin" />
                             ) : (
                               <Heart className="w-5 h-5" />
+                            )}
+                            {post?.likes?.totalLikes > 0 && (
+                              <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs font-medium px-1.5 py-0.5 rounded-full shadow-md">
+                                {post?.likes?.totalLikes}
+                              </span>
                             )}
                           </button>
                           <button
@@ -748,15 +774,13 @@ const Posts = () => {
                           >
                             <Eye className="w-5 h-5" />
                           </button>
+                          <Link to={`/visit-user/${post?.user?._id}`}>
                           <button
                             className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-slate-900 transition-all duration-200"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toast.success("Feature on the Way..!");
-                            }}
                           >
-                            <Share2 className="w-5 h-5" />
+                            <IoMdArrowRoundForward className="w-5 h-5" />
                           </button>
+                          </Link>
                         </div>
                       </div>
                     </div>

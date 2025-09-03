@@ -4,16 +4,14 @@ import { MoreHorizontal, MapPin, ExternalLink, Grid3X3, Heart, MessageCircle, Sh
 import { Link, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import VisitUserSkeleton from '../skeletons/VisitUserSkeleton';
+import { useNavigate } from 'react-router-dom';
 //import { useNavigate} from 'react-router-dom'
 
-// Modal Component for Followers/Following
-
-//const navigate = useNavigate();
+// Modal Component for Followers/Followin
 
 
 
-
-const FollowersModal = ({ isOpen, onClose, users, type, isDarkMode, themeClasses }) => {
+const FollowersModal = ({ isOpen, onClose, users, type, isDarkMode, themeClasses, handleFollowView }) => {
     if (!isOpen) return null;
 
     return (
@@ -88,9 +86,13 @@ const FollowersModal = ({ isOpen, onClose, users, type, isDarkMode, themeClasses
                                             </p>
                                         </div>
                                         <motion.button
-                                            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full text-sm font-medium"
+                                            className="hover:cursor-pointer px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full text-sm font-medium"
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
+                                            onClick={() => {
+                                                handleFollowView(user?._id);
+                                                onClose(); // 👈 close modal after navigation
+                                            }}
                                         >
                                             View
                                         </motion.button>
@@ -125,13 +127,14 @@ const VisitUser = () => {
     const isAlreadyFollowing = userData?.followers?.includes(authUser?._id);
 
     const { id } = useParams();
+    const navigate = useNavigate(); // added
 
     useEffect(() => {
         const isLoad = async () => {
             await visitUser({ userId: id });
         }
         isLoad();
-    }, []);
+    }, [id]); // added
 
     useEffect(() => {
         if (visitUserValue) {
@@ -139,6 +142,11 @@ const VisitUser = () => {
             setPosts(visitUserValue.posts || []);
         }
     }, [visitUserValue])
+
+    //added here
+    const handleFollowView = (userId) => {
+        navigate(`/visit-user/${userId}`); // update route
+    };
 
     const handleFollow = async (id) => {
         setLoadingId(id);
@@ -157,6 +165,8 @@ const VisitUser = () => {
         await followFeature({ fid: id });
         setLoadingId('');
     };
+
+
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -458,8 +468,8 @@ const VisitUser = () => {
                                 className={`lg:hidden py-4 border-t ${isDarkMode ? 'border-slate-700/50' : 'border-white/20'}`}
                             >
                                 {navItems.map((item, index) => (
-                                    <Link 
-                                    to={`${item?.toGo}`}
+                                    <Link
+                                        to={`${item?.toGo}`}
                                         key={item.label}
                                         className={`block px-4 py-3 ${themeClasses.textSecondary} ${themeClasses.hover} rounded-2xl transition-all duration-200 backdrop-blur-sm flex items-center gap-3`}
                                         initial={{ x: -20, opacity: 0 }}
@@ -732,7 +742,11 @@ const VisitUser = () => {
                                                     <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between bg-white/70 dark:bg-slate-800/70 rounded-xl px-3 py-2 shadow-lg transition-all duration-300">
                                                         <div className="flex items-center gap-3">
                                                             <Heart className="w-5 h-5 text-pink-500" />
-                                                            <span className="font-semibold text-gray-700 dark:text-gray-200">{post.likes}</span>
+                                                            <span className="font-semibold text-gray-700 dark:text-gray-200">
+                                                                {typeof post.likes === "object"
+                                                                    ? post.likes.totalLikes ?? 0
+                                                                    : post.likes ?? 0}
+                                                            </span>
                                                         </div>
                                                         <div className="flex items-center gap-3">
                                                             <MessageCircle className="w-5 h-5 text-blue-500" />
@@ -795,6 +809,7 @@ const VisitUser = () => {
                 type="followers"
                 isDarkMode={isDarkMode}
                 themeClasses={themeClasses}
+                handleFollowView={handleFollowView}
             />
             <FollowersModal
                 isOpen={followingModalOpen}
@@ -803,6 +818,7 @@ const VisitUser = () => {
                 type="following"
                 isDarkMode={isDarkMode}
                 themeClasses={themeClasses}
+                handleFollowView={handleFollowView}
             />
 
             {/* Footer */}

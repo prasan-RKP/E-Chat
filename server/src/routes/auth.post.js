@@ -60,14 +60,14 @@ router.post("/add-post", protectedRoute, async (req, res) => {
       title: title.trim(),
       description: postDesc.trim(),
       postImage: uploadResponse.secure_url,
-      user:userId,
-      ownerName:user.username || "Anonymous", // Use user's name or default to "Anonymous"
+      user: userId,
+      ownerName: user.username || "Anonymous", // Use user's name or default to "Anonymous"
     });
 
     // Save Post to Database
     await newPost.save();
 
-    console.log("NewPost value is", newPost);
+    //console.log("NewPost value is", newPost);
 
     // Ensure 'posts' array exists, then push post ID
     if (!user.posts) user.posts = [];
@@ -80,7 +80,7 @@ router.post("/add-post", protectedRoute, async (req, res) => {
       description: newPost.description,
       postImage: newPost.postImage,
       userId: user._id, // Include userId
-      ownerName:user.username || "Anonymous",
+      ownerName: user.username || "Anonymous",
     });
   } catch (error) {
     console.error("Error creating post:", error);
@@ -90,7 +90,7 @@ router.post("/add-post", protectedRoute, async (req, res) => {
   }
 });
 
-// This route will help to show the posts indivisual User 
+// This route will help to show the posts indivisual User
 /*
 router.get("/allposts", protectedRoute, async (req, res) => {
   try {
@@ -113,7 +113,6 @@ router.get("/allposts", protectedRoute, async (req, res) => {
 
 router.get("/allposts", protectedRoute, async (req, res) => {
   try {
-   
     const posts = await Post.find()
       .populate("user", "username profilePic")
       .sort({ createdAt: -1 });
@@ -126,7 +125,7 @@ router.get("/allposts", protectedRoute, async (req, res) => {
 });
 
 router.delete("/delete-post", protectedRoute, async (req, res) => {
-  const { postId } = req.body; 
+  const { postId } = req.body;
   const userId = req.user?._id;
 
   try {
@@ -142,7 +141,9 @@ router.delete("/delete-post", protectedRoute, async (req, res) => {
 
     // 2. Check ownership
     if (post?.user?._id.toString() !== userId.toString()) {
-      return res.status(403).json({ message: "Not allowed to delete this post 🚫" });
+      return res
+        .status(403)
+        .json({ message: "Not allowed to delete this post 🚫" });
     }
 
     // 3. Delete post
@@ -156,9 +157,9 @@ router.delete("/delete-post", protectedRoute, async (req, res) => {
     );
 
     // ✅ Return deleted post info so frontend can update UI
-    return res.status(200).json({ 
-      message: "Post deleted successfully ✅", 
-      deletedPost: { _id: deletedPost._id } 
+    return res.status(200).json({
+      message: "Post deleted successfully ✅",
+      deletedPost: { _id: deletedPost._id },
     });
   } catch (error) {
     console.error(error);
@@ -166,6 +167,60 @@ router.delete("/delete-post", protectedRoute, async (req, res) => {
   }
 });
 
+// Re-correcting the 'addLikePost() ' feature
+router.patch("/likePost", protectedRoute, async (req, res) => {
+  const loggedInUserId = req.user?._id;
+  const { authUserId, postId } = req.body;
 
+  console.log('Hitting from profile',authUserId, '& postId', postId);
+  //Hitting from profile 689ff9d9da7653ba8798d27b & postId 68a9d82cac3773a181465517  backend accepting 
+
+  try {
+    if (!loggedInUserId) {
+      return res.status(401).json({ message: "Unauthorized User" });
+    }
+    if (!postId) {
+      return res.status(400).json({ message: "Post not found" });
+    }
+    // if (loggedInUserId === authUserId) {
+    //   return res.status(400).json({ message: "You cannot like your own post" });
+    // }
+
+    const post = await Post.findById(postId).populate(
+      "user",
+      "name profilePic"
+    );
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    let action = ""
+
+    const alreadyLiked = post.likes.whoLiked.includes(loggedInUserId);
+
+    if (alreadyLiked) {
+      post.likes.whoLiked = post.likes.whoLiked.filter(
+        (id) => id.toString() !== loggedInUserId.toString()
+      );
+
+      action = "unliked"
+      
+    } else {
+      post.likes.whoLiked.push(loggedInUserId);
+      action = "liked"
+    }
+
+    post.likes.totalLikes = post.likes.whoLiked.length;
+
+    await post.save();
+
+    // ✅ Return updated post
+    res.json({post, action});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 export default router;
