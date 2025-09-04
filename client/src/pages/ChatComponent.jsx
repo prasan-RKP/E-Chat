@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { MessageSquareText, Loader2, X, ChevronDown } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import ChatSidebar from "../Components/chats/ChatSidebar";
 import ChatHeader from "../Components/chats/ChatHeader";
 import { useChatStore } from "../store/useChatStore";
@@ -12,6 +12,7 @@ import moment from "moment";
 import PinnedMessage from "../assets/PinnedMessage.jsx";
 import ModalImage from "../assets/ModalImage.jsx";
 import SendModal from "../Components/openModals/SendModal.jsx";
+import TypingIndicator from "../Components/chats/TypingIndicator.jsx"; // NEW: Import typing indicator
 import { toast } from 'sonner';
 
 const ChatComponent = () => {
@@ -24,7 +25,8 @@ const ChatComponent = () => {
     subscribeToMessages,
     unSubscribeFromMessages,
     deleteFromBoth,
-    isDeletingBoth
+    isDeletingBoth,
+    typingUsers // NEW: Get typing users from store
   } = useChatStore();
   const { authUser } = useAuthStore();
 
@@ -38,6 +40,7 @@ const ChatComponent = () => {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const dropdownRef = useRef(null);
   const [deletingMessageId, setDeletingMessageId] = useState(null);
+  const messagesEndRef = useRef(null); // NEW: Ref for auto-scroll
 
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
@@ -49,6 +52,11 @@ const ChatComponent = () => {
 
     return () => unSubscribeFromMessages();
   }, [selectedUser, getMessages, subscribeToMessages, unSubscribeFromMessages]);
+
+  // NEW: Auto-scroll to bottom when new messages or typing indicators appear
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, typingUsers]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -82,6 +90,8 @@ const ChatComponent = () => {
     }
   };
 
+  //console.log('ForwardMessage', forwardMessage);
+
   const handleScrollToPinnedMessage = () => {
     if (pinnedMessage && messageRefs.current[pinnedMessage._id]) {
       messageRefs.current[pinnedMessage._id].scrollIntoView({
@@ -96,19 +106,14 @@ const ChatComponent = () => {
     }
   };
 
-  // UPDATED: Handle delete from both function
-  const handleDeleteFromBoth = async (messageId) => { 
+  const handleDeleteFromBoth = async (messageId) => {
     console.log(`Attempting to delete message with ID: ${messageId}`);
-    
-    // Set loading state for this specific message
+
     setDeletingMessageId(messageId);
-    
+
     try {
       await deleteFromBoth(messageId);
-      
-      // Close dropdown after successful deletion
       setDropdownMessage(null);
-      
     } catch (error) {
       console.error("Failed to delete message:", error);
       toast.error("Failed to delete message");
@@ -116,6 +121,9 @@ const ChatComponent = () => {
       setDeletingMessageId(null);
     }
   }
+
+  // NEW: Check if selected user is typing
+  const isSelectedUserTyping = selectedUser && typingUsers[selectedUser._id];
 
   return (
     <div className="flex h-screen bg-gray-900 text-gray-300">
@@ -154,7 +162,7 @@ const ChatComponent = () => {
               ) : (
                 messages.map((message, index) => (
                   <div
-                    key={index} // Use message._id instead of index
+                    key={message._id}
                     ref={(el) => (messageRefs.current[message._id] = el)}
                     className={`relative flex items-end gap-1 sm:gap-2 p-1 transition-all duration-200 ${message.senderId === authUser._id
                       ? "justify-end"
@@ -183,7 +191,6 @@ const ChatComponent = () => {
                       </div>
                     )}
                     <div className="relative max-w-[85%] sm:max-w-xs bg-gray-800 text-white p-2 sm:p-4 rounded-lg">
-                      {/* NEW: Loading overlay for deleting message */}
                       {deletingMessageId === message._id && (
                         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg z-10">
                           <div className="flex items-center gap-2 text-white">
@@ -192,7 +199,7 @@ const ChatComponent = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       <div className="text-xs sm:text-sm md:text-base break-words">
                         {message.text}
                       </div>
@@ -262,27 +269,49 @@ const ChatComponent = () => {
                   </div>
                 ))
               )}
-              {isSendingMessaging && (
-                <div className="flex justify-end pr-2 sm:pr-6">
-                  <span className="text-xs sm:text-sm">Sending...</span>
-                  <Loader2 className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400 animate-spin ml-1 sm:ml-2" />
-                </div>
+
+              {/* Typing Indicator */}
+              {isSelectedUserTyping && (
+                <TypingIndicator
+                  userName={selectedUser.username}
+                  userProfilePic={selectedUser.profilePic}
+                />
               )}
+              {/* Scroll anchor for auto-scroll */}
+              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
-        {selectedUser && <ChatMessageInput />}
+
+        {/* Modal for viewing images */}
+        <AnimatePresence>
+          {modalImage && (
+            <ModalImage
+              src={modalImage}
+              onClose={() => setModalImage(null)}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Forward message modal */}
+        <AnimatePresence>
+          {forwardMessage && (
+            <SendModal
+              open={!!forwardMessage}  // Add this line
+              message={forwardMessage}
+              onClose={() => setForwardMessage(null)}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Message input */}
+        {selectedUser && (
+          <ChatMessageInput
+            selectedUser={selectedUser}
+            isSendingMessaging={isSendingMessaging}
+          />
+        )}
       </div>
-
-      <ModalImage modalImage={modalImage} setModalImage={setModalImage} />
-
-      {forwardMessage && (
-        <SendModal
-          open={true}
-          message={forwardMessage}
-          onClose={() => setForwardMessage(null)}
-        />
-      )}
     </div>
   );
 };

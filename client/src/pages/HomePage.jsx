@@ -289,7 +289,7 @@ const HomePage = () => {
               { icon: User, label: "Profile", path: "/profile", color: "hover:bg-purple-500/10", gradient: "from-purple-400 to-pink-400" },
               { icon: MessageCircle, label: "Chat", path: "/chat", color: "hover:bg-blue-500/10", gradient: "from-blue-400 to-cyan-400" },
               { icon: Image, label: "Posts", path: "/allposts", color: "hover:bg-emerald-500/10", gradient: "from-emerald-400 to-teal-400" },
-              { icon: ReceiptText, label: "Formal", path: "/adj", color: "hover:bg-amber-500/10", gradient: "from-amber-400 to-orange-400" },
+              
             ].map((item, index) => (
               <Link key={index} to={item.path} onClick={toggleSidebar}>
                 <div className={`group flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 cursor-pointer ${item.color} hover:scale-105 border border-transparent hover:border-slate-700/50`}>

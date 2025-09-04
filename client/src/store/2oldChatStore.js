@@ -14,10 +14,6 @@ export const useChatStore = create((set, get) => ({
   isRemovingMessage: false,
   isDeletingBoth: false,
 
-  // NEW: Typing indicator state
-  typingUsers: {}, // userId -> true/false
-  typingTimeout: null,
-
   getUsers: async () => {
     set({ isUserLoading: true });
     try {
@@ -69,54 +65,37 @@ export const useChatStore = create((set, get) => ({
     // Listen for new messages
     socket.on("newMessage", (newMessage) => {
       const { messages, selectedUser } = get();
-
-      if (
-        selectedUser &&
-        (newMessage.senderId === selectedUser._id ||
-          newMessage.receiverId === selectedUser._id)
-      ) {
+      
+      // Only add message if it's for current conversation
+      if (selectedUser && (
+        newMessage.senderId === selectedUser._id || 
+        newMessage.receiverId === selectedUser._id
+      )) {
         set({ messages: [...messages, newMessage] });
       }
     });
 
+    // Listen for old message deletion (single user)
     socket.on("messageDeleted", ({ messageId }) => {
       const { messages } = get();
-      set({ messages: messages.filter((msg) => msg._id !== messageId) });
+      const updatedMessages = messages.filter((msg) => msg._id !== messageId);
+      set({ messages: updatedMessages });
     });
 
-    socket.on(
-      "messageDeletedFromBoth",
-      ({ messageId, deletedBy, conversationWith }) => {
-        const { messages } = get();
-        const updatedMessages = messages.filter((msg) => msg._id !== messageId);
-        set({ messages: updatedMessages });
-
-        const { authUser } = useAuthStore.getState();
-        if (deletedBy !== authUser?._id) {
-          toast.info("A message was deleted");
-        }
-      }
-    );
-
-    // ✅ NEW: Typing indicator listeners
-    socket.on("typing", ({ senderId }) => {
-      console.log("📨 Typing event received from:", senderId);
-      const { selectedUser } = get();
-      if (selectedUser && senderId === selectedUser._id) {
-        console.log("✅ Setting typing indicator for:", senderId);
-        set({
-          typingUsers: { ...get().typingUsers, [senderId]: true },
-        });
-      }
-    });
-
-    socket.on("stopTyping", ({ senderId }) => {
-      const { selectedUser } = get();
-      if (selectedUser && senderId === selectedUser._id) {
-        console.log("✅ Removing typing indicator for:", senderId);
-        set({
-          typingUsers: { ...get().typingUsers, [senderId]: false },
-        });
+    // NEW: Listen for message deletion from both sides
+    socket.on("messageDeletedFromBoth", ({ messageId, deletedBy, conversationWith }) => {
+      console.log("Received deletion event:", { messageId, deletedBy, conversationWith });
+      
+      const { messages } = get();
+      
+      // Update messages by removing the deleted one
+      const updatedMessages = messages.filter(msg => msg._id !== messageId);
+      set({ messages: updatedMessages });
+      
+      // Show notification (only if not deleted by current user)
+      const { authUser } = useAuthStore.getState();
+      if (deletedBy !== authUser?._id) {
+        toast.info("A message was deleted");
       }
     });
   },
@@ -124,14 +103,13 @@ export const useChatStore = create((set, get) => ({
   unSubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
-
+    
     socket.off("newMessage");
     socket.off("messageDeleted");
-    socket.off("messageDeletedFromBoth");
-    socket.off("typing"); // ✅ cleanup
-    socket.off("stopTyping"); // ✅ cleanup
+    socket.off("messageDeletedFromBoth"); // NEW: Clean up deletion listener
   },
 
+  // Old remove message functionality (single user delete)
   removeMessageAction: async (messageData) => {
     set({ isRemovingMessage: true });
     try {
@@ -151,13 +129,18 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // Send message functionality
   sendMessage: async (data) => {
     const { selectedUser, messages } = get();
     set({ isSendingMessaging: true });
 
     try {
+      // Use receiverId from data (for forwarding) or selectedUser._id (for normal chat)
       const receiverId = data.receiverId || selectedUser?._id;
-      if (!receiverId) throw new Error("No receiver specified");
+
+      if (!receiverId) {
+        throw new Error("No receiver specified");
+      }
 
       const res = await axiosMessageInstance.post(
         `/sendMessage/${receiverId}`,
@@ -167,12 +150,14 @@ export const useChatStore = create((set, get) => ({
         }
       );
 
+      // Only update messages if it's for the currently selected user
       if (receiverId === selectedUser?._id) {
         set({ messages: [...messages, res.data] });
       }
 
       return res.data;
     } catch (error) {
+      console.error("Send message error:", error);
       toast.error(error.response?.data?.message || "Failed to send message");
       throw error;
     } finally {
@@ -180,6 +165,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // Forward message to multiple users
   forwardMessage: async (messageData, receiverIds) => {
     set({ isSendingMessaging: true });
 
@@ -192,6 +178,8 @@ export const useChatStore = create((set, get) => ({
           })
         )
       );
+
+      console.log("After forward result", results);
 
       const successful = results.filter(
         (result) => result.status === "fulfilled"
@@ -207,6 +195,7 @@ export const useChatStore = create((set, get) => ({
           }`
         );
       }
+
       if (failed > 0) {
         toast.error(
           `Failed to send to ${failed} user${failed !== 1 ? "s" : ""}`
@@ -215,6 +204,7 @@ export const useChatStore = create((set, get) => ({
 
       return { successful, failed };
     } catch (error) {
+      console.error("Forward message error:", error);
       toast.error("Failed to forward message");
       throw error;
     } finally {
@@ -222,59 +212,30 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // NEW: Updated deleteFromBoth function for real-time deletion
   deleteFromBoth: async (messageId) => {
     set({ isDeletingBoth: true });
     try {
-      await axiosMessageInstance.delete("/delete-both", {
-        data: { messageId },
+      console.log("Deleting message ID:", messageId);
+      
+      const res = await axiosMessageInstance.delete("/delete-both", {
+        data: { messageId }
       });
+      
+      console.log("Delete response:", res.data);
+      
+      // Don't update messages here - socket will handle it
       toast.success("Message deleted for everyone");
+      
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to delete message");
+      console.error("Delete error:", error);
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Failed to delete message");
+      }
     } finally {
       set({ isDeletingBoth: false });
     }
-  },
-
-  // ✅ NEW: Typing actions
-  startTyping: () => {
-    const { selectedUser } = get();
-    const socket = useAuthStore.getState().socket;
-    const authUser = useAuthStore.getState().authUser;
-
-    if (socket && authUser && selectedUser) {
-      socket.emit("typing", {
-        senderId: authUser._id,
-        receiverId: selectedUser._id,
-      });
-    }
-  },
-
-  stopTyping: () => {
-    const { selectedUser } = get();
-    const socket = useAuthStore.getState().socket;
-    const authUser = useAuthStore.getState().authUser;
-
-    if (socket && authUser && selectedUser) {
-      socket.emit("stopTyping", {
-        senderId: authUser._id,
-        receiverId: selectedUser._id,
-      });
-    }
-  },
-
-  handleTyping: () => {
-    const { startTyping, stopTyping, typingTimeout } = get();
-
-    if (typingTimeout) clearTimeout(typingTimeout);
-
-    startTyping();
-
-    const newTimeout = setTimeout(() => {
-      stopTyping();
-      set({ typingTimeout: null });
-    }, 2000);
-
-    set({ typingTimeout: newTimeout });
   },
 }));

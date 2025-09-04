@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, BarChart3, FileText, Clock, TrendingUp, Calendar, Award, Github, Twitter, Linkedin, Mail, Heart } from 'lucide-react';
+import { User, BarChart3, FileText, Clock, TrendingUp, Calendar, Award, Github, Twitter, Linkedin, Mail, Heart, Phone, MapPin, Globe } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePostStore } from '../store/usePostStore.js';
 import ChartSkeleton from '../skeletons/ChartSkeleton.jsx';
+import { FaGlobe, FaLinkedin } from 'react-icons/fa';
 
 const ChartSession = () => {
   const [activeTab, setActiveTab] = useState('analytics');
@@ -575,7 +576,8 @@ const ChartSession = () => {
               <div className="flex gap-4">
                 {[
                   { icon: Github, href: 'https://github.com/prasan-RKP', },
-                  { icon: Twitter, href: '#' },
+                  { icon: FaLinkedin, href: 'https://www.linkedin.com/in/prasan-kumar-05a623345?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app' },
+                  { icon: FaGlobe, href: 'https://prasan.onrender.com', },
                 ].map((social, index) => (
                   <motion.a
                     key={index}
@@ -636,6 +638,27 @@ const ChartSession = () => {
                 ))}
               </ul>
             </div> */}
+            <div>
+                          <h4 className="text-lg font-semibold text-white mb-4">Contact</h4>
+                          <ul className="space-y-2 text-gray-400">
+                            <li className="flex items-center gap-2">
+                              <Mail size={16} />
+                              <span>pk5773694@gmail.com</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <Phone size={16} />
+                              <span>+91 7735221038</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <MapPin size={16} />
+                              <span>DMJ,Odisha</span>
+                            </li>
+                            <li className="flex items-center gap-2 ">
+                              <Globe size={16} />
+                              <a className="hover:underline hover:text-blue-600" href="https://prasan.onrender.com/" target="_blank" rel="noopener noreferrer">Say Hello to Me!</a>
+                            </li>
+                          </ul>
+                        </div>
           </div>
 
           <div className="border-t border-slate-700/50 mt-12 pt-8">

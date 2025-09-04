@@ -77,16 +77,22 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
 
     return (
         <div
-            className="flex flex-col gap-1 max-h-40 overflow-y-auto 
+            className="flex flex-col gap-1 max-h-40 overflow-auto 
           scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
         >
+            <button
+                className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left pl-3"
+                disabled={isDeletingInProgress}
+            >
+                Translate
+            </button>
+
             {/* Forward Button */}
             <button
                 className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left"
                 onClick={handleSend}
                 disabled={isDeletingInProgress}
             >
-                
                Forward
             </button>
 

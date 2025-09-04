@@ -99,6 +99,9 @@ const io = new Server(server, {
 // To store logged-in users (userId -> socketId)
 const userSocketmap = {};
 
+// To store typing users (conversationId -> Set of userIds)
+const typingUsers = {};
+
 // Helper function to get a user's socket ID
 export function getReceiverSocketId(userId) {
   return userSocketmap[userId];
@@ -132,9 +135,27 @@ io.on("connection", (socket) => {
     }
   });
 
-  // NEW: Handle message deletion confirmation (OPTIONAL - for additional real-time features)
+  // Real-Time 'Typing Indicator logic Starts here
+
+  socket.on("typing", ({ receiverId, senderId }) => {
+  const receiverSocketId = getReceiverSocketId(receiverId);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit("typing", { senderId });
+  }
+});
+
+// Handle typing stop
+socket.on("stopTyping", ({ receiverId, senderId }) => {
+  const receiverSocketId = getReceiverSocketId(receiverId);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit("stopTyping", { senderId });
+  }
+});
+
+// Real-Time 'Typing Indicator logic Ends here
+  
+  // Handle message deletion confirmation
   socket.on("messageDeleted", ({ messageId, conversationUsers }) => {
-    // Broadcast deletion to specific conversation participants
     conversationUsers.forEach(userId => {
       const socketId = getReceiverSocketId(userId);
       if (socketId && socketId !== socket.id) {
@@ -152,6 +173,16 @@ io.on("connection", (socket) => {
     );
 
     if (userId) {
+      // Clean up typing indicators for this user
+      Object.keys(typingUsers).forEach(conversationId => {
+        if (typingUsers[conversationId] && typingUsers[conversationId].has(userId)) {
+          typingUsers[conversationId].delete(userId);
+          if (typingUsers[conversationId].size === 0) {
+            delete typingUsers[conversationId];
+          }
+        }
+      });
+
       delete userSocketmap[userId];
       io.emit("getOnlineUsers", Object.keys(userSocketmap));
     }
