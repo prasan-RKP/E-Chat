@@ -4,6 +4,7 @@ import { protectedRoute } from "../middleware/auth.middleware.js";
 import cloudinary from "../lib/cloudinary.js";
 import Message from "../models/userMessageModel.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
+import {translate} from 'google-translate-api-x' ;
 
 const router = express.Router();
 
@@ -289,5 +290,104 @@ router.delete("/delete-both", protectedRoute, async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+// 'TransLation feature starts from here
+router.post("/translate", protectedRoute, async (req, res) => {
+  try {
+    const { messageId, text, langCode } = req.body;
+    const userId = req.user._id;
+
+    //console.log("Translation request:", { messageId, text, langCode, userId });
+
+    // Validate inputs
+    if (!text || !langCode) {
+      return res.status(400).json({
+        success: false,
+        message: "Text and language code are required"
+      });
+    }
+
+    // Optional: Verify message ownership or access (if needed)
+    if (messageId) {
+      const message = await Message.findById(messageId);
+      if (!message) {
+        return res.status(404).json({
+          success: false,
+          message: "Message not found"
+        });
+      }
+
+      // Check if user has access to this message
+      const hasAccess = message.senderId.toString() === userId.toString() || 
+                       message.receiverId.toString() === userId.toString();
+      
+      if (!hasAccess) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied"
+        });
+      }
+    }
+
+    // Perform translation
+    const translationResult = await translate(text, { 
+      to: langCode,
+      autoCorrect: true 
+    });
+
+    console.log("Translation result:", translationResult);
+
+    // Language code mappings for better display names
+    const languageNames = {
+  hi: "हिंदी",
+  or: "ଓଡ଼ିଆ",
+  te: "తెలుగు",
+  ta: "தமிழ்",
+  ml: "മലയാളം",
+  kn: "ಕನ್ನಡ",
+  gu: "ગુજરાતી",
+  pa: "ਪੰਜਾਬੀ",
+  bn: "বাংলা",
+  mr: "मराठी",
+  en: "English",
+};
+
+    const response = {
+      success: true,
+      translatedText: translationResult.text,
+      sourceLanguage: languageNames[translationResult.from] || translationResult.from,
+      targetLanguage: languageNames[langCode] || langCode,
+      originalText: text,
+      messageId: messageId || null
+    };
+
+    //console.log("Sending translation response:", response);
+
+    res.status(200).json(response);
+
+  } catch (error) {
+    console.error("Translation error:", error);
+    
+    // Handle different types of errors
+    let errorMessage = "Translation failed";
+    
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      errorMessage = "Translation service unavailable. Please try again later.";
+    } else if (error.message.includes('language')) {
+      errorMessage = "Unsupported language selected";
+    } else if (error.response) {
+      errorMessage = error.response.data?.message || "Translation service error";
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    res.status(500).json({
+      success: false,
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 
 export default router;

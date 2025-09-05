@@ -13,6 +13,7 @@ export const useChatStore = create((set, get) => ({
   isFetchingMessage: false,
   isRemovingMessage: false,
   isDeletingBoth: false,
+  
 
   // NEW: Typing indicator state
   typingUsers: {}, // userId -> true/false
@@ -235,6 +236,45 @@ export const useChatStore = create((set, get) => ({
       set({ isDeletingBoth: false });
     }
   },
+
+  // 'Translation' feature starts from here.
+
+  isTranslating: false, // NEW: Translation loading state
+  // NEW: Translation functionality
+  translateMessage: async ({ messageId, text, langCode }) => {
+    set({ isTranslating: true });
+    try {
+      console.log('Translating message:', { messageId, text, langCode });
+      
+      const res = await axiosMessageInstance.post('/translate', {
+        messageId,
+        text,
+        langCode
+      });
+
+      console.log('Translation response:', res.data);
+      
+      if (res.data.success) {
+        toast.success(`Message translated to ${res.data.targetLanguage}`);
+        return {
+          translatedText: res.data.translatedText,
+          sourceLanguage: res.data.sourceLanguage,
+          targetLanguage: res.data.targetLanguage
+        };
+      } else {
+        throw new Error(res.data.message || 'Translation failed');
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to translate message';
+      toast.error(errorMessage);
+      throw error;
+    } finally {
+      set({ isTranslating: false });
+    }
+  },
+  
+  // 'Translation' feature Ends from here.
 
   // ✅ NEW: Typing actions
   startTyping: () => {

@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Loader,
   LoaderCircle,
+  User2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -67,7 +68,7 @@ const SignUp = () => {
                 </span>
               </label>
               <div className="relative">
-                <User
+                <User2
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
                   size={20}
                 />
