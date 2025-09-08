@@ -22,9 +22,11 @@ const TypingIndicator = ({ userName, userProfilePic }) => {
       <div className="bg-gray-700 text-white p-3 rounded-lg max-w-xs relative">
         <div className="flex items-center gap-1">
           <span className="text-xs text-gray-300 mr-2">
-            {userName} is typing
+            {userName?.length > 12
+              ? userName.slice(0, 12) + "..."
+              : userName} is typing
           </span>
-          
+
           {/* Animated Dots */}
           <div className="flex gap-1">
             {[0, 1, 2].map((i) => (
