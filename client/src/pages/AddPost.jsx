@@ -80,7 +80,7 @@ const AddPost = () => {
         transition={{ duration: 0.5 }}
         className="bg-gray-900 p-4 flex justify-between items-center text-white"
       >
-        <div className="font-bold text-lg text-indigo-400">AppName</div>
+        <div className="font-bold text-lg text-indigo-400">Chat-Io</div>
         <div className="flex space-x-4 sm:space-x-6">
           <Link to="/home">
             <motion.button
@@ -139,7 +139,7 @@ const AddPost = () => {
             <Link to="/profile">
               <motion.button
                 whileHover={{ scale: 1.2 }}
-                className="text-white bg-red-600 p-2 rounded-full hover:bg-red-700 transition"
+                className="text-white bg-red-600 p-2 rounded-full hover:cursor-pointer hover:bg-red-700 transition"
               >
                 <X size={20} />
               </motion.button>
@@ -189,7 +189,7 @@ const AddPost = () => {
             <motion.button
               type="submit"
               whileHover={{ scale: 1.1 }}
-              className="w-full bg-indigo-600 p-3 rounded-lg text-white font-semibold shadow-md hover:bg-indigo-700 transition"
+              className="w-full hover:cursor-pointer bg-indigo-600 p-3 rounded-lg text-white font-semibold shadow-md hover:bg-indigo-700 transition"
             >
               {uploadingPost ? (
                 <div className="flex justify-center items-center">
