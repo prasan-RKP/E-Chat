@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { X, Menu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useChatStore } from "../../store/useChatStore.js";
@@ -20,6 +20,24 @@ const ChatSidebar = () => {
   const [loadingUserId, setLoadingUserId] = useState('');
   const [localFollowing, setLocalFollowing] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  //sidebar out click closed -> starts 
+  const sidebarRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target) &&
+        isSidebarOpen
+      ) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isSidebarOpen, setIsSidebarOpen]);
+  //sidebar out click closed -> End 
 
   const fetchUsers = useCallback(() => {
     getUsers();
@@ -45,7 +63,7 @@ const ChatSidebar = () => {
     user?.username?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-//  console.log("Filtered Users", filteredUsers);
+  //  console.log("Filtered Users", filteredUsers);
 
   // HandleFollow the follow button click with local optimistic updates
   const handleFollow = async (userId) => {
@@ -85,6 +103,7 @@ const ChatSidebar = () => {
 
   return (
     <div
+      ref={sidebarRef}
       className={`fixed inset-y-0 left-0 z-50 w-72 bg-gray-800 shadow-lg transition-transform duration-300 ease-in-out flex flex-col
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0 sm:relative`}
     >
@@ -120,10 +139,10 @@ const ChatSidebar = () => {
 
       {/* Search Bar - Fixed */}
       <div className="px-4 pb-4 flex-shrink-0">
-        <input 
-          type="text" 
-          className="w-full h-11 rounded-xl pl-4 mb-2 bg-gray-700 text-gray-300 placeholder-gray-400 border border-gray-600 focus:outline-none focus:border-blue-500 transition-colors" 
-          placeholder="Find your Friend ... 🙋‍♀️" 
+        <input
+          type="text"
+          className="w-full h-11 rounded-xl pl-4 mb-2 bg-gray-700 text-gray-300 placeholder-gray-400 border border-gray-600 focus:outline-none focus:border-blue-500 transition-colors"
+          placeholder="Find your Friend ... 🙋‍♀️"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -169,7 +188,7 @@ const ChatSidebar = () => {
                     alt={user.username}
                     className="w-10 h-10 rounded-full object-cover border border-gray-700 shadow-md flex-shrink-0"
                   />
-                  
+
                   {/* Username - Flexible width */}
                   <div className="flex-1 min-w-0">
                     <span className="font-medium text-gray-300 block truncate">
@@ -180,7 +199,7 @@ const ChatSidebar = () => {
                   </div>
 
                   {/* Online Status - Fixed width */}
-                  <span 
+                  <span
                     className={`w-4 h-4 rounded-full flex-shrink-0 ${isOnline ? "bg-green-500" : "bg-gray-500"}`}
                   ></span>
 
