@@ -156,14 +156,8 @@ const ProfilePage = () => {
   const socialLinks = [
     { icon: FaLinkedin, color: "text-blue-600", href: "https://www.linkedin.com/in/prasan-kumar-05a623345?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" },
     { icon: Github, color: "text-gray-300", href: "https://github.com/prasan-RKP" },
-    { icon: Mail, color: "text-red-400", href: "#" },
     { icon: FaGlobe, color: "text-green-400", href: "https://prasan.onrender.com" }
   ];
-
-
-
-
-
   // All detaisl for "Add Full Bio" modal
   const [isFullBioModalOpen, setIsFullBioModalOpen] = useState(false);
 
@@ -423,13 +417,13 @@ const ProfilePage = () => {
         <div className="bg-gray-900/50 backdrop-blur-md rounded-2xl border border-gray-800 shadow-2xl overflow-hidden">
           {/* Mobile Sidebar Toggle */}
           <div className="md:hidden p-4 border-b border-gray-800">
-            <button
+            {/* <button
               className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-300"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             >
               {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
               <span>Menu</span>
-            </button>
+            </button> */}
             <AnimatePresence>
               {isSidebarOpen && (
                 <motion.div
@@ -737,7 +731,7 @@ const ProfilePage = () => {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Chat-i. All rights reserved. Built with ❤️ for the community.</p>
+            <p>&copy; 2025 Chat-Io. All rights reserved. Built with ❤️ for the community.</p>
           </div>
         </div>
       </footer>
