@@ -6,19 +6,21 @@ import { useAuthStore } from "../../store/useAuthStore.js";
 import { toast } from "sonner";
 import { SlUserFollow, SlUserFollowing, SlUserUnfollow } from "react-icons/sl";
 import { GrView } from "react-icons/gr";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ChatHeader = () => {
   const { setSelectedUser, selectedUser, setIsSidebarOpen } = useChatStore();
   const { logout, followFeature, isFollowing, authUser } = useAuthStore();
   const [loadingUserId, setLoadingUserId] = useState('');
   const [localFollowing, setLocalFollowing] = useState([]);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
   // Sync local following state with auth user
   useEffect(() => {
     if (authUser?.following) {
-      setLocalFollowing(authUser.following);
+      setLocalFollowing(authUser?.following);
     }
   }, [authUser?.following]);
 
@@ -29,7 +31,7 @@ const ChatHeader = () => {
     return localFollowing.some((followedUser) => {
       // Handle both populated objects and ObjectId strings
       const followedId = typeof followedUser === 'object' ? followedUser._id : followedUser;
-      return followedId.toString() === selectedUser._id.toString();
+      return followedId.toString() === selectedUser?._id.toString();
     });
   }, [localFollowing, selectedUser?._id]);
 
@@ -40,14 +42,14 @@ const ChatHeader = () => {
 
       // Check current follow status using local state
       const isCurrentlyFollowing = localFollowing?.some((followedUser) => {
-        const followedId = typeof followedUser === 'object' ? followedUser._id : followedUser;
+        const followedId = typeof followedUser === 'object' ? followedUser?._id : followedUser;
         return followedId.toString() === id.toString();
       });
 
       // Optimistic update - update local state immediately
       const updatedFollowing = isCurrentlyFollowing
         ? localFollowing.filter((followedUser) => {
-          const followedId = typeof followedUser === 'object' ? followedUser._id : followedUser;
+          const followedId = typeof followedUser === 'object' ? followedUser?._id : followedUser;
           return followedId.toString() !== id.toString();
         })
         : [...localFollowing, id];
@@ -71,7 +73,6 @@ const ChatHeader = () => {
 
   // 'visitUser' functionality can be added here
 
-
   // Debug logs (remove in production)
   console.log("The value of isAlreadyFollowing is:", isAlreadyFollowing);
   console.log("localFollowing:", localFollowing);
@@ -89,11 +90,12 @@ const ChatHeader = () => {
           {selectedUser && (
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 max-w-[calc(100vw-120px)] sm:max-w-none overflow-hidden">
               <img
-                src={selectedUser.profilePic || "/dfp.png"}
-                alt={selectedUser.username}
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-gray-700 shadow-md flex-shrink-0"
+                src={selectedUser?.profilePic || "/dfp.png"}
+                alt={selectedUser?.username}
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-gray-700 shadow-md flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => setIsImageModalOpen(true)}
               />
-              <h2 className="text-base sm:text-lg font-bold text-gray-300 truncate min-w-0">{selectedUser.username}</h2>
+              <h2 className="text-base sm:text-lg font-bold text-gray-300 truncate min-w-0">{selectedUser?.username}</h2>
             </div>
           )}
         </div>
@@ -133,8 +135,8 @@ const ChatHeader = () => {
                   hover:scale-105 hover:shadow-lg 
                   active:scale-95 transition-all duration-300 ease-in-out cursor-pointer
                   disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                onClick={() => handleOnFollow(selectedUser._id)}
-                disabled={loadingUserId === selectedUser._id}
+                onClick={() => handleOnFollow(selectedUser?._id)}
+                disabled={loadingUserId === selectedUser?._id}
               >
                 {/* UI-1 */}
                 {/* {loadingUserId === selectedUser._id ? (
@@ -147,7 +149,7 @@ const ChatHeader = () => {
                 )} */}
 
                 {/* UI-2 - Fixed with instant updates and text */}
-                {loadingUserId === selectedUser._id ? (
+                {loadingUserId === selectedUser?._id ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin text-gray-300" />
                     <span className="text-sm">
@@ -181,6 +183,53 @@ const ChatHeader = () => {
           )}
         </div>
       </div>
+
+      {/* Profile Image Modal */}
+      <AnimatePresence>
+        {isImageModalOpen && selectedUser && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 flex items-center justify-center z-[200] backdrop-blur-md bg-black bg-opacity-20"
+            onClick={() => setIsImageModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="relative max-w-2xl max-h-[80vh] mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                className="absolute -top-12 right-0 text-white hover:text-gray-300 bg-black bg-opacity-50 rounded-full p-2 transition-colors z-10"
+                onClick={() => setIsImageModalOpen(false)}
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              {/* Profile Image */}
+              <div className="bg-gray-900 rounded-lg overflow-hidden shadow-2xl">
+                <img
+                  src={selectedUser.profilePic || "/dfp.png"}
+                  alt={selectedUser.username}
+                  className="w-full h-full object-cover max-w-2xl max-h-[70vh]"
+                />
+                
+                {/* Username Caption */}
+                <div className="p-4 bg-gray-800 text-center">
+                  <h3 className="text-lg font-semibold text-gray-300">
+                    {selectedUser.username}
+                  </h3>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
