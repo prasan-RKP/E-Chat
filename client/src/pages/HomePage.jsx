@@ -44,8 +44,14 @@ import {
   MousePointer2,
   Waves,
   Github,
-  Linkedin
+  Linkedin,
+  Contact
 } from "lucide-react";
+import { FaGlobe, FaLinkedin } from "react-icons/fa";
+import { CiLogin } from "react-icons/ci";
+import { MdHighlight } from "react-icons/md";
+
+
 
 const HomePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -90,37 +96,38 @@ const HomePage = () => {
   const features = [
     {
       icon: <MessageCircle className="w-8 h-8" />,
-      title: "Instant Messaging",
-      description: "Lightning-fast real-time conversations with advanced message features",
+      title: "Fast Messaging",
+      description: "Quick, real-time conversations made simple",
       color: "from-violet-500 via-purple-500 to-indigo-600",
       hoverColor: "hover:shadow-violet-500/30",
-      detail: "Send text, voice notes, and media instantly with read receipts and typing indicators",
+      detail: "Send text, voice, and media instantly with read receipts and typing indicators",
     },
     {
       icon: <Users2 className="w-8 h-8" />,
-      title: "Smart Communities",
-      description: "AI-powered community suggestions and intelligent group management",
+      title: "Message Control",
+      description: "Full control over your conversations",
       color: "from-emerald-500 via-teal-500 to-cyan-600",
       hoverColor: "hover:shadow-emerald-500/30",
-      detail: "Join communities based on your interests with smart moderation and engagement analytics",
+      detail: "Copy, delete or pin messages anytime to keep your chats clean and organized",
     },
     {
       icon: <Shield className="w-8 h-8" />,
-      title: "Military-Grade Security",
-      description: "End-to-end encryption with quantum-resistant security protocols",
+      title: "Secure by Default",
+      description: "Your privacy, protected end to end",
       color: "from-rose-500 via-pink-500 to-red-600",
       hoverColor: "hover:shadow-rose-500/30",
-      detail: "Your privacy is guaranteed with advanced encryption and zero-knowledge architecture",
+      detail: "Messages stay private with strong encryption and safety you can trust",
     },
     {
       icon: <Zap className="w-8 h-8" />,
-      title: "AI-Powered Experience",
-      description: "Smart suggestions, auto-translate, and intelligent conversation insights",
+      title: "Smart Tools",
+      description: "Helpful features for smoother chats",
       color: "from-amber-500 via-orange-500 to-yellow-600",
       hoverColor: "hover:shadow-amber-500/30",
-      detail: "Experience the future of messaging with AI assistance and predictive features",
+      detail: "Use quick replies, message translation, and simple tools to enhance conversations",
     },
   ];
+
 
   const testimonials = [
     {
@@ -226,20 +233,14 @@ const HomePage = () => {
                   <h1 className="text-2xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
                     ChatApp
                   </h1>
-                  <p className="text-xs text-gray-400 -mt-1 font-medium">Next-Gen Platform</p>
+                  {/* <p className="text-xs text-gray-400 -mt-1 font-medium">Next-Gen Platform</p> */}
                 </div>
               </div>
             </div>
 
             <div className="hidden lg:flex items-center space-x-6">
               <div className="relative group">
-                <input
-                  type="text"
-                  placeholder="Search anything..."
-                  className="pl-12 pr-6 py-3 w-80 rounded-2xl bg-slate-800/30 backdrop-blur-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 border border-slate-700/30 transition-all duration-300 hover:bg-slate-800/50 focus:bg-slate-800/60"
-                />
-                <Search className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 group-hover:text-purple-400 transition-colors" />
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 via-purple-500/5 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
               </div>
 
               <Link
@@ -251,11 +252,23 @@ const HomePage = () => {
               </Link>
 
               <button
-                onClick={() => logout(navigate)}
-                className="group flex items-center space-x-2 px-4 py-3 rounded-2xl hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 border border-transparent hover:border-red-500/20"
+                className="bg-amber-300 group flex items-center space-x-2 px-4 py-3 rounded-2xl hover:bg-blue-500/10  transition-all duration-300 border border-transparent hover:border-blue-500/20 cursor-pointer"
+                onClick={() =>
+                  document.getElementById("feature")?.scrollIntoView({ behavior: "smooth" })
+                }
               >
-                <LogOut className="w-5 h-5" />
-                <span className="font-semibold">Logout</span>
+                <MdHighlight className="w-5 h-5" />
+                <span className="font-semibold">Feature</span>
+              </button>
+
+              <button
+                className="bg-blue-400 group flex items-center space-x-2 px-4 py-3 rounded-2xl hover:bg-blue-500/10  transition-all duration-300 border border-transparent hover:border-blue-500/20 cursor-pointer"
+                onClick={() =>
+                  document.getElementById("footer")?.scrollIntoView({ behavior: "smooth" })
+                }
+              >
+                <Contact className="w-5 h-5" />
+                <span className="font-semibold">Conatact</span>
               </button>
             </div>
           </div>
@@ -274,7 +287,7 @@ const HomePage = () => {
               <h2 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Navigation
               </h2>
-              <p className="text-sm text-gray-400">Explore ChatApp</p>
+              {/* <p className="text-sm text-gray-400">Explore ChatApp</p> */}
             </div>
             <button
               onClick={toggleSidebar}
@@ -289,7 +302,14 @@ const HomePage = () => {
               { icon: User, label: "Profile", path: "/profile", color: "hover:bg-purple-500/10", gradient: "from-purple-400 to-pink-400" },
               { icon: MessageCircle, label: "Chat", path: "/chat", color: "hover:bg-blue-500/10", gradient: "from-blue-400 to-cyan-400" },
               { icon: Image, label: "Posts", path: "/allposts", color: "hover:bg-emerald-500/10", gradient: "from-emerald-400 to-teal-400" },
-              
+              {
+                icon: CiLogin,
+                label: "SignUp",
+                path: "/signup",
+                color: "hover:bg-blue-500/10",
+                gradient: "from-blue-400 to-blue-600"
+              },
+
             ].map((item, index) => (
               <Link key={index} to={item.path} onClick={toggleSidebar}>
                 <div className={`group flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 cursor-pointer ${item.color} hover:scale-105 border border-transparent hover:border-slate-700/50`}>
@@ -302,18 +322,7 @@ const HomePage = () => {
               </Link>
             ))}
 
-            <button
-              onClick={() => {
-                logout(navigate);
-                toggleSidebar();
-              }}
-              className="w-full group flex items-center gap-4 p-4 rounded-2xl hover:bg-red-500/10 transition-all duration-300 cursor-pointer hover:scale-105 border border-transparent hover:border-red-500/20"
-            >
-              <div className="p-3 rounded-xl bg-red-500/10 group-hover:bg-red-500/20 transition-all duration-300 group-hover:scale-110">
-                <LogOut className="w-5 h-5 text-red-400" />
-              </div>
-              <span className="font-semibold text-red-400 group-hover:text-red-300">Logout</span>
-            </button>
+
           </div>
 
           <div className="p-6 border-t border-slate-700/30 text-center bg-gradient-to-t from-slate-900/50">
@@ -353,9 +362,9 @@ const HomePage = () => {
 
             <div className="mb-12 animate-fadeInUp animation-delay-200">
               <p className="text-xl sm:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                Experience the future of communication with{" "}
-                <span className="text-purple-400 font-semibold">AI-powered messaging</span>,
-                quantum-secure encryption, and seamless global connectivity.
+                Connect instantly, share without limits, and enjoy smooth conversations
+                with <span className="text-purple-400 font-semibold">fast, reliable messaging </span>
+                designed for everyone.
               </p>
             </div>
 
@@ -401,7 +410,7 @@ const HomePage = () => {
 
                   <div className="space-y-6">
                     {[
-                      { name: "Alice", color: "from-purple-500 to-pink-500", message: "Hey! Check out this new AI feature 🤖", time: "2m ago" },
+                      { name: "Alice", color: "from-purple-500 to-pink-500", message: "Hey! Guess what’s new 😎", time: "2m ago" },
                       { name: "Bob", color: "from-blue-500 to-cyan-500", message: "Amazing! The translations are perfect ✨", time: "1m ago" },
                       { name: "You", color: "from-emerald-500 to-teal-500", message: "Love the security features! 🛡️", time: "now", typing: true }
                     ].map((chat, i) => (
@@ -440,14 +449,14 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Powerful Features
+              What’s Inside's Pocket ?
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Discover why millions choose ChatApp for their communication needs
+            <p id="feature" className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Fast, secure, and reliable messaging you can count on 🎧.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div  className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {features.map((feature, idx) => (
               <div
                 key={idx}
@@ -579,7 +588,7 @@ const HomePage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900/80 backdrop-blur-md border-t border-purple-500/20 mt-24">
+      <footer id="footer" className="bg-slate-900/80 backdrop-blur-md border-t border-purple-500/20 mt-24">
         <div className="max-w-8xl mx-auto px-6 sm:px-8 lg:px-12 py-12 grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
             <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
@@ -589,14 +598,14 @@ const HomePage = () => {
               Connect, share, and discover amazing content with our vibrant community. Your story matters, and we're here to help you tell it.
             </p>
             <div className="flex gap-4">
-              <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-300">
+              <a href="https://github.com/prasan-RKP" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-300">
                 <Github className="w-5 h-5" />
               </a>
-              <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-blue-700/30 transition-all duration-300">
-                <Linkedin className="w-5 h-5" />
+              <a href="https://prasan.onrender.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-blue-700/30 transition-all duration-300">
+                <FaGlobe className="w-5 h-5" />
               </a>
-              <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-pink-500/30 transition-all duration-300">
-                <Instagram className="w-5 h-5" />
+              <a href="https://www.linkedin.com/in/prasan-kumar-05a623345?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-pink-500/30 transition-all duration-300">
+                <FaLinkedin className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -614,21 +623,17 @@ const HomePage = () => {
             <ul className="space-y-2 text-gray-400">
               <li className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
-                <span>support@chatapp.com</span>
+                <span>priyansu7718@gmail.com</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-5 h-5" />
-                <span>+1 234 567 890</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Globe className="w-5 h-5" />
-                <span>Worldwide</span>
+                <span>+91 8823457898</span>
               </li>
             </ul>
           </div>
         </div>
         <div className="border-t border-purple-500/20 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 ChatApp. All rights reserved. Built with ❤️ for the community.</p>
+          <p>&copy; 2024 Chat-Io. All rights reserved. Built with ❤️ for the community.</p>
         </div>
       </footer>
     </div>
