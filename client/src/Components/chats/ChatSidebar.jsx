@@ -20,6 +20,8 @@ const ChatSidebar = () => {
   const [loadingUserId, setLoadingUserId] = useState('');
   const [localFollowing, setLocalFollowing] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [imageModal, setImageModal] = useState({ isOpen: false, src: "" });
+
 
   //sidebar out click closed -> starts 
   const sidebarRef = useRef(null);
@@ -186,7 +188,11 @@ const ChatSidebar = () => {
                   <img
                     src={user.profilePic || "/dfp.png"}
                     alt={user.username}
-                    className="w-10 h-10 rounded-full object-cover border border-gray-700 shadow-md flex-shrink-0"
+                    className="w-10 h-10 rounded-full object-cover border border-gray-700 shadow-md flex-shrink-0 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent selecting user when clicking image
+                      setImageModal({ isOpen: true, src: user?.profilePic || "/dfp.png" });
+                    }}
                   />
 
                   {/* Username - Flexible width */}
@@ -295,6 +301,38 @@ const ChatSidebar = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+
+        {/* This modal is to show the 'profileImage' */}
+        <AnimatePresence>
+          {imageModal.isOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[200] flex items-center justify-center backdrop-blur-md bg-black/20"
+            >
+              <div className="relative">
+                {/* Close Button */}
+                <button
+                  className="absolute top-2 right-2 bg-gray-800/70 text-white rounded-full p-2 hover:bg-red-500 transition"
+                  onClick={() => setImageModal({ isOpen: false, src: "" })}
+                >
+                  <X className="w-6 h-6" />
+                </button>
+
+                {/* Profile Image */}
+                <img
+                  src={imageModal.src}
+                  alt="Profile"
+                  className="max-w-[90vw] max-h-[80vh] rounded-2xl shadow-2xl border  object-contain"
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </div>
     </div>
   );
