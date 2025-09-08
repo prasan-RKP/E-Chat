@@ -1,4 +1,4 @@
-import { Home, LogOut, UserCircle, ImageIcon, Sparkles, Heart, MessageCircle, Share2, Grid3X3, Plus, Search, Bell, Menu, X, FileQuestion, List, Loader2, Eye, ChartArea } from "lucide-react";
+import { Home, LogOut, UserCircle, ImageIcon, Sparkles, Heart, MessageCircle, Share2, Grid3X3, Plus, Search, Bell, Menu, X, FileQuestion, List, Loader2, Eye, ChartArea, ChartLine, MessageSquareDot } from "lucide-react";
 import { IoChatboxEllipsesOutline, IoChatboxOutline } from "react-icons/io5";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -551,6 +551,14 @@ const Posts = () => {
                   <Link to="/profile" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 transition-all duration-200">
                     <UserCircle className="w-5 h-5" />
                     <span>Profile</span>
+                  </Link>
+                  <Link to="/pref-chart" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 transition-all duration-200">
+                    <ChartLine className="w-5 h-5" />
+                    <span>Performance</span>
+                  </Link>
+                  <Link to="/chat" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 transition-all duration-200">
+                    <MessageSquareDot className="w-5 h-5" />
+                    <span>Chat</span>
                   </Link>
                   <button
                     onClick={() => logout(navigate)}
