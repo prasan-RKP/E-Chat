@@ -19,6 +19,7 @@ const ChatSidebar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingUserId, setLoadingUserId] = useState('');
   const [localFollowing, setLocalFollowing] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchUsers = useCallback(() => {
     getUsers();
@@ -39,7 +40,12 @@ const ChatSidebar = () => {
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
 
-  console.log("Filtered Users", filteredUsers);
+  // Filter users based on search query
+  const searchFilteredUsers = filteredUsers.filter((user) =>
+    user?.username?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+//  console.log("Filtered Users", filteredUsers);
 
   // HandleFollow the follow button click with local optimistic updates
   const handleFollow = async (userId) => {
@@ -112,6 +118,17 @@ const ChatSidebar = () => {
         </div>
       </div>
 
+      {/* Search Bar - Fixed */}
+      <div className="px-4 pb-4 flex-shrink-0">
+        <input 
+          type="text" 
+          className="w-full h-11 rounded-xl pl-4 mb-2 bg-gray-700 text-gray-300 placeholder-gray-400 border border-gray-600 focus:outline-none focus:border-blue-500 transition-colors" 
+          placeholder="Find your Friend ... 🙋‍♀️" 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
       {/* Users List - Scrollable */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         <div className="space-y-2 relative">
@@ -126,8 +143,8 @@ const ChatSidebar = () => {
                 <div className="w-6 h-6 bg-gray-600 rounded flex-shrink-0"></div>
               </div>
             ))
-          ) : filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => {
+          ) : searchFilteredUsers.length > 0 ? (
+            searchFilteredUsers.map((user) => {
               const isOnline = onlineUsers.includes(user._id);
 
               // Fixed: Check if THIS specific user is being followed using local state
@@ -193,6 +210,16 @@ const ChatSidebar = () => {
                 </motion.div>
               );
             })
+          ) : searchQuery ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col items-center text-center text-gray-400 mt-10"
+            >
+              <p className="text-sm text-gray-500">No users found matching "{searchQuery}" 🔍</p>
+              <p className="text-xs text-gray-600 mt-2">Try a different search term</p>
+            </motion.div>
           ) : (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
