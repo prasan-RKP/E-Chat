@@ -9,6 +9,8 @@ import { SlUserFollow } from "react-icons/sl";
 import { LuUserRoundPlus } from "react-icons/lu";
 import { LuUserRoundMinus } from "react-icons/lu";
 import { Loader2 } from "lucide-react";
+import { IoMdRefresh } from "react-icons/io";
+
 
 const ChatSidebar = () => {
   const { selectedUser, getUsers, users, setSelectedUser, setIsSidebarOpen, isSidebarOpen, isUserLoading } = useChatStore();
@@ -21,6 +23,7 @@ const ChatSidebar = () => {
   const [localFollowing, setLocalFollowing] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [imageModal, setImageModal] = useState({ isOpen: false, src: "" });
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
 
   //sidebar out click closed -> starts 
@@ -40,7 +43,6 @@ const ChatSidebar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isSidebarOpen, setIsSidebarOpen]);
   //sidebar out click closed -> End 
-
   const fetchUsers = useCallback(() => {
     getUsers();
   }, [getUsers]);
@@ -113,7 +115,18 @@ const ChatSidebar = () => {
       <div className="flex justify-between items-center p-4 border-b border-gray-700 flex-shrink-0">
         <h2 className="text-lg font-bold text-gray-300">Chats</h2>
         <div className="flex items-center gap-4">
-          <button className="sm:hidden text-gray-300 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
+          <button
+            className=" text-blue-400 hover:text-white"
+            onClick={async () => {
+              setIsRefreshing(true);          // start spinning
+              await fetchUsers();             // reload users
+              setIsRefreshing(false);         // stop spinning
+              // toast.success("Sidebar reloaded!");
+            }}
+          >
+            <IoMdRefresh className={`w-6 h-6 ${isRefreshing ? "animate-spin" : ""}`} />
+          </button>
+          <button className="sm:hidden text-red-500 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
             <X className="w-6 h-6" />
           </button>
           <button className="text-gray-300 hover:text-white" onClick={() => setIsModalOpen(true)}>
