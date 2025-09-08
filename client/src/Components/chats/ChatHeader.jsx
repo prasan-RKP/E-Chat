@@ -95,7 +95,11 @@ const ChatHeader = () => {
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-gray-700 shadow-md flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => setIsImageModalOpen(true)}
               />
-              <h2 className="text-base sm:text-lg font-bold text-gray-300 truncate min-w-0">{selectedUser?.username}</h2>
+              <h2 className="text-base sm:text-lg font-bold text-gray-300 truncate min-w-0">
+                {selectedUser?.username?.length > 12
+                  ? selectedUser.username.slice(0, 12) + "..."
+                  : selectedUser?.username}
+              </h2>
             </div>
           )}
         </div>
@@ -205,7 +209,7 @@ const ChatHeader = () => {
             >
               {/* Close Button */}
               <button
-                className="absolute -top-12 right-0 text-white hover:text-gray-300 bg-black bg-opacity-50 rounded-full p-2 transition-colors z-10"
+                className="absolute -top-12 right-0 text-red-500 hover:text-gray-300 bg-black bg-opacity-50 rounded-full p-2 transition-colors z-10"
                 onClick={() => setIsImageModalOpen(false)}
               >
                 <X className="w-6 h-6" />
@@ -218,7 +222,7 @@ const ChatHeader = () => {
                   alt={selectedUser.username}
                   className="w-full h-full object-cover max-w-2xl max-h-[70vh]"
                 />
-                
+
                 {/* Username Caption */}
                 <div className="p-4 bg-gray-800 text-center">
                   <h3 className="text-lg font-semibold text-gray-300">
