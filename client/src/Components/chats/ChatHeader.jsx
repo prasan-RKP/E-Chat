@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { X, Menu, Home, User, LogOut, Images, Loader2 } from "lucide-react";
+import { X, Menu, Home, User, LogOut, Images, Loader2, Search } from "lucide-react";
 import { useChatStore } from "../../store/useChatStore.js";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore.js";
@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { SlUserFollow, SlUserFollowing, SlUserUnfollow } from "react-icons/sl";
 import { GrView } from "react-icons/gr";
 import { motion, AnimatePresence } from "framer-motion";
+import "../../stylesheets/myCustom.css";
+
 
 const ChatHeader = () => {
   const { setSelectedUser, selectedUser, setIsSidebarOpen } = useChatStore();
@@ -14,6 +16,8 @@ const ChatHeader = () => {
   const [loadingUserId, setLoadingUserId] = useState('');
   const [localFollowing, setLocalFollowing] = useState([]);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -72,12 +76,6 @@ const ChatHeader = () => {
   };
 
   // 'visitUser' functionality can be added here
-
-  // Debug logs (remove in production)
-  console.log("The value of isAlreadyFollowing is:", isAlreadyFollowing);
-  console.log("localFollowing:", localFollowing);
-  console.log("selectedUser._id:", selectedUser?._id);
-
   return (
     <div className="bg-gray-800 shadow-md p-4">
       <div className={`flex items-center ${selectedUser ? 'justify-between' : 'justify-between'} gap-1.5 min-w-0`}>
@@ -95,11 +93,19 @@ const ChatHeader = () => {
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-gray-700 shadow-md flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => setIsImageModalOpen(true)}
               />
-              <h2 className="text-base sm:text-lg font-bold text-gray-300 truncate min-w-0">
-                {selectedUser?.username?.length > 12
-                  ? selectedUser.username.slice(0, 12) + "..."
-                  : selectedUser?.username}
-              </h2>
+              <>
+                {/* Mobile (smaller than sm breakpoint) */}
+                <h2 className="block sm:hidden text-base font-bold text-gray-300 truncate min-w-0  my-straw">
+                  {selectedUser?.username?.length > 12
+                    ? selectedUser?.username.slice(0, 12) + "..."
+                    : selectedUser?.username}
+                </h2>
+
+                {/* Tablet / PC (sm and above) */}
+                <h2 className="hidden sm:block text-sm font-bold text-gray-300 truncate min-w-0">
+                  {selectedUser?.username}
+                </h2>
+              </>
             </div>
           )}
         </div>
@@ -123,72 +129,126 @@ const ChatHeader = () => {
             </>
           )}
 
+          {/* Code has changed from here beacuse of extra button added '<search />  */}
+
           {selectedUser && (
             <>
-              {/* Visit-user functionality */}
-              <Link to={`/visit-user/${selectedUser?._id}`}
-                className="hover:cursor-pointer p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all flex-shrink-0"
-              >
-                <GrView className="w-5 h-5" />
-              </Link>
+              {/* ---------- For Tablet & PC (≥ sm) ---------- */}
+              <div className="hidden sm:flex items-center gap-4 sm:gap-6">
+                {/* Search */}
+                <button onClick={()=> toast.info("feature coming soon..")} className="cursor-pointer p-2 bg-blue-400 text-white rounded-full hover:bg-blue-600 transition-all flex-shrink-0">
+                  <Search className="w-5 h-5" />
+                </button>
 
-              <button
-                className="px-2.5 py-2.5 bg-gradient-to-r from-slate-500 to-slate-700 
-                  text-gray-200 font-semibold rounded-full shadow-md 
-                  hover:from-slate-600 hover:to-slate-800 
-                  hover:scale-105 hover:shadow-lg 
-                  active:scale-95 transition-all duration-300 ease-in-out cursor-pointer
-                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                onClick={() => handleOnFollow(selectedUser?._id)}
-                disabled={loadingUserId === selectedUser?._id}
-              >
-                {/* UI-1 */}
-                {/* {loadingUserId === selectedUser._id ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>{isAlreadyFollowing ? "Unfollowing..." : "Following..."}</span>
-                  </div>
-                ) : (
-                  <span>{isAlreadyFollowing ? "Unfollow" : "Follow"}</span>
-                )} */}
+                {/* Visit-user */}
+                <Link
+                  to={`/visit-user/${selectedUser?._id}`}
+                  className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all flex-shrink-0"
+                >
+                  <GrView className="w-5 h-5" />
+                </Link>
 
-                {/* UI-2 - Fixed with instant updates and text */}
-                {loadingUserId === selectedUser?._id ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin text-gray-300" />
-                    <span className="text-sm">
-                      {isAlreadyFollowing ? "Unfollowing..." : "Following..."}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    {isAlreadyFollowing ? (
-                      <>
+                {/* Follow / Unfollow */}
+                <button
+                  className="px-2.5 py-2.5 bg-gradient-to-r from-slate-500 to-slate-700 
+            text-gray-200 font-semibold rounded-full shadow-md 
+            hover:from-slate-600 hover:to-slate-800 
+            hover:scale-105 hover:shadow-lg 
+            active:scale-95 transition-all duration-300 ease-in-out cursor-pointer
+            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  onClick={() => handleOnFollow(selectedUser?._id)}
+                  disabled={loadingUserId === selectedUser?._id}
+                >
+                  {loadingUserId === selectedUser?._id ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin text-gray-300" />
+                      <span className="text-sm">
+                        {isAlreadyFollowing ? "Unfollowing..." : "Following..."}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      {isAlreadyFollowing ? (
                         <SlUserUnfollow className="w-5 h-5 text-red-400" />
-                        {/* <span className="text-sm">Unfollow</span> */}
-                      </>
-                    ) : (
-                      <>
+                      ) : (
                         <SlUserFollow className="w-5 h-5 text-green-400" />
-                        {/* <span className="text-sm">Follow</span> */}
-                      </>
-                    )}
-                  </div>
-                )}
-              </button>
+                      )}
+                    </div>
+                  )}
+                </button>
 
-              <button
-                className="hover:cursor-pointer p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all flex-shrink-0"
-                onClick={() => setSelectedUser(null)}
-              >
-                <X className="w-5 h-5" />
-              </button>
+                {/* Close */}
+                <button
+                  className="cursor-pointer p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all flex-shrink-0"
+                  onClick={() => setSelectedUser(null)}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* ---------- For Mobile (< sm) ---------- */}
+              <div className="flex sm:hidden items-center gap-2 relative">
+                {/* Follow / Unfollow */}
+
+                {/* Close */}
+                <button
+                  className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all flex-shrink-0"
+                  onClick={() => setSelectedUser(null)}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                <button
+                  className="px-2.5 py-2.5 bg-gradient-to-r from-slate-500 to-slate-700 
+            text-gray-200 font-semibold rounded-full shadow-md 
+            hover:from-slate-600 hover:to-slate-800 
+            hover:scale-105 hover:shadow-lg 
+            active:scale-95 transition-all duration-300 ease-in-out cursor-pointer
+            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  onClick={() => handleOnFollow(selectedUser?._id)}
+                  disabled={loadingUserId === selectedUser?._id}
+                >
+                  {loadingUserId === selectedUser?._id ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-300" />
+                  ) : isAlreadyFollowing ? (
+                    <SlUserUnfollow className="w-5 h-5 text-red-400" />
+                  ) : (
+                    <SlUserFollow className="w-5 h-5 text-green-400" />
+                  )}
+                </button>
+                {/* Dropdown Menu */}
+                <div className="relative">
+                  <button
+                    className="p-2 bg-gray-700 text-white rounded-full hover:bg-gray-600"
+                    onClick={() => setShowMenu((prev) => !prev)}
+                  >
+                    <Menu className="w-5 h-5 text-fuchsia-300" />
+                  </button>
+
+                  {showMenu && (
+                    <div className="absolute right-0 mt-2 w-32 bg-gray-800 border border-gray-600 rounded-lg shadow-lg p-2 flex flex-col z-50">
+                      {/* Search */}
+                      <button onClick={()=> toast.info("feature coming soon..")} className="flex items-center gap-2 p-2 text-gray-200 hover:bg-gray-700 rounded-md">
+                        <Search className="w-5 h-5 text-blue-400" /> Search
+                      </button>
+
+                      {/* Visit-user */}
+                      <Link
+                        to={`/visit-user/${selectedUser?._id}`}
+                        className="flex items-center gap-2 p-2 text-gray-200 hover:bg-gray-700 rounded-md"
+                      >
+                        <GrView className="w-5 h-5 text-cyan-700" /> Visit
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </div>
             </>
           )}
         </div>
       </div>
 
-      {/* Profile Image Modal */}
+      {/* image preview -> other concept  */}
+      {/* Image-View Modal */}
       <AnimatePresence>
         {isImageModalOpen && selectedUser && (
           <motion.div
