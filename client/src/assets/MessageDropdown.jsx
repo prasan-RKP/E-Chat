@@ -13,8 +13,6 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
     const { users, isDeletingBoth } = useChatStore();
     const { authUser } = useAuthStore();
 
-    console.log("Getting users from messageDropdown", users);
-
     // Check if current user can delete this message (only sender can delete for both)
     const canDelete = message.senderId === authUser?._id;
 
@@ -24,17 +22,13 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
 
         try {
             if (message.image) {
-                // Fetch the image as a Blob and copy to clipboard
-                const response = await fetch(message.image);
-                const blob = await response.blob();
-                await navigator.clipboard.write([
-                    new ClipboardItem({ [blob.type]: blob }),
-                ]);
+                // Instead of blob clipboard (unstable), copy the image URL
+                await navigator.clipboard.writeText(message.image);
+                toast('Image URL copied to clipboard!', { icon: '🖼️' });
             } else if (message.text) {
                 await navigator.clipboard.writeText(message.text);
+                toast('Copied to the clipboard!', { icon: '🎾' });
             }
-
-            toast('Copied to the clipboard!', { icon: '🎾' });
         } catch (error) {
             console.error("Failed to copy:", error);
             toast('Failed to copy!', { icon: '❌' });
@@ -43,6 +37,7 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
         // Close dropdown after action
         onClose();
     };
+
 
     const handleSend = () => {
         console.log('Send/Forward message:', message);
@@ -72,8 +67,6 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
             return;
         }
 
-        console.log(`Deleting message ${message?._id}`);
-        
         try {
             await handleDeleteFromBoth();
             // onClose() will be called from the parent component after successful deletion
@@ -98,7 +91,6 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
                     className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left"
                     disabled={isDeletingInProgress}
                 >
-                    <Languages className="w-4 h-4" />
                     Translate
                 </button>
 
@@ -108,8 +100,7 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
                     onClick={handleSend}
                     disabled={isDeletingInProgress}
                 >
-                   <Forward className="w-4 h-4" />
-                   Forward
+                    Forward
                 </button>
 
                 {/* Copy Button */}
@@ -118,7 +109,7 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
                     className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left"
                     disabled={isDeletingInProgress}
                 >
-                    <Copy className="w-4 h-4" />
+
                     Copy
                 </button>
 
@@ -128,7 +119,7 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
                     className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md transition-colors text-left"
                     disabled={isDeletingInProgress}
                 >
-                    <Pin className="w-4 h-4" />
+
                     Pin
                 </button>
 
@@ -137,11 +128,10 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
                     <button
                         onClick={handleDelete}
                         disabled={isDeletingInProgress}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-left ${
-                            isDeletingInProgress 
-                                ? 'text-red-400 bg-red-900/20 cursor-not-allowed opacity-60' 
+                        className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-left ${isDeletingInProgress
+                                ? 'text-red-400 bg-red-900/20 cursor-not-allowed opacity-60'
                                 : 'text-red-300 hover:bg-red-900/30'
-                        }`}
+                            }`}
                     >
                         {isDeletingInProgress ? (
                             <>
@@ -166,7 +156,7 @@ const MessageDropdown = ({ message, onPinMessage, handleDeleteFromBoth, onForwar
             </div>
 
             {/* Translate Modal */}
-            <TranslateModal 
+            <TranslateModal
                 isOpen={isTranslateModalOpen}
                 onClose={() => setIsTranslateModalOpen(false)}
                 message={message}
