@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MoreHorizontal, MapPin, ExternalLink, Grid3X3, Heart, MessageCircle, Share, Home, Search, Plus, User, Menu, X, Star, Zap, Award, Sun, Moon, Bell, Settings, Play, Loader2, Users, UserPlus } from 'lucide-react';
+import { MoreHorizontal, MapPin, ExternalLink, Grid3X3, Heart, MessageCircle, Share, Home, Search, Plus, User, Menu, X, Star, Zap, Award, Sun, Moon, Bell, Settings, Play, Loader2, Users, UserPlus, Github, Linkedin } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import VisitUserSkeleton from '../skeletons/VisitUserSkeleton';
 import { useNavigate } from 'react-router-dom';
-//import { useNavigate} from 'react-router-dom'
+import { usePostStore } from '../store/usePostStore';
+import { MdHighlight } from 'react-icons/md';
+import { FaGlobe } from 'react-icons/fa';
 
-// Modal Component for Followers/Followin
-
-
-
+// Modal Component for Followers/Following
 const FollowersModal = ({ isOpen, onClose, users, type, isDarkMode, themeClasses, handleFollowView }) => {
     if (!isOpen) return null;
 
+    console.log("Sneding to modal", users);
     return (
         <AnimatePresence>
             <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -37,7 +37,7 @@ const FollowersModal = ({ isOpen, onClose, users, type, isDarkMode, themeClasses
                     <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                         <div className="flex items-center justify-between">
                             <h3 className={`text-xl font-bold ${themeClasses.text}`}>
-                                {type === 'followers' ? 'Followers' : 'Following'}
+                                {type === "followers" ? "Followers" : "Following"}
                                 <span className={`ml-2 text-sm ${themeClasses.textMuted}`}>
                                     ({users.length})
                                 </span>
@@ -58,46 +58,63 @@ const FollowersModal = ({ isOpen, onClose, users, type, isDarkMode, themeClasses
                         {users.length === 0 ? (
                             <div className="text-center py-8">
                                 <Users className={`w-12 h-12 mx-auto mb-3 ${themeClasses.textMuted}`} />
-                                <p className={themeClasses.textMuted}>
-                                    No {type} yet
-                                </p>
+                                <p className={themeClasses.textMuted}>No {type} yet</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                {users?.map((user, index) => (
-                                    <motion.div
-                                        key={user._id || index}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: index * 0.05 }}
-                                        className={`flex items-center gap-3 p-3 rounded-2xl ${themeClasses.hover} transition-colors cursor-pointer`}
-                                    >
-                                        <img
-                                            src={user?.profilePic || "/dfp.png"}
-                                            alt={user?.username}
-                                            className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
-                                        />
-                                        <div className="flex-1 min-w-0">
-                                            <p className={`font-semibold ${themeClasses.text} truncate`}>
-                                                {user?.username}
-                                            </p>
-                                            <p className={`text-sm ${themeClasses.textMuted} truncate`}>
-                                                @{user?.username}
-                                            </p>
-                                        </div>
-                                        <motion.button
-                                            className="hover:cursor-pointer px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full text-sm font-medium"
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            onClick={() => {
-                                                handleFollowView(user?._id);
-                                                onClose(); // 👈 close modal after navigation
-                                            }}
+                                {users?.map((user, index) => {
+                                    const userObj = typeof user === "object" ? user : { _id: user };
+
+                                    const isHydrated = !!userObj?.username; // check if backend data arrived
+
+                                    return (
+                                        <motion.div
+                                            key={userObj._id || index}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            className={`flex items-center gap-3 p-3 rounded-2xl ${themeClasses.hover} transition-colors`}
                                         >
-                                            View
-                                        </motion.button>
-                                    </motion.div>
-                                ))}
+                                            {/* Skeleton Loader */}
+                                            {!isHydrated ? (
+                                                <div className="animate-pulse flex items-center gap-3 w-full">
+                                                    <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-700" />
+                                                    <div className="flex-1 space-y-2">
+                                                        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-28" />
+                                                        <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-16" />
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <img
+                                                        src={userObj?.profilePic || "/dfp.png"}
+                                                        alt={userObj?.username}
+                                                        className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
+                                                    />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className={`font-semibold ${themeClasses.text} truncate`}>
+                                                            {userObj?.username}
+                                                        </p>
+                                                        <p className={`text-sm ${themeClasses.textMuted} truncate`}>
+                                                            @{userObj?.username}
+                                                        </p>
+                                                    </div>
+                                                    <motion.button
+                                                        className="hover:cursor-pointer px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full text-sm font-medium"
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={() => {
+                                                            handleFollowView(userObj?._id);
+                                                            onClose();
+                                                        }}
+                                                    >
+                                                        View
+                                                    </motion.button>
+                                                </>
+                                            )}
+                                        </motion.div>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
@@ -106,6 +123,8 @@ const FollowersModal = ({ isOpen, onClose, users, type, isDarkMode, themeClasses
         </AnimatePresence>
     );
 };
+
+
 
 const VisitUser = () => {
     const [activeTab, setActiveTab] = useState('Posts');
@@ -117,56 +136,39 @@ const VisitUser = () => {
     const profileRef = useRef(null);
     const statsRef = useRef(null);
     const postsRef = useRef(null);
+    const [likingId, setLikingId] = useState('');
 
     const [userData, setUserData] = useState(null);
     const [posts, setPosts] = useState([]);
+    const [tempPosts, setTempPosts] = useState([])
     const [loadingId, setLoadingId] = useState('');
+    const [storemyId, setStoreMyId] = useState('');
 
-    const { visitUser, visitUserValue, authUser, followFeature } = useAuthStore();
+    const { visitUser, visitUserValue, authUser, followFeature, checkAuth } = useAuthStore();
+    const { addLike, showPost, authPost } = usePostStore();
 
-    const isAlreadyFollowing = userData?.followers?.includes(authUser?._id);
+    const isAlreadyFollowing = userData?.followers?.some(follower =>
+        typeof follower === 'object' ? follower._id === authUser?._id : follower === authUser?._id
+    );
 
     const { id } = useParams();
-    const navigate = useNavigate(); // added
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const isLoad = async () => {
+        const fetchUserData = async () => {
             await visitUser({ userId: id });
-        }
-        isLoad();
-    }, [id]); // added
+        };
+        fetchUserData();
+    }, [id, visitUser]);
 
     useEffect(() => {
         if (visitUserValue) {
             setUserData(visitUserValue);
-            setPosts(visitUserValue.posts || []);
+            // setPosts(visitUserValue.posts || [])
         }
-    }, [visitUserValue])
+    }, [visitUserValue]);
 
-    //added here
-    const handleFollowView = (userId) => {
-        navigate(`/visit-user/${userId}`); // update route
-    };
-
-    const handleFollow = async (id) => {
-        setLoadingId(id);
-
-        setUserData((prev) => {
-            if (!prev) return prev;
-            const already = prev.followers.includes(authUser._id);
-            return {
-                ...prev,
-                followers: already
-                    ? prev.followers.filter((f) => f !== authUser._id)
-                    : [...prev.followers, authUser._id],
-            };
-        });
-
-        await followFeature({ fid: id });
-        setLoadingId('');
-    };
-
-
+    console.log("Auth", storemyId);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -206,24 +208,99 @@ const VisitUser = () => {
         }, 150);
 
         return () => clearTimeout(timer);
-    }, []);
+    }, [userData]);
+
+    //step-1
+
+    useEffect(() => {
+        const loadPost = async () => {
+            await showPost();
+        }
+        loadPost();
+    }, [showPost])
+
+    // step-2
+    useEffect(() => {
+        if (authUser?._id) {
+            setStoreMyId(authUser?._id);
+        }
+    }, [authUser]);
+
+    // step-3 Storing posts
+    useEffect(() => {
+        if (authPost && authPost.length > 0 && id) {
+            setTempPosts(authPost);
+            const realPost = authPost?.filter((post) => post?.user?._id === id);
+
+            setPosts(realPost || []);
+        }
+    }, [authPost, id])
 
     const toggleTheme = () => {
         setIsDarkMode(!isDarkMode);
     };
 
+    const handleFollowView = (userId) => {
+        navigate(`/visit-user/${userId}`);
+        setTimeout(() => {
+            window.location.reload();
+        }, 100);
+    };
+
+    // follow feature 
+    const handleFollow = async (id) => {
+        setLoadingId(id);
+
+        // Optimistic UI update
+        setUserData(prev => {
+            if (!prev) return prev;
+
+            const isFollowing = prev.followers.some(follower =>
+                typeof follower === 'object' ? follower._id === authUser?._id : follower === authUser?._id
+            );
+
+            if (isFollowing) {
+                return {
+                    ...prev,
+                    followers: prev.followers.filter(follower =>
+                        typeof follower === 'object' ? follower._id !== authUser?._id : follower !== authUser?._id
+                    )
+                };
+            } else {
+                return {
+                    ...prev,
+                    followers: [...prev.followers, authUser?._id]
+                };
+            }
+        });
+
+        await followFeature({ fid: id });
+        await checkAuth();
+        setLoadingId('');
+    };
+
+    // handle 'Add like' added
+    const handleAddLike = async (post) => {
+        const postId = post?._id;
+        const userId = post?.user;
+
+        setLikingId(postId);
+        await addLike({ authUserId: userId, postId: postId });
+        setLikingId("");
+    }
+
     const stats = [
         { label: 'Posts', value: userData?.posts?.length, icon: Grid3X3, color: 'from-blue-500 to-cyan-500' },
         {
             label: 'Followers',
-            value: userData?.followers?.length,
+            value: Array.isArray(userData?.followers) ? userData.followers.length : 0,
             icon: Heart,
             color: 'from-pink-500 to-rose-500',
             onClick: () => setFollowersModalOpen(true)
         },
         {
             label: 'Following',
-            value: userData?.following?.length,
+            value: Array.isArray(userData?.following) ? userData.following.length : 0,
             icon: Star,
             color: 'from-purple-500 to-indigo-500',
             onClick: () => setFollowingModalOpen(true)
@@ -234,8 +311,8 @@ const VisitUser = () => {
 
     const navItems = [
         { label: 'Home', icon: Home, toGo: "/" },
-        { label: 'Explore', icon: Search, toGo: "/allposts" },
-        { label: 'Messages', icon: MessageCircle, toGo: "/chat" },
+        { label: 'Posts', icon: Search, toGo: "/allposts" },
+        { label: 'Message', icon: MessageCircle, toGo: "/chat" },
         { label: 'Profile', icon: User, toGo: "/profile" }
     ];
 
@@ -274,15 +351,14 @@ const VisitUser = () => {
         hover: isDarkMode ? "hover:bg-slate-700/50" : "hover:bg-white/50"
     };
 
-    // Filter posts based on active tab
     const getFilteredPosts = () => {
         switch (activeTab) {
             case 'Posts':
                 return posts;
             case 'Liked':
-                return []; // Return empty array for now as liked posts aren't available
+                return [];
             case 'Tagged':
-                return []; // Return empty array for now as tagged posts aren't available
+                return [];
             default:
                 return posts;
         }
@@ -349,12 +425,12 @@ const VisitUser = () => {
                         >
                             <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                                 <span className="inline-flex items-center gap-2">
-                                    <motion.div
+                                    {/* <motion.div
                                         animate={{ rotate: [0, 360] }}
                                         transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                    >
-                                        <Zap className="text-blue-600" size={32} />
-                                    </motion.div>
+                                    > */}
+                                        {/* <MdHighlight className="text-blue-600" size={32} /> */}
+                                    {/* </motion.div> */}
                                     Chat-Io
                                 </span>
                             </h1>
@@ -408,7 +484,7 @@ const VisitUser = () => {
                                             exit={{ rotate: 90, opacity: 0 }}
                                             transition={{ duration: 0.3 }}
                                         >
-                                            <Sun size={20} />
+                                            <MdHighlight size={20} />
                                         </motion.div>
                                     ) : (
                                         <motion.div
@@ -540,16 +616,16 @@ const VisitUser = () => {
                                                 <Award className="text-blue-500" size={18} />
                                             </p>
                                         </motion.div>
-                                        <motion.button
+                                        {/* <motion.button
                                             className={`mt-4 lg:mt-0 p-3 ${themeClasses.hover} rounded-2xl transition-all duration-300 backdrop-blur-sm`}
                                             whileHover={{ scale: 1.1, rotate: 90 }}
                                             whileTap={{ scale: 0.9 }}
                                         >
                                             <MoreHorizontal size={24} className={themeClasses.textSecondary} />
-                                        </motion.button>
+                                        </motion.button> */}
                                     </div>
 
-                                    {/* Enhanced Stats - Now with guaranteed visibility */}
+                                    {/* Enhanced Stats */}
                                     <motion.div
                                         ref={statsRef}
                                         className="grid grid-cols-3 gap-4 lg:gap-8 mb-8"
@@ -624,7 +700,7 @@ const VisitUser = () => {
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     onClick={() => handleFollow(userData?._id)}
-                                    disabled={loadingId === userData?._id}
+                                    disabled={loadingId === userData?._id || !authUser}
                                 >
                                     {loadingId === userData?._id ? (
                                         <div className="flex items-center gap-2">
@@ -634,11 +710,11 @@ const VisitUser = () => {
                                         </div>
                                     ) : (
                                         <span className="relative z-10">
-                                            {userData && authUser
+                                            {authUser && userData
                                                 ? isAlreadyFollowing
                                                     ? "UnFollow"
                                                     : "Follow"
-                                                : "Loading..."}
+                                                : "Login to Follow"}
                                         </span>
                                     )}
                                     <motion.div
@@ -721,7 +797,7 @@ const VisitUser = () => {
                                         className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6"
                                     >
                                         {posts.length > 0 ? (
-                                            posts.map((post, index) => (
+                                            posts?.map((post, index) => (
                                                 <motion.div
                                                     key={index}
                                                     variants={itemVariants}
@@ -740,19 +816,30 @@ const VisitUser = () => {
                                                         </div>
                                                     )}
                                                     <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between bg-white/70 dark:bg-slate-800/70 rounded-xl px-3 py-2 shadow-lg transition-all duration-300">
-                                                        <div className="flex items-center gap-3">
-                                                            <Heart className="w-5 h-5 text-pink-500" />
-                                                            <span className="font-semibold text-gray-700 dark:text-gray-200">
-                                                                {typeof post.likes === "object"
-                                                                    ? post.likes.totalLikes ?? 0
-                                                                    : post.likes ?? 0}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex items-center gap-3">
+
+                                                        {/* Like feature from here */}
+
+                                                        {likingId === post?.user ? (
+                                                            <Loader2 className='h-5 w-5 animate-spin' />
+                                                        ) : (
+                                                            <>
+                                                                <div onClick={() => handleAddLike(post)} className="flex items-center gap-3">
+                                                                    <Heart className="w-5 h-5 text-pink-500" />
+                                                                    <span className="font-semibold text-gray-700 dark:text-gray-200">
+                                                                        {typeof post.likes === "object"
+                                                                            ? post?.likes?.totalLikes ?? 0
+                                                                            : post?.likes ?? 0}
+                                                                    </span>
+                                                                </div>
+                                                            </>
+                                                        )}
+
+                                                        {/* navigation to chat */}
+
+                                                        <Link to={"/chat"} className="flex items-center gap-3">
                                                             <MessageCircle className="w-5 h-5 text-blue-500" />
-                                                            {/* Add comments count or other info here */}
-                                                        </div>
-                                                        <Share className="w-5 h-5 text-gray-500 dark:text-gray-300 cursor-pointer" />
+                                                        </Link>
+
                                                     </div>
                                                 </motion.div>
                                             ))
@@ -828,14 +915,14 @@ const VisitUser = () => {
                         &copy; {new Date().getFullYear()} Chat-Io. All rights reserved.
                     </p>
                     <div className="flex justify-center gap-4 mt-4">
-                        <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-300">
-                            <Zap className="w-5 h-5" />
+                        <a href="https://github.com/prasan-RKP" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-300 ${isDarkMode ? 'text-gray-400': ""}`}>
+                            <Github className="w-5 h-5" />
                         </a>
-                        <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-blue-700/30 transition-all duration-300">
-                            <User className="w-5 h-5" />
+                        <a href="https://prasan.onrender.com" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full bg-slate-800/50 hover:bg-blue-700/30 transition-all duration-300 ${isDarkMode ? 'text-green-600': ""}`}>
+                            <FaGlobe className="w-5 h-5" />
                         </a>
-                        <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800/50 hover:bg-pink-500/30 transition-all duration-300">
-                            <Star className="w-5 h-5" />
+                        <a href="https://www.linkedin.com/in/prasan-kumar-05a623345?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full bg-slate-800/50 hover:bg-pink-500/30 transition-all duration-300 ${isDarkMode ? 'text-blue-500': ""}`}>
+                            <Linkedin className="w-5 h-5" />
                         </a>
                     </div>
                 </div>
