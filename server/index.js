@@ -32,5 +32,5 @@ server.listen(PORT, () => {
 
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("successfully to connected to db ✅",mongoose.connection.name))
+  .then(() => console.log("successfully to connected to -->",mongoose.connection.name, "✅"))
   .catch((err) => console.log("Error occured in db connection"));
