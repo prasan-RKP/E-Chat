@@ -18,8 +18,7 @@ const ChartSession = () => {
   const { logout, authUser, isFetchingChartData, fetchChartData, chartData: backendChartData } = useAuthStore();
   const { authPost, showPost } = usePostStore();
 
-  // console.log("AuthUser value is", authUserId);
-  console.log("Backend chart data:", realPosts);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,7 +35,6 @@ const ChartSession = () => {
   }, [authUser, fetchChartData]);
 
   // Fetch and showPosts
-
   useEffect(() => {
     const fetchPosts = async () => {
       await showPost();
@@ -59,7 +57,6 @@ const ChartSession = () => {
     }
   }, [storePosts]);
 
-  console.log("All real Posts", realPosts);
 
   const timeAgo = (dateString) => {
     const date = new Date(dateString);
