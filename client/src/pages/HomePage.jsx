@@ -61,9 +61,9 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   // Mock auth store for demo
-  const logout = (navigate) => {
-    console.log("Logout called");
-  };
+  // const logout = (navigate) => {
+    
+  // };
 
   useEffect(() => {
     const handleScroll = () => {
