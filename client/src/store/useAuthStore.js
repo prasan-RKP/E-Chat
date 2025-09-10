@@ -6,7 +6,7 @@ import { io } from "socket.io-client";
 // import dotenv from "dotenv";
 // dotenv.config();
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5008";
+const BASE_URL = "https://chat-io-bjln.onrender.com";
 //const BASE_URL = "http://192.168.29.238:5008";
 
 export const useAuthStore = create((set, get) => ({
