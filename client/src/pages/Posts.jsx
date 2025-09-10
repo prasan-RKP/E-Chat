@@ -14,6 +14,7 @@ import PostCarousel from "../assets/PostCarousel.jsx";
 import { toast } from "sonner";
 import { useDebounce } from 'use-debounce';
 import { IoMdArrowRoundForward } from "react-icons/io";
+import NoPosts from "../skeletons/NoPosts.jsx";
 
 
 const Posts = () => {
@@ -636,7 +637,7 @@ const Posts = () => {
                 ))}
               </motion.div>
             ) : hasNoPosts ? (
-              <EmptyState />
+              <NoPosts /> 
             ) : hasNoSearchResults ? (
               <NoSearchResults />
             ) : (
