@@ -39,7 +39,6 @@ const ChatSidebar = () => {
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
 
-  console.log("Filtered Users", filteredUsers);
 
   // HandleFollow the follow button click with local optimistic updates
   const handleFollow = async (userId) => {
@@ -67,7 +66,6 @@ const ChatSidebar = () => {
       await followFeature({ fid: userId });
 
     } catch (error) {
-      console.log("Follow/Unfollow error:", error);
       toast.error("Something went wrong!");
 
       // Rollback local state on error
@@ -76,9 +74,6 @@ const ChatSidebar = () => {
       setLoadingUserId('');
     }
   }
-
-  //console.log("Fetching selectedUser frm ChatSidebar.jsx", selectedUser);
-
   return (
     <div
       className={`fixed inset-y-0 left-0 z-50 w-72 bg-gray-800 p-4 shadow-lg transition-transform duration-300 ease-in-out 
