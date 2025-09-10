@@ -135,9 +135,6 @@ const AddFullBio = ({ isOpen, onClose }) => {
         }
 
         // form submission is here 
-
-        console.log("Form Data Submitted:", formData);
-
         await addFullBio(formData);
 
         handleClose();
