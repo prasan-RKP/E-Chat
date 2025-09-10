@@ -10,6 +10,7 @@ import { LuUserRoundPlus } from "react-icons/lu";
 import { LuUserRoundMinus } from "react-icons/lu";
 import { Loader2 } from "lucide-react";
 import { IoMdRefresh } from "react-icons/io";
+import "../../stylesheets/title.css";
 
 
 const ChatSidebar = () => {
@@ -67,8 +68,6 @@ const ChatSidebar = () => {
     user?.username?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  //  console.log("Filtered Users", filteredUsers);
-
   // HandleFollow the follow button click with local optimistic updates
   const handleFollow = async (userId) => {
     try {
@@ -108,7 +107,7 @@ const ChatSidebar = () => {
   return (
     <div
       ref={sidebarRef}
-      className={`fixed inset-y-0 left-0 z-50 w-72 bg-gray-800 shadow-lg transition-transform duration-300 ease-in-out flex flex-col
+      className={`my-mayan fixed inset-y-0 left-0 z-50 w-72 bg-gray-800 shadow-lg transition-transform duration-300 ease-in-out flex flex-col
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0 sm:relative`}
     >
       {/* Header - Fixed at top */}
@@ -298,7 +297,7 @@ const ChatSidebar = () => {
                     }}
                     className="text-left text-gray-300 hover:text-blue-500 py-2 px-4 rounded hover:bg-gray-800 transition-colors"
                   >
-                    New Group
+                    Create Group +
                   </button>
                   <button
                     onClick={() => {
