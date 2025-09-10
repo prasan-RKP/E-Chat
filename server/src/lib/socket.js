@@ -109,7 +109,7 @@ export function getReceiverSocketId(userId) {
 
 // Main connection
 io.on("connection", (socket) => {
-  console.log(`A user connected: ${socket.id}`);
+  //console.log(`A user connected: ${socket.id}`);
 
   const userId = socket.handshake.query.userId;
   if (userId) {
@@ -117,7 +117,7 @@ io.on("connection", (socket) => {
     io.emit("getOnlineUsers", Object.keys(userSocketmap));
   }
 
-  console.log("Connected Users:", userSocketmap);
+  //console.log("Connected Users:", userSocketmap);
 
   // Handle user reconnecting
   socket.on("userReconnected", (userId) => {
