@@ -19,7 +19,6 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "User already exists" }); // Changed 404 to 400
     }
 
-    console.log("uservalue is", user);
 
     // Check if all fields are provided
     if (!username || !email || !contact || !password) {
@@ -115,7 +114,7 @@ router.get("/check", protectedRoute, async (req, res) => {
 
 //The logout route is updated with 'userSession' to log the logout time and calculate the session duration
 router.post("/logout", protectedRoute, async (req, res) => {
-  console.log("Hitting the logout route");
+  console.log("Hitted logout");
   try {
     const userId = req.user._id; // ✅ assuming protectedRoute middleware attaches user to req
 
@@ -161,7 +160,6 @@ router.put("/profile", protectedRoute, async (req, res) => {
 
     const userId = req.user._id;
 
-    console.log("userId is", userId);
 
     // Check if it's a valid base64 image
     const isBase64 = /^data:image\/(png|jpeg|jpg);base64,/.test(profilePic);
@@ -203,10 +201,9 @@ router.put("/profile", protectedRoute, async (req, res) => {
   }
 });
 
-
 // Todo :- We will handle it later
 router.get("/fetchroute", (req, res) => {
-  console.log("Hitting by  the fetchRoute");
+  //console.log("Hitting by  the fetchRoute");
 });
 
 router.get("/fetch-chart", protectedRoute, async (req, res) => {
@@ -225,7 +222,6 @@ router.get("/fetch-chart", protectedRoute, async (req, res) => {
         .json({ message: "No sessions found for this user" });
     }
 
-    //console.log("The user sessions are:", userSessions);
     res.status(200).json(userSessions);
   } catch (error) {
     console.error("Error fetching user sessions:", error);
@@ -239,7 +235,6 @@ router.patch("/follow", protectedRoute, async (req, res) => {
   const { fid } = req.body; // id of the user to follow/unfollow
   const userId = req.user?.id; // logged-in user id
 
-  console.log("The fid is:", fid);
 
   try {
     if (!fid)
@@ -248,7 +243,7 @@ router.patch("/follow", protectedRoute, async (req, res) => {
       return res.status(400).json({ message: "You can't follow yourself" });
 
     const user = await User.findById(userId);
-  
+
     const targetUser = await User.findById(fid);
 
     if (!user || !targetUser)
@@ -275,12 +270,21 @@ router.patch("/follow", protectedRoute, async (req, res) => {
     const refreshedUser = await User.findById(userId)
       .select("-password")
       .populate("following", "username profilePic")
-      .populate("followers", "username profilePic");
+      .populate("followers", "username profilePic")
+      .populate("posts");
+
+    //added
+    const refreshedTargetUser = await User.findById(fid)
+      .select("-password")
+      .populate("followers", "username profilePic")
+      .populate("following", "username profilePic")
+      .populate("posts");
 
     return res.status(200).json({
       status: "success",
-      action, // 👈 either "followed" or "unfollowed"
-      user: refreshedUser,
+      action,
+      user: refreshedUser, // logged-in user
+      targetUser: refreshedTargetUser, // visited profile user
     });
   } catch (error) {
     console.error("Error in follow/unfollow:", error);
@@ -289,9 +293,7 @@ router.patch("/follow", protectedRoute, async (req, res) => {
 });
 
 router.get("/visit-user/:userId", protectedRoute, async (req, res) => {
-  console.log("Hitting the visit user route");
   const { userId } = req.params;
-  console.log("Got userId:", userId);
 
   if (!userId) {
     return res.status(400).json({ message: "Selected User not found" });
@@ -306,10 +308,6 @@ router.get("/visit-user/:userId", protectedRoute, async (req, res) => {
     if (!visitUser) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    // Todo: - We will do it later
-
-    // console.log("The visit user is", visitUser);
     return res.status(200).json(visitUser);
   } catch (error) {
     console.log("Error in '/visit-user'", error);

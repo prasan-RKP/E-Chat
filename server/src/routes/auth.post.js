@@ -67,7 +67,6 @@ router.post("/add-post", protectedRoute, async (req, res) => {
     // Save Post to Database
     await newPost.save();
 
-    //console.log("NewPost value is", newPost);
 
     // Ensure 'posts' array exists, then push post ID
     if (!user.posts) user.posts = [];
@@ -172,7 +171,7 @@ router.patch("/likePost", protectedRoute, async (req, res) => {
   const loggedInUserId = req.user?._id;
   const { authUserId, postId } = req.body;
 
-  console.log('Hitting from profile',authUserId, '& postId', postId);
+  //console.log('Hitting from profile',authUserId, '& postId', postId);
   //Hitting from profile 689ff9d9da7653ba8798d27b & postId 68a9d82cac3773a181465517  backend accepting 
 
   try {

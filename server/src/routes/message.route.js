@@ -11,7 +11,6 @@ const router = express.Router();
 router.post("/removeMsg/:id", protectedRoute, async (req, res) => {
   try {
     const messageId = req.params.id;
-    console.log("Deleting message with ID:", messageId);
 
     // Find and delete the message
     const deletedMessage = await Message.findByIdAndDelete(messageId);
@@ -226,7 +225,6 @@ router.delete("/delete-both", protectedRoute, async (req, res) => {
   const userId = req.user._id;
 
   try {
-    console.log("Attempting to delete message:", messageId, "by user:", userId);
 
     const message = await Message.findById(messageId);
     if (!message) {
@@ -246,7 +244,6 @@ router.delete("/delete-both", protectedRoute, async (req, res) => {
 
     // Delete the message
     await Message.findByIdAndDelete(messageId);
-    console.log("Message deleted successfully");
 
     // Emit real-time deletion to both users
     const receiverSocketId = getReceiverSocketId(receiverId);
@@ -297,7 +294,6 @@ router.post("/translate", protectedRoute, async (req, res) => {
     const { messageId, text, langCode } = req.body;
     const userId = req.user._id;
 
-    //console.log("Translation request:", { messageId, text, langCode, userId });
 
     // Validate inputs
     if (!text || !langCode) {
@@ -335,7 +331,7 @@ router.post("/translate", protectedRoute, async (req, res) => {
       autoCorrect: true 
     });
 
-    console.log("Translation result:", translationResult);
+    //console.log("Translation result:", translationResult);
 
     // Language code mappings for better display names
     const languageNames = {
@@ -391,3 +387,5 @@ router.post("/translate", protectedRoute, async (req, res) => {
 
 
 export default router;
+
+// 
