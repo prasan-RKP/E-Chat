@@ -8,7 +8,6 @@ const RoundedText = () => {
     getUsers();
   }, [getUsers]);
 
-  console.log('isSidebarOpen value', isSidebarOpen);
 
   return (
     <div>
