@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Sparkles } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Sparkles, Info } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore.js"; // Adjust the import path as necessary
+//import {toast} from 'sonner';
 
 // Mock implementations for the dependencies (same as old working code)
 const Link = ({ to, children, className }) => (
   <a href={to} className={className}>{children}</a>
 );
 
-// Toast implementation from old working code
+//Toast implementation from old working code
 const toast = {
   error: (message) => {
     console.log('Error:', message);
@@ -288,9 +289,9 @@ const Login = () => {
 
             {/* Remember Me & Forgot Password */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 text-sm">
-              <Link to="/forgot-password" className="text-purple-600 hover:text-purple-700 font-medium text-center sm:text-left">
+              <button onClick={()=> toast.error("Feature on Progress..")} className="text-purple-600 hover:text-purple-700 font-medium text-center sm:text-left">
                 Forgot Password?
-              </Link>
+              </button>
             </div>
 
             {/* Submit Button */}
