@@ -29,8 +29,6 @@ const Posts = () => {
     }
   }, [authUser]);
 
-  console.log("The authUser value is", user);
-  //console.log("The User length is", user?.length)
 
   const handlePostClick = (index) => {
     setActiveIndex(index);
