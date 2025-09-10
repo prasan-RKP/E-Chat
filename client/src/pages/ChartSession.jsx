@@ -18,7 +18,6 @@ const ChartSession = () => {
   const { logout, authUser, isFetchingChartData, fetchChartData, chartData: backendChartData } = useAuthStore();
   const { authPost, showPost } = usePostStore();
 
-
   const navigate = useNavigate();
 
   useEffect(() => {
