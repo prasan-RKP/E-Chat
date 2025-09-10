@@ -22,7 +22,7 @@ const ChatAppLogin = () => {
     setTimeout(() => {
       setIsLoading(false);
       // Handle login logic here
-      console.log("Login attempt with:", { email, password, rememberMe });
+      //console.log("Login attempt with:", { email, password, rememberMe });
     }, 1500);
   };
 

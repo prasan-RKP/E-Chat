@@ -101,10 +101,8 @@ export const useChatStore = create((set, get) => ({
 
     // ✅ NEW: Typing indicator listeners
     socket.on("typing", ({ senderId }) => {
-      console.log("📨 Typing event received from:", senderId);
       const { selectedUser } = get();
       if (selectedUser && senderId === selectedUser._id) {
-        console.log("✅ Setting typing indicator for:", senderId);
         set({
           typingUsers: { ...get().typingUsers, [senderId]: true },
         });
@@ -114,7 +112,6 @@ export const useChatStore = create((set, get) => ({
     socket.on("stopTyping", ({ senderId }) => {
       const { selectedUser } = get();
       if (selectedUser && senderId === selectedUser._id) {
-        console.log("✅ Removing typing indicator for:", senderId);
         set({
           typingUsers: { ...get().typingUsers, [senderId]: false },
         });

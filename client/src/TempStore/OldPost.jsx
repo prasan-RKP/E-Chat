@@ -47,7 +47,7 @@ const OldPost = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  console.log("The authUser value is", user);
+  // console.log("The authUser value is", user);
 
   const handlePostClick = (index) => {
     setActiveIndex(index);

@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 // dotenv.config();
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5008";
-//const BASE_URL = "http://192.168.126.238:5008";
+//const BASE_URL = "http://192.168.29.238:5008";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -158,6 +158,9 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.get("/fetch-chart");
       set({ chartData: res.data });
+      setTimeout(() => {
+        toast.info("Tip: Tilt or rotate your Phone to have a great Experience");
+      }, 2000);
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.message);
@@ -174,7 +177,21 @@ export const useAuthStore = create((set, get) => ({
     set({ isFollowing: true });
     try {
       const res = await axiosInstance.patch("/follow", data);
-      set({ authUser: res.data });
+
+      // Update both authUser and visitUserValue if needed
+      // set((state) => ({
+      //   authUser: res.data.user,
+      //   visitUserValue:
+      //     state.visitUserValue?._id === data.fid
+      //       ? { ...state.visitUserValue, followers: res.data.user.followers }
+      //       : state.visitUserValue,
+      // }));
+
+      set(() => ({
+        authUser: res.data.user,
+        visitUserValue: res.data.targetUser, // ✅ always updated
+      }));
+
       if (res.data?.action === "followed") {
         toast.success("User Followed ✅");
       } else {
@@ -195,14 +212,12 @@ export const useAuthStore = create((set, get) => ({
   isVisitingUser: false,
   visitUserValue: null,
   visitUser: async ({ userId }) => {
-    set({ isVisitingUser: true });
+    set({ isVisitingUser: true, visitUserValue: null });
     try {
-      // basically i will send teh response from frontend like this {userId: id }, how  i can fetch it in the next line
       const res = await axiosInstance.get(`/visit-user/${userId}`);
       set({ visitUserValue: res.data });
-      //toast.success("User visited ✅");
     } catch (error) {
-      if (error.response.data.message) {
+      if (error.response?.data?.message) {
         toast.error(error.response.data.message);
       } else {
         toast.error("Try Again, Something Went Wrong");
@@ -217,7 +232,7 @@ export const useAuthStore = create((set, get) => ({
     set({ isAddingFullBio: true });
     try {
       const res = await axiosInstance.patch("/add-full-bio", data);
-      set({ authUser: res.data});
+      set({ authUser: res.data });
       toast.success("Bio updated successfully ✅");
     } catch (error) {
       if (error.response) {

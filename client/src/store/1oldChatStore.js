@@ -175,8 +175,6 @@ export const useChatStore = create((set, get) => ({
         )
       );
 
-      console.log("After forward result", results);
-
       const successful = results.filter(
         (result) => result.status === "fulfilled"
       ).length;

@@ -84,7 +84,7 @@ export const useChatStore = create((set, get) => ({
 
     // NEW: Listen for message deletion from both sides
     socket.on("messageDeletedFromBoth", ({ messageId, deletedBy, conversationWith }) => {
-      console.log("Received deletion event:", { messageId, deletedBy, conversationWith });
+      //console.log("Received deletion event:", { messageId, deletedBy, conversationWith });
       
       const { messages } = get();
       
@@ -179,7 +179,7 @@ export const useChatStore = create((set, get) => ({
         )
       );
 
-      console.log("After forward result", results);
+      //console.log("After forward result", results);
 
       const successful = results.filter(
         (result) => result.status === "fulfilled"
@@ -216,13 +216,13 @@ export const useChatStore = create((set, get) => ({
   deleteFromBoth: async (messageId) => {
     set({ isDeletingBoth: true });
     try {
-      console.log("Deleting message ID:", messageId);
+      //console.log("Deleting message ID:", messageId);
       
       const res = await axiosMessageInstance.delete("/delete-both", {
         data: { messageId }
       });
       
-      console.log("Delete response:", res.data);
+      //console.log("Delete response:", res.data);
       
       // Don't update messages here - socket will handle it
       toast.success("Message deleted for everyone");
