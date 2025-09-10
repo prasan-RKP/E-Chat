@@ -74,7 +74,6 @@ const Posts = () => {
 
   // 'Like' Functionality is here
   const handleLikePost = async (post) => {
-    //console.log("GettingPostId", postId);
     // setStoreId(postId);
     // await addLike({ likedUserId: postId });
     // setStoreId('');
