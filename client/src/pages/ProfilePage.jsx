@@ -121,14 +121,12 @@ const ProfilePage = () => {
 
   // Handle delete post
   const handleDeletePost = async (postId) => {
-    //console.log("getting teh postId", postId)
     setDeleteId(postId);
     await deletePost({ postId });
     setMyposts((posts) => posts.filter((post) => post._id !== postId));
     setDeleteId('');
   };
 
-  console.log("Total posts", authUser);
 
   const containerVariants = {
     hidden: { opacity: 0 },
