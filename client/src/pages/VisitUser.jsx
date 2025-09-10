@@ -8,121 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { usePostStore } from '../store/usePostStore';
 import { MdHighlight } from 'react-icons/md';
 import { FaGlobe } from 'react-icons/fa';
-
-// Modal Component for Followers/Following
-const FollowersModal = ({ isOpen, onClose, users, type, isDarkMode, themeClasses, handleFollowView }) => {
-    if (!isOpen) return null;
-
-    console.log("Sneding to modal", users);
-    return (
-        <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
-                {/* Backdrop */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={onClose}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                />
-
-                {/* Modal */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className={`relative w-full max-w-md mx-4 ${themeClasses.cardBg} rounded-3xl shadow-2xl border max-h-[70vh] flex flex-col`}
-                >
-                    {/* Header */}
-                    <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center justify-between">
-                            <h3 className={`text-xl font-bold ${themeClasses.text}`}>
-                                {type === "followers" ? "Followers" : "Following"}
-                                <span className={`ml-2 text-sm ${themeClasses.textMuted}`}>
-                                    ({users.length})
-                                </span>
-                            </h3>
-                            <motion.button
-                                onClick={onClose}
-                                className={`p-2 rounded-full ${themeClasses.hover} transition-colors`}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                            >
-                                <X size={20} className={themeClasses.textSecondary} />
-                            </motion.button>
-                        </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 overflow-y-auto p-4">
-                        {users.length === 0 ? (
-                            <div className="text-center py-8">
-                                <Users className={`w-12 h-12 mx-auto mb-3 ${themeClasses.textMuted}`} />
-                                <p className={themeClasses.textMuted}>No {type} yet</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {users?.map((user, index) => {
-                                    const userObj = typeof user === "object" ? user : { _id: user };
-
-                                    const isHydrated = !!userObj?.username; // check if backend data arrived
-
-                                    return (
-                                        <motion.div
-                                            key={userObj._id || index}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.05 }}
-                                            className={`flex items-center gap-3 p-3 rounded-2xl ${themeClasses.hover} transition-colors`}
-                                        >
-                                            {/* Skeleton Loader */}
-                                            {!isHydrated ? (
-                                                <div className="animate-pulse flex items-center gap-3 w-full">
-                                                    <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-700" />
-                                                    <div className="flex-1 space-y-2">
-                                                        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-28" />
-                                                        <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-16" />
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    <img
-                                                        src={userObj?.profilePic || "/dfp.png"}
-                                                        alt={userObj?.username}
-                                                        className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
-                                                    />
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className={`font-semibold ${themeClasses.text} truncate`}>
-                                                            {userObj?.username}
-                                                        </p>
-                                                        <p className={`text-sm ${themeClasses.textMuted} truncate`}>
-                                                            @{userObj?.username}
-                                                        </p>
-                                                    </div>
-                                                    <motion.button
-                                                        className="hover:cursor-pointer px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full text-sm font-medium"
-                                                        whileHover={{ scale: 1.05 }}
-                                                        whileTap={{ scale: 0.95 }}
-                                                        onClick={() => {
-                                                            handleFollowView(userObj?._id);
-                                                            onClose();
-                                                        }}
-                                                    >
-                                                        View
-                                                    </motion.button>
-                                                </>
-                                            )}
-                                        </motion.div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </div>
-                </motion.div>
-            </div>
-        </AnimatePresence>
-    );
-};
+import FollowersModal from '../Components/openModals/FollowersModal.jsx';
+import PostCard from '../skeletons/PostCard.jsx';
 
 
 
@@ -168,7 +55,6 @@ const VisitUser = () => {
         }
     }, [visitUserValue]);
 
-    console.log("Auth", storemyId);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -429,7 +315,7 @@ const VisitUser = () => {
                                         animate={{ rotate: [0, 360] }}
                                         transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                                     > */}
-                                        {/* <MdHighlight className="text-blue-600" size={32} /> */}
+                                    {/* <MdHighlight className="text-blue-600" size={32} /> */}
                                     {/* </motion.div> */}
                                     Chat-Io
                                 </span>
@@ -786,103 +672,66 @@ const VisitUser = () => {
 
                         {/* Tab Content */}
                         <div className="p-6 lg:p-8">
-                            <AnimatePresence mode="wait">
-                                {activeTab === "Posts" && (
-                                    <motion.div
-                                        key="posts"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6"
-                                    >
-                                        {posts.length > 0 ? (
-                                            posts?.map((post, index) => (
-                                                <motion.div
-                                                    key={index}
-                                                    variants={itemVariants}
-                                                    className={`relative aspect-square ${isDarkMode ? 'bg-gradient-to-br from-gray-800 to-gray-700' : 'bg-gradient-to-br from-gray-100 to-gray-200'} rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-500`}
-                                                    whileHover={{ scale: 1.05, rotate: 2 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                >
-                                                    <img
-                                                        src={post?.postImage}
-                                                        alt={`Post ${post?.title}`}
-                                                        className="w-full h-full object-cover rounded-2xl"
-                                                    />
-                                                    {post.isVideo && (
-                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                                            <Play className="w-10 h-10 text-white opacity-80" />
-                                                        </div>
-                                                    )}
-                                                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between bg-white/70 dark:bg-slate-800/70 rounded-xl px-3 py-2 shadow-lg transition-all duration-300">
+                            {/* All tabs mounted, but hidden with CSS instead of unmounted */}
+                            <div className={activeTab === "Posts" ? "block" : "hidden"}>
+                                <motion.div
+                                    key="posts"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6"
+                                >
+                                    {posts.length > 0 ? (
+                                        posts.map((post, index) => (
+                                            <PostCard
+                                                key={index}
+                                                post={post}
+                                                isDarkMode={isDarkMode}
+                                                itemVariants={itemVariants}
+                                                likingId={likingId}
+                                                handleAddLike={handleAddLike}
+                                            />
+                                        ))
+                                    ) : (
+                                        <div className="col-span-full text-center py-12">
+                                            <div className="text-6xl mb-4">📝</div>
+                                            <h3 className="text-xl font-semibold text-gray-400 mb-2">No posts yet</h3>
+                                            <p className="text-gray-500">Start sharing your thoughts!</p>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </div>
 
-                                                        {/* Like feature from here */}
+                            <div className={activeTab === "Liked" ? "block" : "hidden"}>
+                                <motion.div
+                                    key="liked"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="text-center py-12 text-gray-400"
+                                >
+                                    <div className="text-6xl mb-4">❤️</div>
+                                    <h3 className="text-xl font-semibold mb-2">No liked posts yet</h3>
+                                    <p>Like some posts to see them here!</p>
+                                </motion.div>
+                            </div>
 
-                                                        {likingId === post?.user ? (
-                                                            <Loader2 className='h-5 w-5 animate-spin' />
-                                                        ) : (
-                                                            <>
-                                                                <div onClick={() => handleAddLike(post)} className="flex items-center gap-3">
-                                                                    <Heart className="w-5 h-5 text-pink-500" />
-                                                                    <span className="font-semibold text-gray-700 dark:text-gray-200">
-                                                                        {typeof post.likes === "object"
-                                                                            ? post?.likes?.totalLikes ?? 0
-                                                                            : post?.likes ?? 0}
-                                                                    </span>
-                                                                </div>
-                                                            </>
-                                                        )}
-
-                                                        {/* navigation to chat */}
-
-                                                        <Link to={"/chat"} className="flex items-center gap-3">
-                                                            <MessageCircle className="w-5 h-5 text-blue-500" />
-                                                        </Link>
-
-                                                    </div>
-                                                </motion.div>
-                                            ))
-                                        ) : (
-                                            <div className="col-span-full text-center py-12">
-                                                <div className="text-6xl mb-4">📝</div>
-                                                <h3 className="text-xl font-semibold text-gray-400 mb-2">No posts yet</h3>
-                                                <p className="text-gray-500">Start sharing your thoughts!</p>
-                                            </div>
-                                        )}
-                                    </motion.div>
-                                )}
-
-                                {activeTab === "Liked" && (
-                                    <motion.div
-                                        key="liked"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="text-center py-12 text-gray-400"
-                                    >
-                                        <div className="text-6xl mb-4">❤️</div>
-                                        <h3 className="text-xl font-semibold mb-2">No liked posts yet</h3>
-                                        <p>Like some posts to see them here!</p>
-                                    </motion.div>
-                                )}
-
-                                {activeTab === "Tagged" && (
-                                    <motion.div
-                                        key="tagged"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="text-center py-12 text-gray-400"
-                                    >
-                                        <div className="text-6xl mb-4">🏷️</div>
-                                        <h3 className="text-xl font-semibold mb-2">No tagged posts yet</h3>
-                                        <p>Get tagged in posts to see them here!</p>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                            <div className={activeTab === "Tagged" ? "block" : "hidden"}>
+                                <motion.div
+                                    key="tagged"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="text-center py-12 text-gray-400"
+                                >
+                                    <div className="text-6xl mb-4">🏷️</div>
+                                    <h3 className="text-xl font-semibold mb-2">No tagged posts yet</h3>
+                                    <p>Get tagged in posts to see them here!</p>
+                                </motion.div>
+                            </div>
                         </div>
                     </motion.div>
                 </div>
@@ -915,13 +764,13 @@ const VisitUser = () => {
                         &copy; {new Date().getFullYear()} Chat-Io. All rights reserved.
                     </p>
                     <div className="flex justify-center gap-4 mt-4">
-                        <a href="https://github.com/prasan-RKP" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-300 ${isDarkMode ? 'text-gray-400': ""}`}>
+                        <a href="https://github.com/prasan-RKP" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-300 ${isDarkMode ? 'text-gray-400' : ""}`}>
                             <Github className="w-5 h-5" />
                         </a>
-                        <a href="https://prasan.onrender.com" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full bg-slate-800/50 hover:bg-blue-700/30 transition-all duration-300 ${isDarkMode ? 'text-green-600': ""}`}>
+                        <a href="https://prasan.onrender.com" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full bg-slate-800/50 hover:bg-blue-700/30 transition-all duration-300 ${isDarkMode ? 'text-green-600' : ""}`}>
                             <FaGlobe className="w-5 h-5" />
                         </a>
-                        <a href="https://www.linkedin.com/in/prasan-kumar-05a623345?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full bg-slate-800/50 hover:bg-pink-500/30 transition-all duration-300 ${isDarkMode ? 'text-blue-500': ""}`}>
+                        <a href="https://www.linkedin.com/in/prasan-kumar-05a623345?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full bg-slate-800/50 hover:bg-pink-500/30 transition-all duration-300 ${isDarkMode ? 'text-blue-500' : ""}`}>
                             <Linkedin className="w-5 h-5" />
                         </a>
                     </div>
