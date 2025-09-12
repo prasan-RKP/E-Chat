@@ -119,7 +119,7 @@ const NoPosts = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          Your Canvas Awaits
+          No Posts Yet, Drop One 
         </motion.h2>
 
         {/* Subtitle with better typography */}
@@ -129,7 +129,7 @@ const NoPosts = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          Every great story begins with a single post. 
+          Every great story begins with a single Post. 
           <span className="text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text font-semibold"> Start yours today.</span>
         </motion.p>
 
@@ -159,7 +159,7 @@ const NoPosts = () => {
                 <Plus className="w-6 h-6" />
               </motion.div>
               <span className="group-hover:tracking-wide transition-all duration-300">
-                Create First Post
+                Drop First Post
               </span>
             </div>
             
