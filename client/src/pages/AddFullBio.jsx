@@ -164,7 +164,7 @@ const AddFullBio = ({ isOpen, onClose }) => {
             icon: MapPin,
             reactIcon: FaMapMarkerAlt,
             placeholder: 'City, Country',
-            type: 'tel'
+            type: 'text'
         },
         {
             name: 'passion',
