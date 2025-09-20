@@ -660,7 +660,7 @@ const ChartSession = () => {
           <div className="border-t border-slate-700/50 mt-12 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-slate-400 text-sm">
-                © 2025 Chat-Io. All rights reserved.
+                © 2025 ConneXo. All rights reserved.
               </p>
               <motion.div
                 initial={{ opacity: 0 }}

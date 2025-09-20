@@ -194,7 +194,7 @@ const ProfilePage = () => {
             whileHover={{ scale: 1.05 }}
             className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"
           >
-            Chat-iO
+            ConneXo
           </motion.span>
 
           {/* Desktop Navigation */}
@@ -673,7 +673,7 @@ const ProfilePage = () => {
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
               <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
-                Chat-iO
+                ConneXo
               </h3>
               <p className="text-gray-400 mb-6 max-w-md">
                 Connect, share, and discover amazing content with our vibrant community. Your story matters, and we're here to help you tell it.
@@ -729,7 +729,7 @@ const ProfilePage = () => {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Chat-Io. All rights reserved. Built with ❤️ for the community.</p>
+            <p>&copy; 2025 ConneXo. All rights reserved. Built with ❤️ for the community.</p>
           </div>
         </div>
       </footer>

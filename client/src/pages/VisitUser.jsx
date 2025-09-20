@@ -317,7 +317,7 @@ const VisitUser = () => {
                                     > */}
                                     {/* <MdHighlight className="text-blue-600" size={32} /> */}
                                     {/* </motion.div> */}
-                                    Chat-Io
+                                    ConneXo
                                 </span>
                             </h1>
                         </motion.div>
@@ -761,7 +761,7 @@ const VisitUser = () => {
             <footer className={`w-full py-8 mt-12 text-center ${isDarkMode ? 'bg-slate-900/80 border-t border-slate-700/50' : 'bg-white/80 border-t border-white/20'} backdrop-blur-md`}>
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                     <p className={`${themeClasses.textMuted} text-sm`}>
-                        &copy; {new Date().getFullYear()} Chat-Io. All rights reserved.
+                        &copy; {new Date().getFullYear()} ConneXo. All rights reserved.
                     </p>
                     <div className="flex justify-center gap-4 mt-4">
                         <a href="https://github.com/prasan-RKP" target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-300 ${isDarkMode ? 'text-gray-400' : ""}`}>

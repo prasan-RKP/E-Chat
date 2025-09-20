@@ -80,7 +80,7 @@ const AddPost = () => {
         transition={{ duration: 0.5 }}
         className="bg-gray-900 p-4 flex justify-between items-center text-white"
       >
-        <div className="font-bold text-lg text-indigo-400">Chat-Io</div>
+        <div className="font-bold text-lg text-indigo-400">ConneXo</div>
         <div className="flex space-x-4 sm:space-x-6">
           <Link to="/home">
             <motion.button
