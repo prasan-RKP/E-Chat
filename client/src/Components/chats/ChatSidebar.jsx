@@ -112,7 +112,7 @@ const ChatSidebar = () => {
     >
       {/* Header - Fixed at top */}
       <div className="flex justify-between items-center p-4 border-b border-gray-700 flex-shrink-0">
-        <h2 className="text-lg font-bold text-gray-300">Chats</h2>
+        <h2 className="text-lg font-bold text-gray-300">ConneXo</h2>
         <div className="flex items-center gap-4">
           <button
             className=" text-blue-400 hover:text-white"
