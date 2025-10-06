@@ -288,10 +288,12 @@ const Login = () => {
             </div>
 
             {/* Remember Me & Forgot Password */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 text-sm">
-              <button onClick={()=> toast.error("Feature on Progress..")} className="text-purple-600 hover:text-purple-700 font-medium text-center sm:text-left">
-                Forgot Password?
-              </button>
+            <div className="flex flex-col hover:cursor-pointer sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 text-sm">
+              <Link to={"/forgot"}>
+                <button className=" text-purple-600 hover:text-purple-700 font-medium text-center sm:text-left">
+                  Forgot Password?
+                </button>
+              </Link>
             </div>
 
             {/* Submit Button */}
