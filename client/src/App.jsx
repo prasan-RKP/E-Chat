@@ -28,6 +28,8 @@ import ChartSession from "./pages/ChartSession";
 import ChartSkeleton from "./skeletons/ChartSkeleton";
 import VisitUser from "./pages/VisitUser";
 import PostCarousel from "./assets/PostCarousel";
+import ForgotPassword from "./Components/ForgotPassword";
+import ResetPassword from "./Components/ResetPassword";
 //import NewLogin from "./pages/NewLogin";
 
 const App = () => {
@@ -87,6 +89,10 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/adj" element={<PostCarousel />} />
         <Route path="/pref-chart" element={authUser ? <ChartSession /> : <Navigate to={"/login"} replace />} />
+
+        {/* Adding routes for "forgot-password & Rese-password" */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         <Route path="/visit-user/:id" element={authUser ? <VisitUser /> : <Navigate to={"/login"} replace />} />
 
