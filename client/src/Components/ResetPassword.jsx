@@ -5,22 +5,48 @@ import { useState } from "react";
 import { Eye, EyeOff, Lock } from "lucide-react";
 import "swiper/css";
 import "swiper/css/effect-fade";
-import {Link} from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { axiosInstance } from "../lib/axiosInstance.js";
+import { toast } from "sonner";
 
 export default function ResetPassword() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    
+    const { token } = useParams();
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Password reset:", { password, confirmPassword });
+        
+        if (password !== confirmPassword) {
+            toast.error("Passwords don't match!");
+            return;
+        }
+
+        if (password.length < 6) {
+            toast.error("Password must be at least 6 characters long");
+            return;
+        }
+
+        setIsLoading(true);
+        
+        try {
+            await axiosInstance.post(`/reset-password/${token}`, { newPassword: password });
+            toast.success("Password reset successfully!");
+            navigate("/login");
+        } catch (error) {
+            toast.error(error.response?.data?.msg || "Something went wrong.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-            {/* Left side - Image Carousel */}
             {/* Left side - Image Carousel */}
             <div className="hidden lg:flex w-1/2 items-center justify-center bg-gradient-to-br from-emerald-600 to-teal-700 relative overflow-hidden">
                 <div className="absolute inset-0 bg-black/20 z-10" />
@@ -110,6 +136,8 @@ export default function ResetPassword() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="w-full text-black px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                                        required
+                                        minLength={6}
                                     />
                                     <button
                                         type="button"
@@ -133,6 +161,8 @@ export default function ResetPassword() {
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         className="w-full text-black px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                                        required
+                                        minLength={6}
                                     />
                                     <button
                                         type="button"
@@ -146,9 +176,10 @@ export default function ResetPassword() {
 
                             <button
                                 type="submit"
-                                className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md transition-all"
+                                disabled={isLoading}
+                                className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Update Password
+                                {isLoading ? "Updating..." : "Update Password"}
                             </button>
                         </form>
 

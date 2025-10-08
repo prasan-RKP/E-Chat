@@ -2,22 +2,52 @@ import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
 import { useState } from "react";
-import { Eye, EyeOff, Lock} from "lucide-react";
+import { Lock } from "lucide-react";
 import "swiper/css";
 import "swiper/css/effect-fade";
-import {Link} from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { axiosInstance } from "../lib/axiosInstance.js";
+import { toast } from "sonner";
 
 export default function ForgotPassword() {
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Password reset:", { password, confirmPassword });
-    };
+        setIsLoading(true);
 
+        try {
+            const res = await axiosInstance.post("/forgot-password", { email });
+
+            // Extract token from the reset link or response
+            const resetLink = res?.data?.resetLink;
+            if (resetLink) {
+                // Extract token from the reset link
+                const token = resetLink.split('/').pop();
+
+                toast.success("Password reset link generated! Redirecting...");
+
+                // For testing: Navigate directly (in production, user would click email link)
+                setTimeout(() => {
+                    navigate(`/reset-password/${token}`);
+                }, 1100);
+            } else if (res?.data?.token) {
+                toast.success("Password reset link generated! Redirecting...");
+                setTimeout(() => {
+                    navigate(`/reset-password/${res?.data?.token}`);
+                }, 1100);
+            } else {
+                toast.error("Reset token not received");
+            }
+
+        } catch (error) {
+            toast.error(error.response?.data?.msg || "Something went wrong.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
     return (
         <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100">
             {/* Left side - Image Carousel */}
@@ -64,16 +94,16 @@ export default function ForgotPassword() {
                         className="text-center mt-8"
                     >
                         <h1 className="text-4xl font-bold text-white mb-4">
-                        Forgot Your Password?
+                            Forgot Your Password?
                         </h1>
                         <p className="text-white/90 text-lg max-w-md leading-relaxed">
-                            Don’t worry! Enter your registered email address, and we’ll send you a link to reset your password securely.
+                            Don't worry! Enter your registered email address, and we'll send you a link to reset your password securely.
                         </p>
                     </motion.div>
                 </div>
             </div>
 
-            {/* Right side - Reset Password Form */}
+            {/* Right side - Forgot Password Form */}
             <motion.div
                 initial={{ x: 100, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -105,6 +135,8 @@ export default function ForgotPassword() {
                                     <input
                                         type="email"
                                         placeholder="Enter your email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         className="w-full text-black px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
                                         required
                                     />
@@ -114,15 +146,15 @@ export default function ForgotPassword() {
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md transition-all"
+                                disabled={isLoading}
+                                className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Send Reset Link
+                                {isLoading ? "Sending..." : "Send Reset Link"}
                             </button>
                         </form>
 
-
                         <div className="mt-6 text-center">
-                            <Link 
+                            <Link
                                 to="/login"
                                 className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline"
                             >
