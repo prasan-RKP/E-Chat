@@ -196,8 +196,8 @@ const Login = () => {
             <div className="w-[220px] h-[230px] sm:w-[24rem] sm:h-[23.5rem] md:w-[28rem] md:h-[27.5rem] lg:w-[32rem] lg:h-[31.5rem] relative rounded-xl sm:rounded-2xl overflow-hidden shadow-xl sm:shadow-2xl">
               <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center relative">
                 <img
-                  src="/login.jpg"
-                  alt="Login illustration"
+                  src="/man.png"
+                  alt="illus.."
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
