@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema(
     passion: { type: String, default: "" },
     location: { type: String, default: "" },
     profileLink: { type: String, default: "" },
+
+    // Adding two filed for 'forgot-password' feature
+    resetToken: { type: String, default: "" },
+    resetTokenExpiry: { type: Date, default: null },
   },
   { timestamps: true }
 );
