@@ -5,7 +5,7 @@ export const axiosInstance = axios.create({
   baseURL: `https://chat-io-bjln.onrender.com/auth`,
 
   //for development 
-   //baseURL: 'http://localhost:5008/auth',
+  // baseURL: 'http://localhost:5008/auth',
   // for mobile testing
   //baseURL: 'http://192.168.126.238:5008/auth',
   withCredentials: true,
