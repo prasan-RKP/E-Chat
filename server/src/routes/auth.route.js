@@ -5,6 +5,7 @@ import { generateToken } from "../lib/webToken.js";
 import { protectedRoute } from "../middleware/auth.middleware.js";
 import cloudinary from "../lib/cloudinary.js";
 import UserSession from "../models/UserSession.js";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
@@ -18,7 +19,6 @@ router.post("/signup", async (req, res) => {
     if (user) {
       return res.status(400).json({ message: "User already exists" }); // Changed 404 to 400
     }
-
 
     // Check if all fields are provided
     if (!username || !email || !contact || !password) {
@@ -160,7 +160,6 @@ router.put("/profile", protectedRoute, async (req, res) => {
 
     const userId = req.user._id;
 
-
     // Check if it's a valid base64 image
     const isBase64 = /^data:image\/(png|jpeg|jpg);base64,/.test(profilePic);
     if (!isBase64) {
@@ -234,7 +233,6 @@ router.get("/fetch-chart", protectedRoute, async (req, res) => {
 router.patch("/follow", protectedRoute, async (req, res) => {
   const { fid } = req.body; // id of the user to follow/unfollow
   const userId = req.user?.id; // logged-in user id
-
 
   try {
     if (!fid)
@@ -344,4 +342,103 @@ router.patch("/add-full-bio", protectedRoute, async (req, res) => {
   }
 });
 
+// Adding two new REST-Api for 'forgot-password' feature;
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ msg: "Invalid email address or user not registered." });
+    }
+
+    // Create a token, valid for 10 minutes
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "10m",
+    });
+
+    user.resetToken = token;
+    user.resetTokenExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10min
+    await user.save();
+
+    const resetLink = `http://localhost:5173/reset-password/${token}`;
+
+    console.log("Reset link:", resetLink);
+    console.log("Token expiry:", user.resetTokenExpiry);
+
+    return res.json({
+      msg: "Password reset link generated",
+      resetLink,
+      token // Send token directly for testing
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    return res.status(500).json({ msg: "Error occurred in '/forgot-password'" });
+  }
+});
+
+router.post("/reset-password/:token", async (req, res) => {
+  const { token } = req.params;
+  const { newPassword } = req.body;
+
+  try {
+    console.log("Received token:", token);
+    console.log("New password length:", newPassword?.length);
+
+    // Verify JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded ID:", decoded.id);
+
+    // Find user
+    const user = await User.findById(decoded.id);
+    console.log("User found:", !!user);
+    
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    console.log("Stored token:", user.resetToken);
+    console.log("Token match:", user.resetToken === token);
+    console.log("Token expiry:", user.resetTokenExpiry);
+    console.log("Current time:", new Date());
+    console.log("Is expired:", user.resetTokenExpiry < new Date());
+
+    // Check if token matches
+    if (user.resetToken !== token) {
+      return res.status(400).json({ msg: "Invalid reset token" });
+    }
+
+    // Check if token has expired
+    if (!user.resetTokenExpiry || user.resetTokenExpiry < new Date()) {
+      return res.status(400).json({ msg: "Token has expired. Please request a new reset link." });
+    }
+
+    // Hash new password
+    const hashed = await bcryptjs.hash(newPassword, 10);
+    
+    // Update user
+    user.password = hashed;
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+    await user.save();
+
+    console.log("Password reset successful");
+    return res.json({ msg: "Password reset successfully 👍" });
+    
+  } catch (error) {
+    console.error("Reset password error:", error);
+    console.error("Error name:", error.name);
+    console.error("Error message:", error.message);
+    
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).json({ msg: "Invalid token format" });
+    }
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({ msg: "JWT token has expired" });
+    }
+    return res.status(500).json({ msg: "Internal Server Error", error: error.message });
+  }
+});
 export default router;
+
+//node server/src/models/joint.js
