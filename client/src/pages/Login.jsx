@@ -214,7 +214,7 @@ const Login = () => {
           <h3 className="text-xl sm:text-3xl md:text-4xl lg:text-4xl font-bold text-white mb-3 sm:mb-4 lg:mb-6 gradient-text">
             Welcome Back
           </h3>
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-blue-100 mb-4 sm:mb-6 lg:mb-8 max-w-xs sm:max-w-sm md:max-w-md leading-relaxed px-4">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-500 mb-4 sm:mb-6 lg:mb-8 max-w-xs sm:max-w-sm md:max-w-md leading-relaxed px-4">
             Your digital workspace awaits. Sign in to continue your journey with us.
           </p>
         </div>
@@ -288,8 +288,8 @@ const Login = () => {
             </div>
 
             {/* Remember Me & Forgot Password */}
-            <div className="flex flex-col hover:cursor-pointer sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 text-sm">
-              <Link to={"/forgot"}>
+            <div className="flex flex-col cursor-pointer sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 text-sm">
+              <Link to={"/forgot-password"}>
                 <button className=" text-purple-600 hover:text-purple-700 font-medium text-center sm:text-left">
                   Forgot Password?
                 </button>
