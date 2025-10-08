@@ -9,9 +9,11 @@ import cookieParser from "cookie-parser";
 import { io, app, server } from "./src/lib/socket.js";
 import path from "path";
 
+// --------  Use it for "DeveLopment Mode" --------
+
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 const _dirname = path.resolve();
 
 // Middlewares
@@ -29,12 +31,7 @@ app.use("/auth", authRoute);
 app.use("/authpost", authPost);
 app.use("/authmessage", messageRoute);
 
-// Healthcheck route (for self-ping)
-app.get("/healthcheck", (req, res) => {
-  res.status(200).send("OK");
-});
-
-// Serve static files for React/Vite build
+// Deployment code (static files for React/Vite build)
 app.use(express.static(path.join(_dirname, "/client/dist")));
 app.get(/^\/(?!auth).*/, (req, res) => {
   res.sendFile(path.resolve(_dirname, "client", "dist", "index.html"));
@@ -45,22 +42,8 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ Connected to -->", mongoose.connection.name);
-
     server.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
-
-      // 🔁 Self-ping every 5 minutes to prevent sleep
-      const SELF_URL = "https://chat-io-bjln.onrender.com/healthcheck"; // change to your Render URL
-
-      setInterval(() => {
-        fetch(SELF_URL)
-          .then((res) =>
-            console.log(
-              `[Self-Ping] ${res.status} - ${new Date().toLocaleTimeString()}`
-            )
-          )
-          .catch((err) => console.error("[Self-Ping Error]:", err.message));
-      }, 5 * 60 * 1000); // every 5 minutes
     });
   })
   .catch((err) => {
