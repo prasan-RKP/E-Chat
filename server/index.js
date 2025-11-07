@@ -14,7 +14,7 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 const _dirname = path.resolve();
 
-// Middlewares
+// Middleware setup
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 app.use(
@@ -29,10 +29,7 @@ app.use("/auth", authRoute);
 app.use("/authpost", authPost);
 app.use("/authmessage", messageRoute);
 
-// Healthcheck route (for self-ping)
-app.get("/healthcheck", (req, res) => {
-  res.status(200).send("OK");
-});
+// ❌ Removed healthcheck route and self-ping logic
 
 // Serve static files for React/Vite build
 app.use(express.static(path.join(_dirname, "/client/dist")));
@@ -47,20 +44,7 @@ mongoose
     console.log("✅ Connected to -->", mongoose.connection.name);
 
     server.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-
-      // 🔁 Self-ping every 5 minutes to prevent sleep
-      const SELF_URL = "https://chat-io-bjln.onrender.com/healthcheck"; // change to your Render URL
-
-      setInterval(() => {
-        fetch(SELF_URL)
-          .then((res) =>
-            console.log(
-              `[Self-Ping] ${res.status} - ${new Date().toLocaleTimeString()}`
-            )
-          )
-          .catch((err) => console.error("[Self-Ping Error]:", err.message));
-      }, 5 * 60 * 1000); // every 5 minutes
+      console.log(`🚀 Server running  on port ${PORT}`);
     });
   })
   .catch((err) => {
