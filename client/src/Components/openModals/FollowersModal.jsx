@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Users, Search, XCircle } from "lucide-react";
+import useDebounce from "../../hooks/useDebounce.js";
+
+
 
 const FollowersModal = ({
   isOpen,
@@ -13,14 +16,20 @@ const FollowersModal = ({
   // ✅ Hooks always at top
   const [search, setSearch] = useState("");
 
+  // ✅ 1. Produce the debounced value first
+  const debouncedSearchValue = useDebounce(search, 500);
+
+  // ✅ 2. Then consume it in useMemo
   const filteredUsers = useMemo(() => {
-    if (!search.trim()) return users;
+    if (!debouncedSearchValue.trim()) return users;
     return users.filter((u) => {
       const username =
         typeof u === "object" ? u?.username?.toLowerCase() : u?.toLowerCase();
-      return username?.includes(search.toLowerCase());
+      return username?.includes(debouncedSearchValue.toLowerCase());
     });
-  }, [search, users]);
+  }, [debouncedSearchValue, users]);
+
+
 
   // ✅ Now safe to exit early
   if (!isOpen) return null;
@@ -92,9 +101,8 @@ const FollowersModal = ({
 
           {/* Content */}
           <div
-            className={`flex-1 p-4 ${
-              filteredUsers.length > 4 ? "overflow-y-auto" : ""
-            }`}
+            className={`flex-1 p-4 ${filteredUsers.length > 4 ? "overflow-y-auto" : ""
+              }`}
           >
             {filteredUsers.length === 0 ? (
               <div className="text-center py-8">
