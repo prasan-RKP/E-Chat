@@ -12,7 +12,8 @@ import { useInView } from "react-intersection-observer";
 import "../stylesheets/myCustom.css";
 import PostCarousel from "../assets/PostCarousel.jsx";
 import { toast } from "sonner";
-import { useDebounce } from 'use-debounce';
+//import { useDebounce } from 'use-debounce';
+import useDebounce from "../hooks/useDebounce.js";
 import { IoMdArrowRoundForward } from "react-icons/io";
 import NoPosts from "../skeletons/NoPosts.jsx";
 
@@ -38,7 +39,7 @@ const Posts = () => {
 
   // debounce concept is here
   const [searchQuery, setSearchQuery] = useState('');
-  const [debounceSearch] = useDebounce(searchQuery, 300);
+  const debounceSearch = useDebounce(searchQuery, 500);
 
   const navigate = useNavigate();
   const scrollContainerRef = useRef(null);
